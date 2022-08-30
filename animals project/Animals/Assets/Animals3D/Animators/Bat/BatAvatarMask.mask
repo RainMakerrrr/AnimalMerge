@@ -1,0 +1,207 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BatAvatarMask
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Bat.Armature
+    m_Weight: 0
+  - m_Path: Bat.Armature/All
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Neck
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Neck/Head
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Neck/Head/Eye.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Neck/Head/Eye.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Neck/Head/Jaw
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Index.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Index.000.L/Finger.Index.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L/Finger.Little.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L/Finger.Little.002.L/Finger.Little.003.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L/Finger.Little.002.L/Finger.Little.003.L/Elbow.Skin.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L/Finger.Little.002.L/Finger.Little.Skin.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.001.L/Finger.Little.Skin.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Little.000.L/Finger.Little.Skin.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Middle.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Middle.000.L/Finger.Middle.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Middle.000.L/Finger.Middle.001.L/Finger.Middle.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Middle.000.L/Finger.Middle.001.L/Finger.Middle.002.L/Finger.Middle.003.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L/Finger.Ring.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L/Finger.Ring.002.L/Finger.Ring.003.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L/Finger.Ring.002.L/Finger.Ring.Skin.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L/Finger.Ring.Skin.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Ring.000.L/Finger.Ring.001.L/Finger.Ring.Skin.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.003.L/Finger.Thumb.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.002.L/Arm.Lower.Skin.000.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.001.L/Arm.Lower.Skin.001.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Arm.Lower.000.L/Arm.Lower.Skin.002.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.L/Arm.Upper.L/Elbow.L
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Index.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Index.000.R/Finger.Index.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R/Finger.Little.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R/Finger.Little.002.R/Finger.Little.003.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R/Finger.Little.002.R/Finger.Little.003.R/Elbow.Skin.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R/Finger.Little.002.R/Finger.Little.Skin.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.001.R/Finger.Little.Skin.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Little.000.R/Finger.Little.Skin.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Middle.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Middle.000.R/Finger.Middle.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Middle.000.R/Finger.Middle.001.R/Finger.Middle.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Middle.000.R/Finger.Middle.001.R/Finger.Middle.002.R/Finger.Middle.003.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R/Finger.Ring.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R/Finger.Ring.002.R/Finger.Ring.003.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R/Finger.Ring.002.R/Finger.Ring.Skin.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R/Finger.Ring.Skin.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Ring.000.R/Finger.Ring.001.R/Finger.Ring.Skin.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.003.R/Finger.Thumb.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.002.R/Arm.Lower.Skin.000.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.001.R/Arm.Lower.Skin.001.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Arm.Lower.000.R/Arm.Lower.Skin.002.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Spine/Shoulder.R/Arm.Upper.R/Elbow.R
+    m_Weight: 1
+  - m_Path: Bat.Armature/All/Hips/Tail.000
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Tail.000/Tail.001
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Tail.000/Tail.001/Tail.002
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Tail.000/Tail.001/Tail.002/Tail.003
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Lower.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Lower.L/Foot.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Lower.L/Leg.Skin.003.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Skin.000.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Skin.001.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.L/Leg.Upper.L/Leg.Skin.002.L
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Lower.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Lower.R/Foot.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Lower.R/Leg.Skin.003.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Skin.000.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Skin.001.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/All/Hips/Waist.R/Leg.Upper.R/Leg.Skin.002.R
+    m_Weight: 0
+  - m_Path: Bat.Armature/Root
+    m_Weight: 0
+  - m_Path: Bat.Body
+    m_Weight: 0

@@ -1,0 +1,215 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: WingAvatarMask
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Owl.Armature
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Index.000.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Index.000.L/Finger.Index.001.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Middle.000.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Middle.000.L/Finger.Middle.001.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Ring.000.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Ring.000.L/Finger.Ring.001.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Thumb.000.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Foot.L/Foot.Ctrl.L/Finger.Thumb.000.L/Finger.Thumb.001.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.L/Leg.Lower.L/Heel.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Index.000.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Index.000.R/Finger.Index.001.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Middle.000.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Middle.000.R/Finger.Middle.001.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Ring.000.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Ring.000.R/Finger.Ring.001.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Thumb.000.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Foot.R/Foot.Ctrl.R/Finger.Thumb.000.R/Finger.Thumb.001.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Leg.Upper.R/Leg.Lower.R/Heel.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Chest
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Beak.Lower
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Beak.Upper
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Eye.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Eye.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Head.Feather.000.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Head.Feather.000.L/Head.Feather.001.L
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Head.Feather.000.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Head.Feather.000.R/Head.Feather.001.R
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Neck/Head/Tongue
+    m_Weight: 0
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Shoulder.joint.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Feather.L.017
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Feather.L.018
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Feather.L.019
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.011
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.012
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.013
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.014
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.015
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Feather.L.016
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Feather.L.006
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Feather.L.007
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Feather.L.008
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Feather.L.009
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Feather.L.010
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.joint.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L/Wing.Feather.L.001
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L/Wing.Feather.L.002
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L/Wing.Feather.L.003
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L/Wing.Feather.L.004
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Hand.L/Wing.Hand.Tip.L/Wing.Feather.L.005
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Lower.L/Wing.Lower.joint.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.L/Wing.Upper.L/Wing.Upper.joint.L
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Shoulder.joint.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Feather.R.017
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Feather.R.018
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Feather.R.019
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.011
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.012
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.013
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.014
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.015
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Feather.R.016
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Feather.R.006
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Feather.R.007
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Feather.R.008
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Feather.R.009
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Feather.R.010
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.joint.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R/Wing.Feather.R.001
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R/Wing.Feather.R.002
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R/Wing.Feather.R.003
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R/Wing.Feather.R.004
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Hand.R/Wing.Hand.Tip.R/Wing.Feather.R.005
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Lower.R/Wing.Lower.joint.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Shoulder.R/Wing.Upper.R/Wing.Upper.joint.R
+    m_Weight: 1
+  - m_Path: Owl.Armature/Root/All/Hips/Spine/Tail
+    m_Weight: 0
+  - m_Path: Owl.Body
+    m_Weight: 0

@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SnakeAvatarMask
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Snake.Armature
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Eye.back.L
+    m_Weight: 1
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Eye.back.R
+    m_Weight: 1
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Eye.front.L
+    m_Weight: 1
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Eye.front.R
+    m_Weight: 1
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Fang.L
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Head/Fang.R
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.L.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.L.000/Tongue.L.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.L.000/Tongue.L.001/Tongue.L.002
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.R.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.R.000/Tongue.R.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Body.000/Body.001/Body.002/Body.003/Body.004/Body.005/Body.006/Body.007/Body.008/Body.009/Body.010/Body.011/Body.012/Body.013/Body.014/Jaw/Tongue.000/Tongue.001/Tongue.002/Tongue.003/Tongue.004/Tongue.005/Tongue.R.000/Tongue.R.001/Tongue.R.002
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008/Tail.009
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008/Tail.009/Tail.010
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008/Tail.009/Tail.010/Tail.011
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008/Tail.009/Tail.010/Tail.011/Tail.012
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.000/Tail.001/Tail.002/Tail.003/Tail.004/Tail.005/Tail.006/Tail.007/Tail.008/Tail.009/Tail.010/Tail.011/Tail.012/Tail.013
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.IK.000
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.IK.001
+    m_Weight: 0
+  - m_Path: Snake.Armature/Root/All/Tail.IK.002
+    m_Weight: 0
+  - m_Path: Snake.Body
+    m_Weight: 0
