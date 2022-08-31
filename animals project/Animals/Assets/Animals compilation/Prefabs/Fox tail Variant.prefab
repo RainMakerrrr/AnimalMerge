@@ -57,7 +57,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 7b9fc2c497cca4e60b0f6c81b75fb599, type: 2}
     - target: {fileID: 919132149155446097, guid: 0b456366d09234561aef60e59bd1ad37, type: 3}
       propertyPath: m_Name
-      value: Fox tail
+      value: Fox tail Variant
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0b456366d09234561aef60e59bd1ad37, type: 3}
@@ -76,7 +76,7 @@ Animator:
   m_GameObject: {fileID: 5591357992855226930}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b4dc3c74541def84191303ea727d9a51, type: 3}
-  m_Controller: {fileID: 9100000, guid: 7c05beb634bfdce4092d676300bd461d, type: 2}
+  m_Controller: {fileID: 9100000, guid: e1ce36285e1314bf999f3e53a2042a56, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 1
   m_ApplyRootMotion: 1
