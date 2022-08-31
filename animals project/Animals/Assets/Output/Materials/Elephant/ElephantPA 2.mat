@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ElephantPA 3
+  m_Name: ElephantPA 2
   m_Shader: {fileID: 4800000, guid: 365d78d112d33ff4bb96ef713a3af84b, type: 3}
   m_ShaderKeywords: _METALLICGLOSSMAP _NORMALMAP _SPECGLOSSMAP
   m_LightmapFlags: 0
@@ -75,15 +75,15 @@ Material:
     - _GlossMapScale: 0.192
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _GradientIntensity: 0.814
-    - _GradientOffset: -0.34
-    - _GradientPower: 0.5
-    - _GradientScale: 1.41
-    - _Metallic: 0.646
+    - _GradientIntensity: 0.594
+    - _GradientOffset: 0
+    - _GradientPower: 1
+    - _GradientScale: 1
+    - _Metallic: 0.141
     - _Mode: 0
     - _OcclusionStrength: 0.608
     - _Parallax: 0.08
-    - _Smoothness: 1
+    - _Smoothness: 0.396
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -92,21 +92,20 @@ Material:
     - __dirty: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color1: {r: 0.4056604, g: 0.36547706, b: 0.37847567, a: 0.043137256}
+    - _Color1: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 0}
     - _Color10: {r: 0.14150941, g: 0.14150941, b: 0.14150941, a: 1}
     - _Color11: {r: 0, g: 0, b: 0, a: 0}
     - _Color11Emmision: {r: 0, g: 0, b: 0, a: 0}
     - _Color12: {r: 0, g: 0, b: 0, a: 0}
     - _Color12Emmision: {r: 0, g: 0, b: 0, a: 0}
-    - _Color2: {r: 0.4056604, g: 0.36547706, b: 0.37847567, a: 0.043137256}
-    - _Color3: {r: 0.4056604, g: 0.36547706, b: 0.37847567, a: 0.043137256}
-    - _Color4: {r: 0.6509434, g: 0.5984482, b: 0.53733534, a: 0.6784314}
+    - _Color2: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 0.1882353}
+    - _Color3: {r: 0.3301887, g: 0.3301887, b: 0.3301887, a: 0.1882353}
+    - _Color4: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 0}
     - _Color5: {r: 0.5188679, g: 0.374466, b: 0.39687228, a: 0.353}
     - _Color6: {r: 0.41509432, g: 0.39977762, b: 0.3700605, a: 0.09411765}
-    - _Color7: {r: 0.03137254, g: 0.30980393, b: 0.21057995, a: 0.5176471}
+    - _Color7: {r: 0.030838378, g: 0.31132078, b: 0.04114887, a: 0.5176471}
     - _Color8: {r: 0.0754717, g: 0.0754717, b: 0.0754717, a: 0.37254903}
     - _Color9: {r: 0.20754719, g: 0.20754719, b: 0.20754719, a: 0.397}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GradientColor: {r: 0.3018868, g: 0.22071913, b: 0.22150575, a: 0}
+    - _GradientColor: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  m_BuildTextureStacks: []
