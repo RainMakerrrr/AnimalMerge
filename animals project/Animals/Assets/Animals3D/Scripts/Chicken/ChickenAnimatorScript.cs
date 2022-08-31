@@ -31,12 +31,12 @@ public class ChickenAnimatorScript : MonoBehaviour
 
 		_ViewCamera = GameObject.Find("Camera");
 	}
-	void Update()
+	/*void Update()
 	{
 		STATE_TEXT();
 		CAMERA();
 
-		_HP = _HP_Num.HP_Public;
+		_HP = //_HP_Num.HP_Public;
 		
 		if(_HP<=0)
 		{
@@ -84,6 +84,8 @@ public class ChickenAnimatorScript : MonoBehaviour
 			_Animator.SetBool("during_damage", false);
 		}
 	}
+	*/
+	
 	//--------------------------------------------------------------------- CAMERA
 	private void CAMERA ()
 	{
