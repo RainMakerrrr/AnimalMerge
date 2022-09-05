@@ -43,6 +43,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4405333586976933155}
   - component: {fileID: 4358618176410930353}
+  - component: {fileID: 8661822810834000517}
   m_Layer: 20
   m_Name: Leopard
   m_TagString: Animal
@@ -74,7 +75,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4406850784718576137}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 5462942cab7eb4e47ad795a859f4b825, type: 3}
   m_Controller: {fileID: 9100000, guid: 8645ef8d3a9bce740bc727ac6103c983, type: 2}
   m_CullingMode: 1
@@ -85,6 +86,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &8661822810834000517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4406850784718576137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f58273e576a64a5db55691bc57cd60c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tilesCount: 2
 --- !u!1 &4406881140059261415
 GameObject:
   m_ObjectHideFlags: 0

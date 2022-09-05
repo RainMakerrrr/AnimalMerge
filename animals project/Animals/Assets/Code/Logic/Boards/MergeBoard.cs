@@ -8,8 +8,7 @@ namespace Code.Logic.Boards
         [SerializeField] private Tile _tilePrefab;
         [SerializeField] private Vector2Int _boardSize;
 
-        private Tile[] _tiles;
-
+        private readonly List<Tile> _tiles = new List<Tile>();
         public IReadOnlyCollection<Tile> Tiles => _tiles;
 
 
@@ -26,9 +25,13 @@ namespace Code.Logic.Boards
                 {
                     Tile tile = Instantiate(_tilePrefab, new Vector3(i, 0, j), Quaternion.identity, transform);
                     tile.Position = new Vector2Int(i, j);
+                    tile.name = $"Tile {i}, {j}";
                     
+                    _tiles.Add(tile);
                 }
             }
+            
+            _tiles.ForEach(tile => tile.TryFindNeighbours());
         }
     }
 }
