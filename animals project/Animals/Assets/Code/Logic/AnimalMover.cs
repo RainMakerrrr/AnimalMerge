@@ -3,8 +3,6 @@ using Code.Logic.Animals;
 using Code.Logic.Boards;
 using Lean.Touch;
 using UnityEngine;
-using Vector2 = UnityEngine.Vector2;
-using Vector3 = UnityEngine.Vector3;
 
 namespace Code.Logic
 {
@@ -45,12 +43,15 @@ namespace Code.Logic
             Vector3 screenPosition = new Vector3(finger.ScreenPosition.x, finger.ScreenPosition.y,
                 _camera.WorldToScreenPoint(_currentAnimal.transform.position).z);
             Vector3 worldPosition = _camera.ScreenToWorldPoint(screenPosition);
-            _currentAnimal.transform.position = new Vector3(worldPosition.x, .25f, worldPosition.z);
+            
+            _currentAnimal.transform.position = new Vector3(worldPosition.x, 0.25f, worldPosition.z);
         }
 
 
         private void SelectAnimal(ref RaycastHit hit)
         {
+            if (hit.collider == null) return;
+            
             var animal = hit.collider.GetComponentInParent<Animal>();
             if (animal == null) return;
 
@@ -65,6 +66,8 @@ namespace Code.Logic
 
         private void OnFingerUp(LeanFinger finger)
         {
+            if (_currentAnimal == null) return;
+            
             if (TryPlaceAnimal())
             {
                 _currentAnimal = null;
@@ -73,11 +76,13 @@ namespace Code.Logic
 
         private bool TryPlaceAnimal()
         {
-            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit))
+            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit, float.MaxValue))
             {
                 var tile = hit.collider.GetComponent<Tile>();
                 if (tile == null) return false;
 
+                Debug.Log(tile);
+                
                 if (tile.CanAssignAnimal(_currentAnimal.TilesCount, out List<Tile> neighbours))
                 {
                     _currentAnimal.PlaceOnTile(neighbours);

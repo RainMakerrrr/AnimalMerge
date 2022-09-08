@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Code.Logic.Boards
@@ -26,10 +25,13 @@ namespace Code.Logic.Boards
 
                     Tile tile = Instantiate(_gameTilePrefab, spawnPosition, Quaternion.identity, transform);
                     tile.Position = new Vector2Int((int) spawnPosition.x, (int) spawnPosition.z);
-
+                    tile.TryFindNode(i, j);
+                    
                     _tiles.Add(tile);
                 }
             }
+
+            _tiles.ForEach(tile => tile.TryFindNeighbours());
         }
     }
 }

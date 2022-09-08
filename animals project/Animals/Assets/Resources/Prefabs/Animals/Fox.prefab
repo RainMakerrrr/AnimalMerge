@@ -331,6 +331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tilesCount: 1
+  _tilesPerStep: 3
 --- !u!1 &5242398031755268723
 GameObject:
   m_ObjectHideFlags: 0

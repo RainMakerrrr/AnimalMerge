@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Code.Logic.Animals;
+using Pathfinding;
 using UnityEngine;
 
 namespace Code.Logic.Boards
@@ -13,6 +14,12 @@ namespace Code.Logic.Boards
         public bool IsEmpty => _animal == null;
 
         public IReadOnlyList<Tile> Neighbours => _neighbours;
+
+        public Tile Next { get; private set; }
+        
+        public GraphNode Node { get; set; }
+        
+        public GraphNode NextNode { get; private set; }
 
         private Animal _animal;
 
@@ -28,8 +35,21 @@ namespace Code.Logic.Boards
             new Vector3(-1f, 0f, -1f),
         };
 
-        private readonly List<Tile> _neighbours = new List<Tile>();
+        private List<Tile> _neighbours = new List<Tile>();
 
+        public GridNodeBase GridNode { get; private set; }
+
+        public void TryFindNode(int x, int y)
+        {
+            GridNode = AstarPath.active.data.gridGraph.GetNode(x, y);
+        }
+
+        [ContextMenu("Log node")]
+        private void LogNode()
+        {
+            Debug.Log(GridNode.XCoordinateInGrid + "  " + GridNode.ZCoordinateInGrid);
+        }
+        
         public void AssignAnimal(Animal animal) => _animal = animal;
 
         public void ReleaseAnimal() => _animal = null;
@@ -37,7 +57,7 @@ namespace Code.Logic.Boards
         public bool CanAssignAnimal(int tilesCount, out List<Tile> neighbours)
         {
             neighbours = new List<Tile>();
-            
+
             if (tilesCount == 1 && IsEmpty)
             {
                 neighbours.Add(this);
@@ -49,7 +69,7 @@ namespace Code.Logic.Boards
             if (freeNeighbours.Count == 0 || freeNeighbours.Count < tilesCount - 1)
             {
                 Debug.Log("No free neighbours");
-                
+
                 neighbours = new List<Tile>();
                 return false;
             }
@@ -60,7 +80,7 @@ namespace Code.Logic.Boards
             if (closestTile != null && closestTile.IsEmpty == false)
             {
                 Debug.Log("Closest tile is full");
-                
+
                 neighbours = new List<Tile>();
                 return false;
             }
@@ -72,11 +92,11 @@ namespace Code.Logic.Boards
                 neighbours.Add(closestTile);
                 return true;
             }
-            
+
 
             List<Tile> leftNeighbours = freeNeighbours.Where(neighbour => neighbour.Position.x < Position.x).ToList();
 
-            if (leftNeighbours.Count == 2)
+            if (leftNeighbours.Count >= 2)
             {
                 if (leftNeighbours.All(neighbour => neighbour.IsEmpty))
                 {
@@ -92,7 +112,7 @@ namespace Code.Logic.Boards
 
             List<Tile> rightNeighbours = freeNeighbours.Where(neighbour => neighbour.Position.x > Position.x).ToList();
 
-            if (rightNeighbours.Count == 2)
+            if (rightNeighbours.Count >= 2)
             {
                 if (rightNeighbours.All(neighbour => neighbour.IsEmpty))
                 {
@@ -132,12 +152,19 @@ namespace Code.Logic.Boards
                     }
                 }
             }
+
+            TryFindNext();
+        }
+
+        private void TryFindNext()
+        {
+            Next = _neighbours.FirstOrDefault(neighbour =>
+                neighbour.Position.x == Position.x && neighbour.Position.y > Position.y);
         }
 
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-            //Gizmos.DrawRay(transform.position, new Vector3(1f, 0f, -1f));
             Gizmos.DrawSphere(transform.position, 1f);
         }
     }

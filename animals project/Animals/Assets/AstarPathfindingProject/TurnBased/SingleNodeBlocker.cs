@@ -1,3 +1,4 @@
+using Pathfinding.Examples;
 using UnityEngine;
 
 namespace Pathfinding {
@@ -36,7 +37,9 @@ namespace Pathfinding {
 		/// </summary>
 		public void BlockAt (Vector3 position) {
 			Unblock();
-			var node = AstarPath.active.GetNearest(position, NNConstraint.None).node;
+			
+			var dataGraph = AstarPath.active.graphs[0] as GridGraph;
+			GraphNode node = dataGraph?.GetNearest(position, GetComponent<TurnBasedAI>().Constraint).node;
 			if (node != null) {
 				Block(node);
 			}

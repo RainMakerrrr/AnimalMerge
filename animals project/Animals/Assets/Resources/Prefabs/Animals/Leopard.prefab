@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _tilesCount: 2
+  _tilesPerStep: 4
 --- !u!1 &4406881140059261415
 GameObject:
   m_ObjectHideFlags: 0
