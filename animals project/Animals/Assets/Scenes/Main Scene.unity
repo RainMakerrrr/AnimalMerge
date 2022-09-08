@@ -2247,7 +2247,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   version: 1
-  _seeker: {fileID: 0}
+  _seeker: {fileID: 2005783272}
   movementPoints: 8
   blockManager: {fileID: 512084203}
   blocker: {fileID: 2005783271}
