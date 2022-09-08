@@ -11,7 +11,7 @@ using UnityEngine;
 public static class TinySauce
 { 
 
-    public const string Version = "6.1.1";
+    public const string Version = "6.2.0";
     
     private const string ABCohortKey = "ABCohort";
     private const string DebugCohortKey = "DebugCohortKey";
@@ -91,7 +91,7 @@ public static class TinySauce
     {
         
 #if UNITY_EDITOR
-        if (PlayerPrefs.HasKey(DebugCohortKey))
+        if (!string.IsNullOrEmpty(PlayerPrefs.GetString(DebugCohortKey)))
         {
             return PlayerPrefs.GetString(DebugCohortKey);
         }

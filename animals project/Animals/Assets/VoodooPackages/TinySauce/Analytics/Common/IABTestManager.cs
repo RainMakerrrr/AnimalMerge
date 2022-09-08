@@ -5,4 +5,5 @@ using UnityEngine;
 public interface IABTestManager
 {
     void Init();
+    string[] GetAbTestValues();
 }

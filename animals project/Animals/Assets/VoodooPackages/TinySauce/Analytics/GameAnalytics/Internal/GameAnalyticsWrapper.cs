@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using GameAnalyticsSDK;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Voodoo.Sauce.Internal.Analytics
 {
@@ -15,14 +18,16 @@ namespace Voodoo.Sauce.Internal.Analytics
 
         internal static bool Initialize(bool consent)
         {
-            if (!consent) {
+            if (!consent)
+            {
                 Disable();
                 return _isInitialized;
             }
 
             InstantiateGameAnalytics();
             VoodooLog.Log(TAG, "GameAnalytics initialized, tracking pending events: " + QueuedEvents.Count);
-            while (QueuedEvents.Count > 0) {
+            while (QueuedEvents.Count > 0)
+            {
                 QueuedEvents.Dequeue().Track();
             }
 
@@ -34,15 +39,19 @@ namespace Voodoo.Sauce.Internal.Analytics
         {
             if (_isDisabled) return;
 
-            var progressEvent = new ProgressEvent {
+            var progressEvent = new ProgressEvent
+            {
                 status = status,
                 progress = progress,
                 score = score
             };
-            if (!_isInitialized) {
+            if (!_isInitialized)
+            {
                 VoodooLog.Log(TAG, "GameAnalytics NOT initialized queuing event..." + status);
                 QueuedEvents.Enqueue(progressEvent);
-            } else {
+            }
+            else
+            {
                 VoodooLog.Log(TAG, "Sending event " + status + " to GameAnalytics");
                 progressEvent.Track();
             }
@@ -52,19 +61,23 @@ namespace Voodoo.Sauce.Internal.Analytics
         {
             if (_isDisabled) return;
 
-            var designEvent = new DesignEvent {
+            var designEvent = new DesignEvent
+            {
                 eventName = eventName,
                 eventValue = eventValue
             };
-            if (!_isInitialized) {
+            if (!_isInitialized)
+            {
                 VoodooLog.Log(TAG, "GameAnalytics NOT initialized queuing event..." + eventName);
                 QueuedEvents.Enqueue(designEvent);
-            } else {
+            }
+            else
+            {
                 VoodooLog.Log(TAG, "Sending event " + eventName + " to GameAnalytics");
                 designEvent.Track();
             }
         }
-        
+
         private static void SetBuildVersion(string buildVersion)
         {
             int platformIndex = -1;
@@ -78,31 +91,43 @@ namespace Voodoo.Sauce.Internal.Analytics
                 GameAnalytics.SettingsGA.Build[platformIndex] = buildVersion;
             }
         }
-        
+
 
         private static void InstantiateGameAnalytics()
         {
             var gameAnalyticsComponent = Object.FindObjectOfType<GameAnalytics>();
-            if (gameAnalyticsComponent == null) {
+            if (gameAnalyticsComponent == null)
+            {
                 var gameAnalyticsGameObject = new GameObject("GameAnalytics");
                 gameAnalyticsGameObject.AddComponent<GameAnalytics>();
                 gameAnalyticsGameObject.SetActive(true);
-            } else {
-                gameAnalyticsComponent.gameObject.name = "GameAnalytics";
-            }
-            Debug.Log("INSTANTIATE GA");
-
-            if (!string.IsNullOrEmpty(TinySauce.GetABTestCohort()))
-            {
-                SetBuildVersion($"{Application.version}-ABCohort:{TinySauce.GetABTestCohort() ?? "Default"}");
             }
             else
             {
-                SetBuildVersion($"{Application.version}");
+                gameAnalyticsComponent.gameObject.name = "GameAnalytics";
             }
-            
+
+            Debug.Log("INSTANTIATE GA");
+
+            string appVersionName = Application.version;
+
+            if (Type.GetType("Voodoo.Sauce.Internal.Ads.TSAdsManager") != null)
+                if ((bool) Type.GetType("Voodoo.Sauce.Internal.Ads.TSAdsManager")
+                        .GetField("_areAdsEnabled", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null))
+                    appVersionName += "-Ads";
+
+
+            if (!string.IsNullOrEmpty(TinySauce.GetABTestCohort()))
+            {
+                SetBuildVersion($"{appVersionName}-ABCohort:{TinySauce.GetABTestCohort() ?? "Default"}");
+            }
+            else
+            {
+                SetBuildVersion($"{appVersionName}");
+            }
+
             SetCustomFields();
-            
+
             GameAnalytics.Initialize();
         }
 
@@ -113,6 +138,7 @@ namespace Voodoo.Sauce.Internal.Analytics
             {
                 customFields.Add("ABCohort", TinySauce.GetABTestCohort());
             }
+
             customFields.Add("TSVersion", TinySauce.Version);
             GameAnalytics.SetGlobalCustomEventFields(customFields);
         }
@@ -137,9 +163,12 @@ namespace Voodoo.Sauce.Internal.Analytics
 
             public override void Track()
             {
-                if (score != null) {
+                if (score != null)
+                {
                     GameAnalytics.NewProgressionEvent(status, progress, (int) score);
-                } else {
+                }
+                else
+                {
                     GameAnalytics.NewProgressionEvent(status, progress);
                 }
             }
@@ -152,12 +181,16 @@ namespace Voodoo.Sauce.Internal.Analytics
 
             public override void Track()
             {
-                if (eventValue != null) {
-                    GameAnalytics.NewDesignEvent(eventName, (float)eventValue);
-                } else {
+                if (eventValue != null)
+                {
+                    GameAnalytics.NewDesignEvent(eventName, (float) eventValue);
+                }
+                else
+                {
                     GameAnalytics.NewDesignEvent(eventName);
                 }
             }
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using com.adjust.sdk;
@@ -15,7 +16,9 @@ namespace Voodoo.Sauce.Internal
         private static TinySauceBehaviour _instance;
         private TinySauceSettings _sauceSettings;
         private bool _advertiserTrackingEnabled;
-        private IABTestManager aBTestManager;
+        private static IABTestManager aBTestManager;
+
+        public static IABTestManager ABTestManager => aBTestManager;
 
 
         private void Awake()
@@ -136,6 +139,12 @@ namespace Voodoo.Sauce.Internal
             if (!pauseStatus) {
                 AnalyticsManager.OnApplicationResume();
             }
+        }
+        
+        internal static void InvokeCoroutine(IEnumerator coroutine)
+        {
+            if (_instance == null) return;
+            _instance.StartCoroutine(coroutine);
         }
         
         private static List<Type> GetTypes(Type toGetType)
