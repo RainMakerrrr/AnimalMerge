@@ -67,7 +67,7 @@ namespace Code.Logic
                 //Debug.Log(AstarPath.active.data.graphs[1].name);
                 var dataGraph = AstarPath.active.graphs[0] as GridGraph;
                 //= dataGraph?.Ge GridNode nexttNodeConnection(_selected.Current as GridNode, 3);
-                GraphNode next=  dataGraph?.GetNearest(_selected.transform.position + Vector3.forward * 1, _selected.Constraint).node;
+                GraphNode next=  dataGraph?.GetNearest(_selected.transform.position + Vector3.forward * 1, NNConstraint.None).node;
                 
                 _selected.Current = next;
                 
@@ -181,7 +181,7 @@ namespace Code.Logic
         {
             foreach (var go in _possibleMoves)
             {
-                GameObject.Destroy(go);
+                Destroy(go);
             }
 
             _possibleMoves.Clear();

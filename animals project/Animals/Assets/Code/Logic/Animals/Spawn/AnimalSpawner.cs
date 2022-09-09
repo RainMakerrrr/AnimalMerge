@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Code.Infrastructure.Factories.Animals;
 using Code.Logic.Boards;
+using Code.Logic.MovementModel;
+using Pathfinding;
 using UnityEngine;
+using Zenject;
 using Random = UnityEngine.Random;
 
 namespace Code.Logic.Animals.Spawn
@@ -10,6 +15,20 @@ namespace Code.Logic.Animals.Spawn
     {
         [SerializeField] private Animal _testPrefab;
         [SerializeField] private MergeBoard _board;
+        [SerializeField] private BlockManager _blockManager;
+
+        private IAnimalFactory _animalFactory;
+
+        [Inject]
+        private void Construct(IAnimalFactory animalFactory)
+        {
+            _animalFactory = animalFactory;
+        }
+
+        private void Start()
+        {
+            _animalFactory.Load();
+        }
 
         private void Update()
         {
@@ -28,7 +47,11 @@ namespace Code.Logic.Animals.Spawn
             
             if (randomTile.CanAssignAnimal(_testPrefab.TilesCount, out List<Tile> tiles))
             {
-                Animal animal = Instantiate(_testPrefab);
+                Animal animal = _animalFactory.Create(AnimalType.Elephant);
+                
+                animal.GetComponent<GridTransformable>().Construct(_blockManager);
+                animal.GetComponent<GridTransformable>().InitCurrentGraphNode();
+                animal.GetComponent<SingleNodeBlocker>().Construct(_blockManager);
                 animal.PlaceOnTile(tiles);
                 animal.Tiles = tiles.ToArray();
                 

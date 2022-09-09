@@ -6,7 +6,9 @@
 		public const string LEVELS = "Levels";
 		public const string LEVELS_DATABASE = "LevelDatabase";
 		public const string GAME_DATA = "GameData";
-		public const string Tile = "Prefabs/Tile";
+		public const string Tile = "Prefabs/Tiles/Small Tile";
+		public const string MediumTile = "Prefabs/Tiles/Medium Tile";
+		public const string BigTile = "Prefabs/Tiles/Big Tile";
 		public const string Fox = "Prefabs/Animals/Fox";
 		public const string Elephant = "Prefabs/Animals/Elephant";
 		public const string Cheetah = "Prefabs/Animals/Cheetah";

@@ -10,12 +10,15 @@ namespace Code.Logic.Animals
 {
     public abstract class Animal : MonoBehaviour
     {
+        [SerializeField] private string _tileMask;
         [SerializeField] private int _tilesCount;
         [SerializeField] private int _tilesPerStep;
 
         public int TilesCount => _tilesCount;
 
         public int TilesPerStep => _tilesPerStep;
+
+        public string TileMask => _tileMask;
 
         public Tile[] Tiles { get; set; }
 

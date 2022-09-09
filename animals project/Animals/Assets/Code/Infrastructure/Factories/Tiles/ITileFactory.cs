@@ -6,7 +6,7 @@ namespace Code.Infrastructure.Factories.Tiles
     public interface ITileFactory
     {
         void Load();
-        Tile Create();
+        Tile Create(TileType tileType);
         Tile Create(Vector3 position, Transform parent);
     }
 }

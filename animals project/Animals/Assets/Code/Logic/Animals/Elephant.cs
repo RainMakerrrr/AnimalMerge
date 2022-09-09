@@ -10,7 +10,6 @@ namespace Code.Logic.Animals
     public class Elephant : Animal
     {
         [SerializeField] private AnimalAnimator _animator;
-        [SerializeField] private AIPath _path;
 
         private GraphNode _targetNode;
         
@@ -18,9 +17,9 @@ namespace Code.Logic.Animals
         {
             List<Tile> lowerTiles = tiles.OrderBy(tile => tile.Position.y).ToList();
 
-            float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
+            //float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
 
-            transform.position = new Vector3(center, 0f, lowerTiles[0].Position.y);
+            transform.position = lowerTiles.FirstOrDefault()!.transform.position;
         }
 
         [ContextMenu("Grid move")]
@@ -61,7 +60,7 @@ namespace Code.Logic.Animals
 
                 float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
 
-                _path.destination = new Vector3(center, 0f, lowerTiles[0].Position.y);
+                //_path.destination = new Vector3(center, 0f, lowerTiles[0].Position.y);
                 //
                 // transform.DOMove(new Vector3(center, 0f, lowerTiles[0].Position.y), 2f)
                 //     .OnComplete(() => _animator.UpdateMovementAnimation(0f));

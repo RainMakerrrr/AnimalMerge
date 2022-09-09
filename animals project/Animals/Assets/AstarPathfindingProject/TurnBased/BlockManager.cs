@@ -18,6 +18,18 @@ namespace Pathfinding {
 		/// <summary>Contains info on which SingleNodeBlocker objects have blocked a particular node</summary>
 		Dictionary<GraphNode, List<SingleNodeBlocker> > blocked = new Dictionary<GraphNode, List<SingleNodeBlocker> >();
 
+		//TODO
+		public static BlockManager Instance { get; private set; }
+
+		protected override void Awake()
+		{
+			base.Awake();
+
+			Instance = this;
+
+			Debug.Log(Instance);
+		}
+
 		public enum BlockMode {
 			/// <summary>All blockers except those in the TraversalProvider.selector list will block</summary>
 			AllExceptSelector,

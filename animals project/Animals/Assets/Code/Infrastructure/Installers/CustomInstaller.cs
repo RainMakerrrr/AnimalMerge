@@ -1,6 +1,7 @@
 ﻿using Code.Infrastructure.Factories.Animals;
 using Code.Infrastructure.Factories.Tiles;
 using Code.Infrastructure.Services.Input;
+using Code.Infrastructure.Services.Path;
 using Zenject;
 
 namespace Code.Infrastructure.Installers
@@ -12,10 +13,12 @@ namespace Code.Infrastructure.Installers
             BindInputService();
             BindTileFactory();
             BindAnimalFactory();
+            BindPathProvider();
         }
 
         private void BindInputService() => Container.Bind<IInputService>().To<InputService>().AsSingle();
         private void BindTileFactory() => Container.Bind<ITileFactory>().To<TileFactory>().AsSingle();
         private void BindAnimalFactory() => Container.Bind<IAnimalFactory>().To<AnimalFactory>().AsSingle();
+        private void BindPathProvider() => Container.Bind<IPathProvider>().To<PathProvider>().AsSingle();
     }
 }

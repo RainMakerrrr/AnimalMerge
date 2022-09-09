@@ -30,7 +30,7 @@ namespace Code.Logic
         private void OnFingerDown(LeanFinger finger)
         {
             if (finger.IsOverGui) return;
-            
+
             RaycastHit hit = CastRay(finger.ScreenPosition);
 
             SelectAnimal(ref hit);
@@ -43,7 +43,7 @@ namespace Code.Logic
             Vector3 screenPosition = new Vector3(finger.ScreenPosition.x, finger.ScreenPosition.y,
                 _camera.WorldToScreenPoint(_currentAnimal.transform.position).z);
             Vector3 worldPosition = _camera.ScreenToWorldPoint(screenPosition);
-            
+
             _currentAnimal.transform.position = new Vector3(worldPosition.x, 0.25f, worldPosition.z);
         }
 
@@ -51,7 +51,7 @@ namespace Code.Logic
         private void SelectAnimal(ref RaycastHit hit)
         {
             if (hit.collider == null) return;
-            
+
             var animal = hit.collider.GetComponentInParent<Animal>();
             if (animal == null) return;
 
@@ -67,22 +67,24 @@ namespace Code.Logic
         private void OnFingerUp(LeanFinger finger)
         {
             if (_currentAnimal == null) return;
-            
+
             if (TryPlaceAnimal())
             {
                 _currentAnimal = null;
             }
+            else Debug.Log("Fail");
         }
 
         private bool TryPlaceAnimal()
         {
-            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit, float.MaxValue))
+            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit, float.MaxValue,
+                    LayerMask.GetMask(_currentAnimal.TileMask)))
             {
                 var tile = hit.collider.GetComponent<Tile>();
                 if (tile == null) return false;
 
                 Debug.Log(tile);
-                
+
                 if (tile.CanAssignAnimal(_currentAnimal.TilesCount, out List<Tile> neighbours))
                 {
                     _currentAnimal.PlaceOnTile(neighbours);

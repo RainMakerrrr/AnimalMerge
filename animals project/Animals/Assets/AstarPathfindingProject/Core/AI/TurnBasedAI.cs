@@ -24,7 +24,9 @@ namespace Pathfinding.Examples
             GraphMask seekerGraphMask = _seeker.graphMask;
             Constraint = NNConstraint.None;
             Constraint.graphMask = seekerGraphMask;
-            
+
+            NavGraph activeGraph = AstarPath.active.graphs[0];
+
             Current = AstarPath.active.graphs[0].GetNearest(transform.position, Constraint).node;
             blocker.BlockAtCurrentPosition();
         }

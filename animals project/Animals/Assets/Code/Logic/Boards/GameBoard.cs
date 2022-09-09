@@ -1,37 +1,85 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Code.Infrastructure.Factories.Tiles;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Logic.Boards
 {
     public class GameBoard : MonoBehaviour
     {
-        [SerializeField] private Tile _gameTilePrefab;
-        [SerializeField] private Vector2Int _size;
+        [SerializeField] private Vector2Int _smallBoardSize;
+        [SerializeField] private Vector2Int _mediumBoardSize;
+        [SerializeField] private Vector2Int _bigBoardSize;
 
-        private readonly List<Tile> _tiles = new List<Tile>();
+        [SerializeField] private List<Tile> _tiles = new();
 
-        private void Start()
+        private ITileFactory _tileFactory;
+
+        [Inject]
+        private void Construct(ITileFactory tileFactory)
         {
-            SpawnTiles();
+            _tileFactory = tileFactory;
         }
-        
-        private void SpawnTiles()
-        {
-            for (int i = 0; i < _size.x; i++)
-            {
-                for (int j = 0; j < _size.y; j++)
-                {
-                    Vector3 spawnPosition = new Vector3(i + transform.position.x, 0f, j + transform.position.z);
 
-                    Tile tile = Instantiate(_gameTilePrefab, spawnPosition, Quaternion.identity, transform);
+        private IEnumerator Start()
+        {
+            _tileFactory.Load();
+
+            yield return StartCoroutine(SpawnTiles(_smallBoardSize, TileType.Small, 0f, 0f));
+            yield return StartCoroutine(SpawnTiles(_mediumBoardSize, TileType.Medium, 0f, 0.5f));
+            yield return StartCoroutine(SpawnTiles(_bigBoardSize, TileType.Big, 0.5f, 0.5f));
+
+            _tiles.ForEach(tile => tile.TryFindNeighbours());
+        }
+
+        private IEnumerator SpawnTiles(Vector2Int size, TileType tileType, float xOffset, float zOffset)
+        {
+            Vector3 position = transform.position;
+
+            for (int i = 0; i < size.x; i++)
+            {
+                for (int j = 0; j < size.y; j++)
+                {
+                    Tile tile = _tileFactory.Create(tileType);
+
+                    Vector3 tileScale = tile.transform.localScale;
+
+                    Vector3 spawnPosition = new Vector3(i * tileScale.x + position.x + xOffset, 0.01f,
+                        j * tileScale.z + position.z + zOffset);
+
+                    tile.transform.SetParent(transform);
+                    tile.transform.position = spawnPosition;
+
                     tile.Position = new Vector2Int((int) spawnPosition.x, (int) spawnPosition.z);
-                    tile.TryFindNode(i, j);
-                    
+                    tile.name = $"{tile.name} {i}, {j}";
                     _tiles.Add(tile);
                 }
             }
 
-            _tiles.ForEach(tile => tile.TryFindNeighbours());
+            yield break;
         }
+
+        // private void SpawnTiles(Vector2Int size, Tile prefab, float xOffset, float zOffset)
+        // {
+        //     Vector3 prefabScale = prefab.transform.localScale;
+        //
+        //     for (int i = 0; i < size.x; i++)
+        //     {
+        //         for (int j = 0; j < size.y; j++)
+        //         {
+        //             Vector3 spawnPosition = new Vector3(i * prefabScale.x + transform.position.x + xOffset, 0.01f,
+        //                 j * prefabScale.z + transform.position.z + zOffset);
+        //
+        //             Tile tile = Instantiate(prefab, spawnPosition, Quaternion.identity, transform);
+        //             tile.Position = new Vector2Int((int) spawnPosition.x, (int) spawnPosition.z);
+        //             //tile.TryFindNode(i, j);
+        //             tile.name = $"{prefab.name} {i}, {j}";
+        //             _tiles.Add(tile);
+        //         }
+        //     }
+        //
+        //     _tiles.ForEach(tile => tile.TryFindNeighbours());
+        // }
     }
 }

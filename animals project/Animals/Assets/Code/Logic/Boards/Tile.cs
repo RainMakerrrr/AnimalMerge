@@ -8,20 +8,25 @@ namespace Code.Logic.Boards
 {
     public class Tile : MonoBehaviour
     {
-        private const string TileLayerName = "Tile";
+        [SerializeField] private TileType _type;
+        [SerializeField] private string _layerName;
+        [SerializeField] private float _radius;
         public Vector2Int Position { get; set; }
 
         public bool IsEmpty => _animal == null;
 
+        public TileType Type => _type;
+        
         public IReadOnlyList<Tile> Neighbours => _neighbours;
 
         public Tile Next { get; private set; }
-        
+
         public GraphNode Node { get; set; }
-        
+
         public GraphNode NextNode { get; private set; }
 
         private Animal _animal;
+
 
         private Vector3[] _directions =
         {
@@ -44,12 +49,29 @@ namespace Code.Logic.Boards
             GridNode = AstarPath.active.data.gridGraph.GetNode(x, y);
         }
 
-        [ContextMenu("Log node")]
+        [SerializeField] private List<Tile> _testTiles = new List<Tile>();
+
+        [ContextMenu("Find closest")]
         private void LogNode()
         {
-            Debug.Log(GridNode.XCoordinateInGrid + "  " + GridNode.ZCoordinateInGrid);
+            if (_type == TileType.Small)
+            {
+                Collider[] colliders = Physics.OverlapSphere(transform.position, 0.4f, LayerMask.GetMask("Medium Tile", "Big Tile"));
+                if (colliders.Length == 0) return;
+
+                foreach (Collider tileCollider in colliders)
+                {
+                    var tile = tileCollider.GetComponent<Tile>();
+                    if(tile == null) continue;
+
+                    if (_testTiles.Contains(tile) == false)
+                    {
+                        _testTiles.Add(tile);
+                    }
+                }
+            }
         }
-        
+
         public void AssignAnimal(Animal animal) => _animal = animal;
 
         public void ReleaseAnimal() => _animal = null;
@@ -133,9 +155,11 @@ namespace Code.Logic.Boards
 
         public void TryFindNeighbours()
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, 1f, LayerMask.GetMask(TileLayerName));
+            Collider[] colliders = Physics.OverlapSphere(transform.position, _radius, LayerMask.GetMask(_layerName));
             if (colliders.Length == 0) return;
 
+            Debug.Log(colliders.Length);
+            
             foreach (Collider tileCollider in colliders)
             {
                 var tile = tileCollider.GetComponent<Tile>();
@@ -143,13 +167,13 @@ namespace Code.Logic.Boards
 
                 if (tile != null)
                 {
-                    if (Vector3.Distance(transform.position, tile.transform.position) <= 2f)
-                    {
+                    //if (Vector3.Distance(transform.position, tile.transform.position) <= 2f)
+                   // {
                         if (_neighbours.Contains(tile) == false)
                         {
                             _neighbours.Add(tile);
                         }
-                    }
+                    //}
                 }
             }
 
@@ -165,7 +189,7 @@ namespace Code.Logic.Boards
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = new Color(1f, 0f, 0f, 0.3f);
-            Gizmos.DrawSphere(transform.position, 1f);
+            Gizmos.DrawSphere(transform.position, 0.4f);
         }
     }
 }

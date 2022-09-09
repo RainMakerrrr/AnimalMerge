@@ -1,3 +1,4 @@
+using System;
 using Pathfinding.Examples;
 using UnityEngine;
 
@@ -21,6 +22,10 @@ namespace Pathfinding {
 		public GraphNode lastBlocked { get; private set; }
 		public BlockManager manager;
 
+		public void Construct(BlockManager manager)
+		{
+			this.manager = manager;
+		}
 		/// <summary>
 		/// Block node closest to the position of this object.
 		///
@@ -39,7 +44,7 @@ namespace Pathfinding {
 			Unblock();
 			
 			var dataGraph = AstarPath.active.graphs[0] as GridGraph;
-			GraphNode node = dataGraph?.GetNearest(position, GetComponent<TurnBasedAI>().Constraint).node;
+			GraphNode node = dataGraph?.GetNearest(position,NNConstraint.None).node;
 			if (node != null) {
 				Block(node);
 			}
