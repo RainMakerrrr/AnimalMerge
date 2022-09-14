@@ -77,8 +77,7 @@ namespace Code.Logic
 
         private bool TryPlaceAnimal()
         {
-            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit, float.MaxValue,
-                    LayerMask.GetMask(_currentAnimal.TileMask)))
+            if (Physics.Raycast(_currentAnimal.transform.position, Vector3.down, out RaycastHit hit, float.MaxValue))
             {
                 var tile = hit.collider.GetComponent<Tile>();
                 if (tile == null) return false;

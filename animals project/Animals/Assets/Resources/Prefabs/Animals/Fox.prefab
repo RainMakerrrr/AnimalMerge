@@ -286,7 +286,8 @@ GameObject:
   - component: {fileID: 8637086363593674625}
   - component: {fileID: 2005783271}
   - component: {fileID: 2005783272}
-  - component: {fileID: 2005783276}
+  - component: {fileID: 8330479946831703969}
+  - component: {fileID: 4480563463736856476}
   m_Layer: 20
   m_Name: Fox
   m_TagString: Animal
@@ -324,7 +325,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 7c05beb634bfdce4092d676300bd461d, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 1
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -388,7 +389,7 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: 1
---- !u!114 &2005783276
+--- !u!114 &8330479946831703969
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -397,7 +398,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5242340861360927981}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8e65ea23fc5423ca7ac494bc2c04ef1, type: 3}
+  m_Script: {fileID: 11500000, guid: fc23d87cd8d74150af8d9b9d4927726c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   version: 1
@@ -407,6 +408,48 @@ MonoBehaviour:
   _graphIndex: 0
   _distanceToNextNode: 3
   _moveSpeed: 5
+--- !u!114 &4480563463736856476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5242340861360927981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5
+  radius: 0.5
+  height: 2
+  canMove: 1
+  maxSpeed: 1
+  gravity: {x: NaN, y: NaN, z: NaN}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  centerOffsetCompatibility: NaN
+  repathRateCompatibility: NaN
+  canSearchCompability: 0
+  orientation: 0
+  enableRotation: 0
+  autoRepath:
+    mode: 2
+    interval: 0.5
+    sensitivity: 10
+    maximumInterval: 2
+    visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
+  maxAcceleration: -2.5
+  rotationSpeed: 360
+  slowdownDistance: 0.6
+  pickNextWaypointDist: 2
+  endReachedDistance: 0.2
+  alwaysDrawGizmos: 0
+  slowWhenNotFacingTarget: 1
+  whenCloseToDestination: 0
+  constrainInsideGraph: 0
 --- !u!1 &5242398031755268723
 GameObject:
   m_ObjectHideFlags: 0

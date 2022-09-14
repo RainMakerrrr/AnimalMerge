@@ -29,5 +29,16 @@ namespace Code.Infrastructure.Services.Path
 
             return path;
         }
+        
+        public ABPath GeneratePath(GridTransformable unit, Vector3 nodePosition)
+        {
+            var path = ABPath.Construct(unit.transform.position, nodePosition);
+            
+            path.traversalProvider = unit.TraversalProvider;
+            
+            unit.Seeker.StartPath(path);
+
+            return path;
+        }
     }
 }

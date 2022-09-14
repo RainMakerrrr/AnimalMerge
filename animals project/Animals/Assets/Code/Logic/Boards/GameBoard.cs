@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Code.Infrastructure.Factories.Tiles;
 using UnityEngine;
 using Zenject;
@@ -16,6 +17,8 @@ namespace Code.Logic.Boards
 
         private ITileFactory _tileFactory;
 
+        public IReadOnlyList<Tile> Tiles => _tiles;
+
         [Inject]
         private void Construct(ITileFactory tileFactory)
         {
@@ -27,12 +30,50 @@ namespace Code.Logic.Boards
             _tileFactory.Load();
 
             yield return StartCoroutine(SpawnTiles(_smallBoardSize, TileType.Small, 0f, 0f));
-            yield return StartCoroutine(SpawnTiles(_mediumBoardSize, TileType.Medium, 0f, 0.5f));
-            yield return StartCoroutine(SpawnTiles(_bigBoardSize, TileType.Big, 0.5f, 0.5f));
+            //yield return StartCoroutine(SpawnTiles(_mediumBoardSize, TileType.Medium, 0f, 0.5f));
+            //yield return StartCoroutine(SpawnTiles(_bigBoardSize, TileType.Big, 0.5f, 0.5f));
 
-            _tiles.ForEach(tile => tile.TryFindNeighbours());
+            _tiles.ForEach(tile =>
+            {
+                tile.TryFindNeighbours();
+                tile.TryFindNode();
+            });
         }
 
+        public Tile GetNearest(Vector3 position, int tilesCount, out List<Tile> tileNeighbours)
+        {
+            List<Tile> freeTiles = _tiles.Where(tile => tile.CanAssignAnimal(tilesCount, out List<Tile> neighbours)).ToList();
+            
+            Tile closestTile = freeTiles.FirstOrDefault();
+            if (closestTile == null)
+            {
+                tileNeighbours = null;
+                return null;
+            }
+            
+            float distance = Vector3.Distance(closestTile.transform.position, position);
+
+            foreach (Tile tile in freeTiles)
+            {
+                float currentDistance = Vector3.Distance(tile.transform.position, position);
+                
+                if (currentDistance < distance)
+                {
+                    distance = currentDistance;
+                    closestTile = tile;
+                }
+            }
+
+            if (closestTile.CanAssignAnimal(tilesCount, out List<Tile> closesNeighbours))
+            {
+                tileNeighbours = closesNeighbours;
+                return closestTile;
+            }
+
+            tileNeighbours = null;
+            return null;
+        }
+        
         private IEnumerator SpawnTiles(Vector2Int size, TileType tileType, float xOffset, float zOffset)
         {
             Vector3 position = transform.position;

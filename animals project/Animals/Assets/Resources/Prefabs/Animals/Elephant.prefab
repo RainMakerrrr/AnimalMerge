@@ -1791,7 +1791,7 @@ GameObject:
   - component: {fileID: 2045682757054020348}
   - component: {fileID: 712492572}
   - component: {fileID: 712492575}
-  - component: {fileID: 712492580}
+  - component: {fileID: -6668994930313973047}
   m_Layer: 20
   m_Name: Elephant
   m_TagString: Animal
@@ -1852,7 +1852,6 @@ MonoBehaviour:
   _tilesCount: 4
   _tilesPerStep: 2
   _animator: {fileID: 2045682757054020348}
-  _path: {fileID: 0}
 --- !u!114 &2045682757054020348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1908,7 +1907,7 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: 2
---- !u!114 &712492580
+--- !u!114 &-6668994930313973047
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1917,14 +1916,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7160007107591877410}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8e65ea23fc5423ca7ac494bc2c04ef1, type: 3}
+  m_Script: {fileID: 11500000, guid: d0988fae96b147a9a1e1e83ac03be8f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   version: 1
   _seeker: {fileID: 712492575}
   _blocker: {fileID: 712492572}
   _movementPoint: 8
-  _graphIndex: 1
+  _graphIndex: 0
   _distanceToNextNode: 2
   _moveSpeed: 5
 --- !u!1 &7160007107616425432

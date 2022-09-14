@@ -17,16 +17,11 @@ namespace Code.Logic.Animals
         {
             List<Tile> lowerTiles = tiles.OrderBy(tile => tile.Position.y).ToList();
 
-            //float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
+            float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
 
-            transform.position = lowerTiles.FirstOrDefault()!.transform.position;
+            transform.position = new Vector3(center, 0f, lowerTiles.FirstOrDefault()!.transform.position.z);
         }
-
-        [ContextMenu("Grid move")]
-        private void TestGridMove()
-        {
-            
-        }
+        
         
         [ContextMenu("Move")]
         private void Move()

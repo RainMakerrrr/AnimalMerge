@@ -1,9 +1,7 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Code.Logic.Boards;
-using DG.Tweening;
-using Pathfinding;
 using UnityEngine;
 
 namespace Code.Logic.Animals
@@ -23,29 +21,23 @@ namespace Code.Logic.Animals
         public Tile[] Tiles { get; set; }
 
         public abstract void PlaceOnTile(IEnumerable<Tile> tiles);
-        
 
 
-        [ContextMenu("Move Forward")]
-        private void MoveForward()
+        //public void Move() => StartCoroutine(MoveToNextNode());
+
+        public IEnumerator MoveToNextNode(List<Tile> tiles)
         {
-            int i = 0;
-            Tile current = Tiles.FirstOrDefault();
-            Tile next = current.Next;
+            List<Tile> lowerTiles = tiles.OrderBy(tile => tile.Position.y).ToList();
 
-            current.ReleaseAnimal();
+            float center = (float) (lowerTiles[0].Position.x + lowerTiles[1].Position.x) / 2;
 
-            while (i != _tilesPerStep)
+            Vector3 targetPosition = new Vector3(center, 0f, lowerTiles.FirstOrDefault()!.transform.position.z);
+
+            while (Vector3.Distance(transform.position, targetPosition) > 1f)
             {
-                next = current.Next;
-                current = next;
-
-                i++;
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, 5f * Time.deltaTime);
+                yield return null;
             }
-
-            transform.DOMove(next.transform.position, 1f);
-
-            Tiles.FirstOrDefault().AssignAnimal(this);
         }
     }
 }

@@ -13,10 +13,13 @@ namespace Code.Logic.Animals.Spawn
 {
     public class AnimalSpawner : MonoBehaviour
     {
+        [SerializeField] private AnimalType _animalType;
         [SerializeField] private Animal _testPrefab;
         [SerializeField] private MergeBoard _board;
         [SerializeField] private BlockManager _blockManager;
 
+        [SerializeField] private Transform _testTarget;
+        
         private IAnimalFactory _animalFactory;
 
         [Inject]
@@ -47,9 +50,9 @@ namespace Code.Logic.Animals.Spawn
             
             if (randomTile.CanAssignAnimal(_testPrefab.TilesCount, out List<Tile> tiles))
             {
-                Animal animal = _animalFactory.Create(AnimalType.Elephant);
+                Animal animal = _animalFactory.Create(_animalType);
                 
-                animal.GetComponent<GridTransformable>().Construct(_blockManager);
+                animal.GetComponent<GridTransformable>().Construct(_blockManager, _testTarget);
                 animal.GetComponent<GridTransformable>().InitCurrentGraphNode();
                 animal.GetComponent<SingleNodeBlocker>().Construct(_blockManager);
                 animal.PlaceOnTile(tiles);

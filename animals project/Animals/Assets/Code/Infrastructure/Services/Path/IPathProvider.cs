@@ -1,5 +1,6 @@
 ﻿using Code.Logic.MovementModel;
 using Pathfinding;
+using UnityEngine;
 
 namespace Code.Infrastructure.Services.Path
 {
@@ -7,5 +8,6 @@ namespace Code.Infrastructure.Services.Path
     {
         void GeneratePossibleMoves(GridTransformable unit);
         ABPath GeneratePath(GridTransformable unit, GraphNode node);
+        ABPath GeneratePath(GridTransformable unit, Vector3 nodePosition);
     }
 }
