@@ -24,13 +24,13 @@ public class character : MonoBehaviour
 
     void Update()
     {
-        if (body_looking)
-        {
-            Vector3 tar_dir = db_moves[1].position - tr_body.position;
-            Vector3 new_dir = Vector3.RotateTowards(tr_body.forward, tar_dir, rotate_speed * Time.deltaTime / 2, 0f);
-            new_dir.y = 0;
-            tr_body.transform.rotation = Quaternion.LookRotation(new_dir);
-        }
+        // if (body_looking)
+        // {
+        //     Vector3 tar_dir = db_moves[1].position - tr_body.position;
+        //     Vector3 new_dir = Vector3.RotateTowards(tr_body.forward, tar_dir, rotate_speed * Time.deltaTime / 2, 0f);
+        //     new_dir.y = 0;
+        //     tr_body.transform.rotation = Quaternion.LookRotation(new_dir);
+        // }
 
         if (moving)
         {
@@ -49,9 +49,14 @@ public class character : MonoBehaviour
                     if (big) //Large chars//
                     {
                         tpos = new Vector3(0, 0, 0);
-                        tpos += tar_tile_s.db_path_lowest[num_tile].transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[2].tile_s.transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.db_neighbors[2].tile_s.transform.position;
+                        tpos += tar_tile_s.db_path_lowest[num_tile].transform.position +
+                                tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.transform.position +
+                                tar_tile_s.db_path_lowest[num_tile].db_neighbors[2].tile_s.transform.position +
+                                tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.db_neighbors[2].tile_s
+                                    .transform.position;
                         tpos /= 4; //Takes up 4 tiles//
                     }
+
                     tpos.y = transform.position.y;
                     db_moves[0].position = tpos;
                     db_moves[1].position = tpos;
@@ -87,10 +92,11 @@ public class character : MonoBehaviour
         {
             tpos = tar_tile_s.transform.position;
         }
-        else
-        if (big)
+        else if (big)
         {
-            tpos += tar_tile_s.transform.position + tar_tile_s.db_neighbors[1].tile_s.transform.position + tar_tile_s.db_neighbors[2].tile_s.transform.position + tar_tile_s.db_neighbors[1].tile_s.db_neighbors[2].tile_s.transform.position;
+            tpos += tar_tile_s.transform.position + tar_tile_s.db_neighbors[1].tile_s.transform.position +
+                    tar_tile_s.db_neighbors[2].tile_s.transform.position + tar_tile_s.db_neighbors[1].tile_s
+                        .db_neighbors[2].tile_s.transform.position;
             tpos /= 4;
         }
 
@@ -102,10 +108,12 @@ public class character : MonoBehaviour
         {
             tpos += tar_tile_s.db_path_lowest[num_tile].transform.position;
         }
-        else
-        if (big)
+        else if (big)
         {
-            tpos += tar_tile_s.db_path_lowest[num_tile].transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[2].tile_s.transform.position + tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.db_neighbors[2].tile_s.transform.position;
+            tpos += tar_tile_s.db_path_lowest[num_tile].transform.position +
+                    tar_tile_s.db_path_lowest[num_tile].db_neighbors[1].tile_s.transform.position +
+                    tar_tile_s.db_path_lowest[num_tile].db_neighbors[2].tile_s.transform.position + tar_tile_s
+                        .db_path_lowest[num_tile].db_neighbors[1].tile_s.db_neighbors[2].tile_s.transform.position;
             tpos /= 4;
         }
 
