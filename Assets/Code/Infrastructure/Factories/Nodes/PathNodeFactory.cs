@@ -31,8 +31,10 @@ namespace Code.Infrastructure.Factories.Nodes
         {
             _pathNodePrefab ??= _assetProvider.Load<PathNode>(AssetPath.PathNode);
 
+            Vector3 offset = parent.position;
+
             PathNode pathNode = Object.Instantiate(_pathNodePrefab, position, Quaternion.identity, parent);
-            pathNode.Construct(x, y);
+            pathNode.Construct(x + Mathf.RoundToInt(offset.x), y + Mathf.RoundToInt(offset.z));
 
             return pathNode;
         }

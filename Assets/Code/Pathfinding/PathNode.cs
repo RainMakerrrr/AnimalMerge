@@ -7,7 +7,7 @@ namespace Code.Pathfinding
     public class PathNode : MonoBehaviour
     {
         private const string PathNodeLayer = "PathNode";
-        
+
         public int x;
         public int y;
 
@@ -16,9 +16,10 @@ namespace Code.Pathfinding
         public PathNode previousNode;
 
         public Vector3 WorldPosition => new Vector3(x, 0f, y);
-        
+
         public int FCost => gCost + hCost;
         public bool IsWalkable;
+        public bool CanPlace;
 
         public void Construct(int x, int y)
         {
@@ -30,6 +31,27 @@ namespace Code.Pathfinding
         private void OnDrawGizmosSelected()
         {
             Gizmos.DrawWireSphere(transform.position + new Vector3(0f, 0f, 0.5f), 0.25f);
+        }
+
+        public bool HasNeighbours(ObjectSizeType objectSizeType)
+        {
+            if (objectSizeType == ObjectSizeType.Small) return true;
+
+            Collider[] overlapSphere = GetTilesInRadius(objectSizeType);
+
+            List<PathNode> nodes = new List<PathNode>();
+            
+            foreach (Collider collider1 in overlapSphere)
+            {
+                var pathNode = collider1.GetComponent<PathNode>();
+                if (pathNode != null)
+                {
+                    if (pathNode.CanPlace)
+                        nodes.Add(pathNode);
+                }
+            }
+
+            return nodes.Count == GetNodeCount(objectSizeType);
         }
 
         public bool IsNeighboursFree(ObjectSizeType objectSizeType)
@@ -59,20 +81,22 @@ namespace Code.Pathfinding
             return pathNodes.Count == GetNodeCount(objectSizeType);
         }
 
-        private Collider[] GetTilesInRadius(ObjectSizeType objectSizeType)
+        public Collider[] GetTilesInRadius(ObjectSizeType objectSizeType)
         {
             float radius = 0f;
             Vector3 offset = Vector3.zero;
 
             switch (objectSizeType)
             {
+                case ObjectSizeType.Small:
+                    return Array.Empty<Collider>();
                 case ObjectSizeType.Medium:
                     radius = 0.25f;
                     offset = new Vector3(0f, 0f, 0.5f);
                     break;
                 case ObjectSizeType.Big:
                     radius = 0.5f;
-                    offset = new Vector3(0.5f, 0f, 0.5f);
+                    offset = x == 7 ? new Vector3(-0.5f, 0f, 0.5f) : new Vector3(0.5f, 0f, 0.5f);
                     break;
             }
 
@@ -97,7 +121,14 @@ namespace Code.Pathfinding
 
         private void Update() => TryDetectObstacle();
 
-        private void TryDetectObstacle() => IsWalkable = !Physics.Raycast(transform.position, Vector3.up, 40f);
+        private void TryDetectObstacle()
+        {
+            IsWalkable = !Physics.Raycast(transform.position, Vector3.up, 1f);
+
+            //RaycastHit[] hits = Physics.RaycastAll(transform.position, Vector3.up, 100f);
+
+            //IsWalkable = hits.Length <= 0;
+        }
 
         public override string ToString() => x + "," + y;
     }

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Code.Animals;
 using Code.Infrastructure.Factories.Nodes;
 using UnityEngine;
 using Zenject;
@@ -11,7 +14,7 @@ namespace Code.Pathfinding
         [SerializeField] private int _height;
         [SerializeField] private float _cellSize;
 
-        private Vector3 _originPosition = Vector3.zero;
+        private Vector3 _originPosition;
 
         private PathNode[,] _gridArray;
 
@@ -28,6 +31,7 @@ namespace Code.Pathfinding
 
         private void Awake()
         {
+            _originPosition = transform.position;
             CreateGrid();
         }
 
@@ -39,13 +43,51 @@ namespace Code.Pathfinding
             {
                 for (int y = 0; y < _gridArray.GetLength(1); y++)
                 {
-                    PathNode node = _nodeFactory.Create(new Vector3(x, 0f, y), transform, x, y);
+                    PathNode node = _nodeFactory.Create(_originPosition + new Vector3(x, 0f, y), transform, x, y);
 
-                    //PathNode node = Instantiate(_tilePrefab, new Vector3(x, 0, y), Quaternion.identity, transform);
+                    if (y == 0 || y == 1)
+                    {
+                        node.CanPlace = true;
+                    }
+                    
                     node.name = $"Tile {x},{y}";
                     _gridArray[x, y] = node;
                 }
             }
+        }
+
+        public bool HasNodeFor(AnimalType animalType)
+        {
+           List<PathNode> nodes = SortNodes().ToList();
+
+            switch (animalType)
+            {
+                case AnimalType.Elephant:
+                    return nodes.Count >= 2;
+                case AnimalType.Cheetah:
+                    return nodes.Count >= 1;
+                case AnimalType.Deer:
+                    return nodes.Count >= 1;
+                case AnimalType.Fox:
+                    return nodes.Count >= 1;
+            }
+
+            return false;
+        }
+        
+        public void PlaceOnGrid(AnimalMovement animal)
+        {
+            IEnumerable<PathNode> nodes = SortNodes();
+            
+            animal.Place(nodes.FirstOrDefault()!.WorldPosition);
+        }
+
+        private IEnumerable<PathNode> SortNodes()
+        {
+            PathNode[] nodes = _gridArray.Cast<PathNode>().ToArray();
+
+            return nodes.Where(node => Math.Abs(node.y - _originPosition.z) < 0.1f && node.IsWalkable)
+                .OrderBy(node => node.x).ToArray();
         }
 
         public float GetCellSize()

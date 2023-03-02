@@ -7,5 +7,6 @@
 		public const string LEVELS_DATABASE = "LevelDatabase";
 		public const string GAME_DATA = "GameData";
 		public const string PathNode = "Prefabs/Path Node";
+		public const string Animals = "Prefabs/Animals";
 	}
 }

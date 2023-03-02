@@ -1,4 +1,6 @@
-﻿using Code.Infrastructure.Factories.Nodes;
+﻿using Code.Infrastructure.Factories.Animals;
+using Code.Infrastructure.Factories.Nodes;
+using Code.Infrastructure.Services.Input;
 using Code.Pathfinding;
 using UnityEngine;
 using Zenject;
@@ -15,11 +17,18 @@ namespace Code.Infrastructure.Installers
             BindPathNodeFactory();
             BindPathfinder();
             BindGrid();
+            BindAnimalFactory();
+            BindCamera();
+            BindInputService();
         }
+
 
         private void BindPathfinder() => Container.Bind<IPathfinder>().To<Pathfinder>().AsSingle();
 
         private void BindPathNodeFactory() => Container.Bind<IPathNodeFactory>().To<PathNodeFactory>().AsSingle();
         private void BindGrid() => Container.Bind<Grid>().FromInstance(_grid).AsSingle();
+        private void BindAnimalFactory() => Container.Bind<IAnimalFactory>().To<AnimalFactory>().AsSingle();
+        private void BindCamera() => Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
+        private void BindInputService() => Container.Bind<IInputService>().To<InputService>().AsSingle();
     }
 }

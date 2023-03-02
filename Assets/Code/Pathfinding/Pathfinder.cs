@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
@@ -22,12 +23,18 @@ namespace Code.Pathfinding
 
         public List<PathNode> FindPath(int startX, int startY, int endX, int endY, ObjectSizeType objectSizeType)
         {
-            Debug.Log(_grid);
-            
             PathNode startNode = _grid.GetGridObject(startX, startY);
             PathNode endNode = _grid.GetGridObject(endX, endY);
 
+            List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
+                .ToList();
+
+            Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
+            
+            Debug.Log($"Neighbours count - {neighbours.Count}");
+            
             _openList = new List<PathNode> {startNode};
+
             _closedList = new List<PathNode>();
 
             for (int x = 0; x < _grid.Width; x++)
@@ -58,10 +65,14 @@ namespace Code.Pathfinding
                 foreach (PathNode neighbour in GetNeighbours(current))
                 {
                     if (_closedList.Contains(neighbour)) continue;
-                    if (!neighbour.IsWalkable || !neighbour.IsNeighboursFree(objectSizeType))
+
+                    if (!neighbours.Contains(neighbour))
                     {
-                        _closedList.Add(neighbour);
-                        continue;
+                        if (!neighbour.IsWalkable || !neighbour.IsNeighboursFree(objectSizeType))
+                        {
+                            _closedList.Add(neighbour);
+                            continue;
+                        }
                     }
 
                     int tentativeGCost = current.gCost + CalculateDistanceCost(current, neighbour);
