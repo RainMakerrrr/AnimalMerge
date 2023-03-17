@@ -47,6 +47,10 @@ namespace Code.Animals
                     _current.transform.position = _originalPosition;
                     _current = null;
                 }
+                else
+                {
+                    _current = null;
+                }
             }
         }
 
@@ -58,7 +62,12 @@ namespace Code.Animals
             {
                 _current = hit.collider.GetComponentInParent<Animal>();
                 if (_current != null)
+                {
                     _originalPosition = _current.transform.position;
+                    _current.GetComponent<AnimalMovement>().ClearNodes();
+
+                    _offset = _current.transform.position - GetMouseAsWorldPoint();
+                }
             }
         }
 
@@ -67,9 +76,22 @@ namespace Code.Animals
             Vector3 position = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
                 _camera.WorldToScreenPoint(_current.transform.position).z);
             Vector3 worldPosition = _camera.ScreenToWorldPoint(position);
-            _current.transform.position = new Vector3(worldPosition.x, 2f, worldPosition.z);
+            worldPosition.y = 2f;
+            _current.transform.position = worldPosition + _offset;
+            //_current.transform.position = worldPosition;
+        }
+        
+        private Vector3 GetMouseAsWorldPoint()
+        {
+            Vector3 position = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
+                _camera.WorldToScreenPoint(_current.transform.position).z);
+            Vector3 worldPosition = _camera.ScreenToWorldPoint(position);
+
+            return worldPosition;
         }
 
+        private Vector3 _offset;
+        
         private RaycastHit CastRay()
         {
             Vector3 screenMousePosFar = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,

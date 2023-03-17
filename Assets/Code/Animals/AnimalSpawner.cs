@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
 using Zenject;
@@ -15,8 +16,12 @@ namespace Code.Animals
         
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Elephant, AnimalType.Cheetah};
-        
+        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Elephant, AnimalType.Cheetah, AnimalType.Fox};
+
+        private List<Animal> _animals = new List<Animal>();
+
+        public IReadOnlyList<Animal> Animals => _animals;
+
         [Inject]
         private void Construct(IAnimalFactory factory)
         {
@@ -36,8 +41,8 @@ namespace Code.Animals
 
                 if (_mergeGrid.HasNodeFor(animalType))
                 {
-
                     Animal animal = _factory.Create(animalType);
+                    _animals.Add(animal);
                     //animal.transform.position = _spawnPoint;
                     
                     _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());

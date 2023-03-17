@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Code.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
 using UnityEngine;
@@ -11,14 +13,23 @@ namespace Code
 {
     public class AnimalMovement : MonoBehaviour
     {
+        private const string NodeLayerName = "PathNode";
+
         [SerializeField] private float _yPos;
-        [SerializeField] private Vector2Int _targetPoint;
+        [SerializeField] private float _zOffset;
         [SerializeField] private ObjectSizeType _sizeType;
+        [SerializeField] private AnimalAnimator _animator;
+        [SerializeField] private List<PathNode> _nodes = new List<PathNode>();
+        [SerializeField] private float _raycastOffset = 0.4f;
+        [SerializeField] private int _tilesPerMove = 2;
+
+        public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
         private IPathfinder _pathfinder;
         private Grid _grid;
 
         private PathNode _currentPathNode;
+
         public ObjectSizeType ObjectSizeType => _sizeType;
 
 
@@ -29,38 +40,47 @@ namespace Code
             _grid = grid;
         }
 
-        // private void Start()
-        // {
-        //     _currentPathNode = _grid.GetGridObject(0, 0);
-        //     Vector3 worldPosition = _currentPathNode.WorldPosition;
-        //     worldPosition.y = _yPos;
-        //     transform.position = worldPosition + GetMovementOffset();
-        // }
-
         public void Place(Vector3 position)
         {
             position.y = _yPos;
-            transform.position = position + GetMovementOffset();
+            transform.position = position + GetMovementOffset() + Offset;
         }
 
         private void Place(Vector3 position, Vector3 offset)
         {
             position.y = _yPos;
-            transform.position = position + offset;
+            transform.position = position + offset + Offset;
+        }
+
+        public void ClearNodes()
+        {
+            _nodes.ForEach(node => node.IsWalkable = true);
+            _nodes.Clear();
+        }
+
+        public void SetCurrentNode(PathNode node)
+        {
+            _currentPathNode = node;
+        }
+
+        public void FillNodes(List<PathNode> nodes)
+        {
+            _nodes = nodes;
         }
 
         public bool TryPlace()
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 20f,
-                    LayerMask.GetMask("PathNode")))
+            if (Physics.Raycast(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down,
+                    out RaycastHit hit, 20f,
+                    LayerMask.GetMask(NodeLayerName)))
             {
                 var pathNode = hit.collider.GetComponent<PathNode>();
 
                 Debug.Log(pathNode.name);
 
-                if (pathNode.CanPlace && pathNode.HasNeighbours(_sizeType))
+                if (pathNode.CanPlace && pathNode.IsWalkable && pathNode.HasNeighbours(_sizeType))
                 {
-                    Place(pathNode.WorldPosition, GetMovementOffset(pathNode));
+                    SetNewNode(pathNode);
                     return true;
                 }
 
@@ -68,12 +88,25 @@ namespace Code
 
                 if (lowerNeighbour != null)
                 {
-                    if (lowerNeighbour.CanPlace && lowerNeighbour.HasNeighbours(_sizeType))
+                    if (lowerNeighbour.CanPlace && pathNode.IsWalkable && lowerNeighbour.HasNeighbours(_sizeType))
                     {
-                        Place(lowerNeighbour.WorldPosition, GetMovementOffset(pathNode));
+                        SetNewNode(lowerNeighbour);
                         return true;
                     }
                 }
+
+
+                PathNode leftNeighbour = _grid.GetGridObject(pathNode.x - 1, pathNode.y);
+
+                if (leftNeighbour != null)
+                {
+                    if (leftNeighbour.CanPlace && pathNode.IsWalkable && leftNeighbour.HasNeighbours(_sizeType))
+                    {
+                        SetNewNode(leftNeighbour);
+                        return true;
+                    }
+                }
+
 
                 return false;
             }
@@ -81,29 +114,88 @@ namespace Code
             return false;
         }
 
+        private void RotateToTarget(Vector3 target)
+        {
+            if (target != Vector3.zero)
+                transform.rotation = Quaternion.LookRotation(target);
+        }
+
+        private void SetNewNode(PathNode pathNode)
+        {
+            _nodes.Clear();
+
+            Place(pathNode.WorldPosition, GetMovementOffset(pathNode));
+            List<PathNode> neighbours = pathNode.GetNeighbours(_sizeType);
+            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+
+            _currentPathNode = pathNode;
+            _currentPathNode.IsWalkable = false;
+            _nodes = neighbours;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
+        }
+
         private void Update()
         {
+            if (Input.GetMouseButtonDown(1))
+            {
+                bool raycast = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 20f,
+                    LayerMask.GetMask(NodeLayerName));
+            }
+
             if (Input.GetKeyDown(KeyCode.K))
             {
-                List<PathNode> path =
-                    _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, _targetPoint.x, _targetPoint.y,
-                        _sizeType);
-
-                if (path == null) return;
-
-                _currentPathNode = path.Last();
-
-                Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
-
-                for (int i = 0; i < pathPositions.Length; i++)
-                {
-                    pathPositions[i].y = _yPos;
-                    pathPositions[i] += GetMovementOffset();
-                }
-
-
-                transform.DOPath(pathPositions, pathPositions.Length / 2f).SetEase(Ease.Linear);
+                StartCoroutine(Move());
             }
+        }
+
+        public IEnumerator Move()
+        {
+            var targetPoint = new Vector2Int(_currentPathNode.x, _currentPathNode.y + _tilesPerMove);
+
+            List<PathNode> path =
+                _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, targetPoint.x, targetPoint.y,
+                    _sizeType);
+
+            if (path == null) yield break;
+
+            Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
+
+            for (int i = 0; i < pathPositions.Length; i++)
+            {
+                pathPositions[i].y = _yPos;
+                pathPositions[i] += GetMovementOffset() + Offset;
+            }
+
+            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+                .OnWaypointChange((i) =>
+                {
+                    Vector3 direction = (pathPositions[i] - transform.position).normalized;
+                    RotateToTarget(-direction);
+                })
+                .OnUpdate(() => _animator.UpdateMovementAnimation(1f)).SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    RotateToTarget(Vector3.forward);
+                    _animator.UpdateMovementAnimation(0f);
+                });
+
+            yield return tween.WaitForCompletion();
+
+            _currentPathNode.IsWalkable = true;
+            _currentPathNode = path.Last();
+
+            ClearNodes();
+
+            List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType);
+            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+
+            _currentPathNode.IsWalkable = false;
+            _nodes = neighbours;
         }
 
         private Vector3 GetMovementOffset()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Code.Pathfinding
@@ -46,7 +47,7 @@ namespace Code.Pathfinding
                 var pathNode = collider1.GetComponent<PathNode>();
                 if (pathNode != null)
                 {
-                    if (pathNode.CanPlace)
+                    if (pathNode.CanPlace && pathNode.IsWalkable)
                         nodes.Add(pathNode);
                 }
             }
@@ -78,9 +79,10 @@ namespace Code.Pathfinding
 
             Debug.Log(pathNodes.Count);
 
+            
             return pathNodes.Count == GetNodeCount(objectSizeType);
         }
-
+        
         public Collider[] GetTilesInRadius(ObjectSizeType objectSizeType)
         {
             float radius = 0f;
@@ -119,7 +121,12 @@ namespace Code.Pathfinding
             }
         }
 
-        private void Update() => TryDetectObstacle();
+        public List<PathNode> GetNeighbours(ObjectSizeType sizeType)
+        {
+            Collider[] colliders = GetTilesInRadius(sizeType);
+
+            return colliders.Select(c => c.GetComponent<PathNode>()).ToList();
+        }
 
         private void TryDetectObstacle()
         {

@@ -49,7 +49,7 @@ namespace Code.Pathfinding
                     {
                         node.CanPlace = true;
                     }
-                    
+
                     node.name = $"Tile {x},{y}";
                     _gridArray[x, y] = node;
                 }
@@ -58,7 +58,7 @@ namespace Code.Pathfinding
 
         public bool HasNodeFor(AnimalType animalType)
         {
-           List<PathNode> nodes = SortNodes().ToList();
+            List<PathNode> nodes = SortNodes().ToList();
 
             switch (animalType)
             {
@@ -74,12 +74,28 @@ namespace Code.Pathfinding
 
             return false;
         }
-        
+
         public void PlaceOnGrid(AnimalMovement animal)
         {
             IEnumerable<PathNode> nodes = SortNodes();
-            
-            animal.Place(nodes.FirstOrDefault()!.WorldPosition);
+
+            PathNode node = nodes.FirstOrDefault();
+            if (node == null) return;
+
+            List<PathNode> neighbours = node.GetNeighbours(animal.ObjectSizeType);
+            if (neighbours.Count == 0)
+            {
+                node.IsWalkable = false;
+                animal.SetCurrentNode(node);
+            }
+            else
+            {
+                neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+
+                animal.FillNodes(neighbours);
+            }
+
+            animal.Place(node.WorldPosition);
         }
 
         private IEnumerable<PathNode> SortNodes()
