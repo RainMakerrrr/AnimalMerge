@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Code.Animals
@@ -14,11 +15,12 @@ namespace Code.Animals
 
         public void UpdateMovementAnimation(float moveSpeed) => _animator.SetFloat(MoveSpeed, moveSpeed);
 
-        public void AttackAnimation() => _animator.SetTrigger(Attack);
+        public void PlayAttackAnimation() => _animator.SetTrigger(Attack);
 
         public void TakeDamageAnimation() => _animator.SetTrigger(TakeDamage);
 
         public void DeathAnimation() => _animator.SetTrigger(IsDead);
+
 
         private void Update()
         {
@@ -32,7 +34,7 @@ namespace Code.Animals
             }
             else if (Input.GetKeyDown(KeyCode.G))
             {
-                AttackAnimation();
+                PlayAttackAnimation();
             }
             else if (Input.GetKeyDown(KeyCode.H))
             {

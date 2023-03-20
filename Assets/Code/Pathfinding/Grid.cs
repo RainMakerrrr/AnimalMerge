@@ -106,17 +106,7 @@ namespace Code.Pathfinding
                 .OrderBy(node => node.x).ToArray();
         }
 
-        public float GetCellSize()
-        {
-            return _cellSize;
-        }
-
-        public Vector3 GetWorldPosition(int x, int y)
-        {
-            return new Vector3(x, 0, y) * _cellSize + _originPosition;
-        }
-
-        public void GetXY(Vector3 worldPosition, out int x, out int y)
+        private void GetXY(Vector3 worldPosition, out int x, out int y)
         {
             x = Mathf.FloorToInt((worldPosition - _originPosition).x / _cellSize);
             y = Mathf.FloorToInt((worldPosition - _originPosition).y / _cellSize);

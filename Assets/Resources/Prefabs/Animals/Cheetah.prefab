@@ -99,6 +99,12 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 3894367655471133510}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &3892271069238637796 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4377523183880098, guid: 6b01070fd8f783c47bb18bfab5a0959d,
+    type: 3}
+  m_PrefabInstance: {fileID: 3894367655471133510}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &3988518320191896950 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 95001070661291568, guid: 6b01070fd8f783c47bb18bfab5a0959d,
@@ -157,11 +163,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _yPos: 0
   _zOffset: -0.5
-  _targetPoint: {x: 0, y: 0}
   _sizeType: 1
   _animator: {fileID: -2089410257738388429}
   _nodes: []
   _raycastOffset: 0.4
+  _tilesPerMove: 2
+  _sizeEffectX: 0
+  _sizeEffectY: 2
+--- !u!114 &5215318008747409579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3895256424223697870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12352e990d744bdb830278f96809b158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: -2089410257738388429}
+  _attackPoint: {fileID: 3892271069238637796}
+  _radius: 3
+  _damage: 45
 --- !u!1001 &8229202862205973927
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -18,7 +18,7 @@ namespace Code.Animals
 
         private readonly AnimalType[] _animalTypes = new[] {AnimalType.Elephant, AnimalType.Cheetah, AnimalType.Fox};
 
-        private List<Animal> _animals = new List<Animal>();
+        private readonly List<Animal> _animals = new List<Animal>();
 
         public IReadOnlyList<Animal> Animals => _animals;
 

@@ -29,9 +29,9 @@ namespace Code.Pathfinding
             List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
                 .ToList();
 
-            Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
+            //Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
             
-            Debug.Log($"Neighbours count - {neighbours.Count}");
+            //Debug.Log($"Neighbours count - {neighbours.Count}");
             
             _openList = new List<PathNode> {startNode};
 
