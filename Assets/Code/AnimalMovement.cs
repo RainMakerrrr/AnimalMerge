@@ -61,8 +61,8 @@ namespace Code
 
         public void ClearNodes()
         {
-            if (_currentPathNode != null)
-                _currentPathNode.IsWalkable = true;
+            // if (_currentPathNode != null)
+            //     _currentPathNode.IsWalkable = true;
 
             _nodes.ForEach(node => node.IsWalkable = true);
             _nodes.Clear();
@@ -145,15 +145,17 @@ namespace Code
 
         public bool IsCloseToTarget(Vector3 target)
         {
-            return Mathf.Abs(transform.position.z - target.z) <= _sizeEffectY &&
-                   Mathf.Abs(transform.position.x - target.x) <= 1f;
+            return Mathf.Abs(_currentPathNode.y - target.z) <= _sizeEffectY &&
+                   Mathf.Abs(_currentPathNode.x - target.x) <= 1f;
         }
 
         private List<PathNode> FindPath(Vector3 target)
         {
             int x = Mathf.RoundToInt(target.x);
             int z = Mathf.RoundToInt(target.z);
-
+            
+            ClearNodes();
+            
             Vector2Int[] points =
             {
                 new Vector2Int(x, z - _sizeEffectY),
@@ -195,7 +197,7 @@ namespace Code
                 }
             }
             
-            ClearNodes();
+            //ClearNodes();
             Vector3[] pathPositions = GetPathPositions(path);
 
             Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
@@ -223,6 +225,12 @@ namespace Code
             _currentPathNode.IsWalkable = false;
             _nodes = neighbours;
 
+            if (_sizeType == ObjectSizeType.Big)
+            {
+                Debug.LogWarning(IsCloseToTarget(target));
+                Debug.LogWarning(Mathf.Abs(_currentPathNode.x - target.x));
+            }
+            
             if (IsCloseToTarget(target))
             {
                 RotateToTarget(target - transform.position);

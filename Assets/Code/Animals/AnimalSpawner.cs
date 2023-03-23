@@ -16,7 +16,7 @@ namespace Code.Animals
         
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox};
+        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Elephant};
 
         private readonly List<Animal> _animals = new List<Animal>();
 

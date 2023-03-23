@@ -26,24 +26,16 @@ namespace Code.Pathfinding
             PathNode startNode = _grid.GetGridObject(startX, startY);
             PathNode endNode = _grid.GetGridObject(endX, endY);
 
+            _openList = new List<PathNode> {startNode};
+
+            _closedList = new List<PathNode>();
+            
             List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
                 .ToList();
-
-            if (objectSizeType == ObjectSizeType.Medium)
-            {
-                foreach (PathNode neighbour in neighbours)
-                {
-                    Debug.LogWarning($"Neighbour - {neighbour.name}");
-                }
-            }
             
             //Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
             
             //Debug.Log($"Neighbours count - {neighbours.Count}");
-            
-            _openList = new List<PathNode> {startNode};
-
-            _closedList = new List<PathNode>();
 
             for (int x = 0; x < _grid.Width; x++)
             {
@@ -64,7 +56,16 @@ namespace Code.Pathfinding
 
                 if (current == endNode && current.IsWalkable)
                 {
-                    return CalculatePath(endNode);
+                    if (objectSizeType == ObjectSizeType.Medium)
+                    {
+                        Debug.LogWarning($"Current - {current.name}, walkable - {current.IsWalkable}");
+                    }
+                    
+                    if (current.IsNeighboursFree(objectSizeType))
+                    {
+                        return CalculatePath(endNode);
+
+                    }
                 }
 
                 _openList.Remove(current);
