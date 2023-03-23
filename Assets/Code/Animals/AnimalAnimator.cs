@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Animals
@@ -12,6 +12,14 @@ namespace Code.Animals
         private static readonly int IsDead = Animator.StringToHash("IsDead");
 
         [SerializeField] private Animator _animator;
+        [SerializeField] private AnimationClip _attackClip;
+
+        public async Task WaitForAttackAnimation()
+        {
+            PlayAttackAnimation();
+
+            await Task.Delay(TimeSpan.FromSeconds(_attackClip.length));
+        }
 
         public void UpdateMovementAnimation(float moveSpeed) => _animator.SetFloat(MoveSpeed, moveSpeed);
 
@@ -20,30 +28,6 @@ namespace Code.Animals
         public void TakeDamageAnimation() => _animator.SetTrigger(TakeDamage);
 
         public void DeathAnimation() => _animator.SetTrigger(IsDead);
-
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.M))
-            {
-                UpdateMovementAnimation(2f);
-            }
-            else if (Input.GetKeyDown(KeyCode.N))
-            {
-                UpdateMovementAnimation(0f);
-            }
-            else if (Input.GetKeyDown(KeyCode.G))
-            {
-                PlayAttackAnimation();
-            }
-            else if (Input.GetKeyDown(KeyCode.H))
-            {
-                TakeDamageAnimation();
-            }
-            else if (Input.GetKeyDown(KeyCode.J))
-            {
-                DeathAnimation();
-            }
-        }
+        
     }
 }

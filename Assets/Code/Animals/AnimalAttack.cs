@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Code.Animals.Health;
 using UnityEngine;
 
@@ -14,10 +15,17 @@ namespace Code.Animals
 
         private readonly Collider[] _colliders = new Collider[1];
 
+        private IDamageable _target;
 
-        public void Attack()
+        public void SetTarget(IDamageable target) => _target = target;
+
+        //public void Attack() => _animator.PlayAttackAnimation();
+        public async Task Attack() => await _animator.WaitForAttackAnimation();
+
+        private void OnDrawGizmos()
         {
-            _animator.PlayAttackAnimation();
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_attackPoint.position, _radius);
         }
 
         public void AttackAnimationHandler()
@@ -35,6 +43,8 @@ namespace Code.Animals
                 Debug.Log(health == null);
                 health?.TakeDamage(_damage);
             }
+
+            //_target?.TakeDamage(_damage);
         }
     }
 }

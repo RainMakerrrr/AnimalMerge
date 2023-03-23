@@ -29,6 +29,14 @@ namespace Code.Pathfinding
             List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
                 .ToList();
 
+            if (objectSizeType == ObjectSizeType.Medium)
+            {
+                foreach (PathNode neighbour in neighbours)
+                {
+                    Debug.LogWarning($"Neighbour - {neighbour.name}");
+                }
+            }
+            
             //Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
             
             //Debug.Log($"Neighbours count - {neighbours.Count}");
@@ -54,7 +62,7 @@ namespace Code.Pathfinding
             {
                 PathNode current = GetLowestCostNode(_openList);
 
-                if (current == endNode)
+                if (current == endNode && current.IsWalkable)
                 {
                     return CalculatePath(endNode);
                 }

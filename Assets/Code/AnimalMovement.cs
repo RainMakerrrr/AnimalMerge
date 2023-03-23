@@ -12,7 +12,7 @@ using Grid = Code.Pathfinding.Grid;
 
 namespace Code
 {
-    public class AnimalMovement : MonoBehaviour
+    public class AnimalMovement : MonoBehaviour, ITransformable
     {
         private const string NodeLayerName = "PathNode";
 
@@ -124,12 +124,6 @@ namespace Code
             return false;
         }
 
-        private void RotateToTarget(Vector3 target)
-        {
-            if (target != Vector3.zero)
-                transform.rotation = Quaternion.LookRotation(target);
-        }
-
         private void SetNewNode(PathNode pathNode)
         {
             _nodes.Clear();
@@ -149,57 +143,67 @@ namespace Code
             Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
         }
 
-        public bool CanMove(Vector3 target)
+        public bool IsCloseToTarget(Vector3 target)
         {
-            Vector2Int targetPoint =
-                new Vector2Int(Mathf.RoundToInt(target.x), Mathf.RoundToInt(target.z) - _sizeEffectY);
-
-            ClearNodes();
-
-            List<PathNode> path =
-                _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, targetPoint.x, targetPoint.y,
-                    _sizeType);
-
-            if (path == null) return false;
-
-            if (path.Count > 3)
-                path.RemoveRange(_tilesPerMove + 1, path.Count - _tilesPerMove - 1);
-
-            return path.Count <= 1;
+            return Mathf.Abs(transform.position.z - target.z) <= _sizeEffectY &&
+                   Mathf.Abs(transform.position.x - target.x) <= 1f;
         }
 
-        public async Task Move(Vector3 target)
+        private List<PathNode> FindPath(Vector3 target)
         {
-            Vector2Int targetPoint =
-                new Vector2Int(Mathf.RoundToInt(target.x), Mathf.RoundToInt(target.z) - _sizeEffectY);
+            int x = Mathf.RoundToInt(target.x);
+            int z = Mathf.RoundToInt(target.z);
 
-            ClearNodes();
-
-            List<PathNode> path =
-                _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, targetPoint.x, targetPoint.y,
-                    _sizeType);
-
-            if (path == null) return;
-
-            if (path.Count > 3)
-                path.RemoveRange(_tilesPerMove + 1, path.Count - _tilesPerMove - 1);
-
-            IsReachedTarget = path.Count <= 1;
-
-            Debug.Log($"Path count {path.Count}");
-
-            Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
-
-            for (int i = 0; i < pathPositions.Length; i++)
+            Vector2Int[] points =
             {
-                pathPositions[i].y = _yPos;
-                pathPositions[i] += GetMovementOffset() + Offset;
+                new Vector2Int(x, z - _sizeEffectY),
+                new Vector2Int(x - 1, z - _sizeEffectY),
+                new Vector2Int(x + 1, z - _sizeEffectY)
+            };
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                List<PathNode> path =
+                    _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, points[i].x, points[i].y, _sizeType);
+
+                if (path != null)
+                {
+                    Debug.Log($"{gameObject.name} - - {path.Count}");
+                    return path;
+                }
             }
 
-            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
-                .OnWaypointChange((i) =>
+            return null;
+        }
+
+        public AnimalMovement CurrentTarget;
+
+        public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
+        {
+            List<PathNode> path = FindPath(target);
+
+            if (path == null || path.Count == 0) return;
+
+            if (path.Count > _tilesPerMove + 1)
+                path = path.Take(_tilesPerMove + 1).ToList();
+
+            foreach (PathNode pathNode in path)
+            {
+                if (_sizeType == ObjectSizeType.Medium)
                 {
-                    Vector3 direction = (pathPositions[i] - transform.position).normalized;
+                    Debug.LogWarning(pathNode.name);
+                }
+            }
+            
+            ClearNodes();
+            Vector3[] pathPositions = GetPathPositions(path);
+
+            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+                .OnWaypointChange(i =>
+                {
+                    if (i >= pathPositions.Length) return;
+
+                    Vector3 direction = GetDirection(pathPositions[i]);
                     RotateToTarget(-direction);
                 })
                 .OnUpdate(() => _animator.UpdateMovementAnimation(1f)).SetEase(Ease.Linear)
@@ -210,9 +214,6 @@ namespace Code
                 });
 
             await tween.AsyncWaitForCompletion();
-            //yield return tween.WaitForCompletion();
-
-            ClearNodes();
 
             _currentPathNode = path.Last();
 
@@ -221,18 +222,24 @@ namespace Code
 
             _currentPathNode.IsWalkable = false;
             _nodes = neighbours;
+
+            if (IsCloseToTarget(target))
+            {
+                RotateToTarget(target - transform.position);
+                await reachedTargetCallback?.Invoke()!;
+            }
         }
 
-        public async Task Move()
+        private void RotateToTarget(Vector3 target)
         {
-            var targetPoint = new Vector2Int(_currentPathNode.x, _currentPathNode.y + _tilesPerMove);
+            if (target != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(target);
+            }
+        }
 
-            List<PathNode> path =
-                _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, targetPoint.x, targetPoint.y,
-                    _sizeType);
-
-            if (path == null) return;
-
+        private Vector3[] GetPathPositions(List<PathNode> path)
+        {
             Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
 
             for (int i = 0; i < pathPositions.Length; i++)
@@ -241,32 +248,18 @@ namespace Code
                 pathPositions[i] += GetMovementOffset() + Offset;
             }
 
-            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
-                .OnWaypointChange((i) =>
-                {
-                    Vector3 direction = (pathPositions[i] - transform.position).normalized;
-                    RotateToTarget(-direction);
-                })
-                .OnUpdate(() => _animator.UpdateMovementAnimation(1f)).SetEase(Ease.Linear)
-                .OnComplete(() =>
-                {
-                    RotateToTarget(Vector3.forward);
-                    _animator.UpdateMovementAnimation(0f);
-                });
+            return pathPositions;
+        }
+        private Vector3 GetDirection(Vector3 target)
+        {
+            Vector3 position = transform.position;
+            Vector3 direction = (target - position).normalized;
+            // if (Math.Abs(target.z - position.z) < 0.1f)
+            //     direction = -(position - target).normalized;
+            // else
+            //     direction = (target - position).normalized;
 
-            await tween.AsyncWaitForCompletion();
-            //yield return tween.WaitForCompletion();
-
-            _currentPathNode.IsWalkable = true;
-            _currentPathNode = path.Last();
-
-            ClearNodes();
-
-            List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType);
-            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
-
-            _currentPathNode.IsWalkable = false;
-            _nodes = neighbours;
+            return direction;
         }
 
         private Vector3 GetMovementOffset()
@@ -298,11 +291,10 @@ namespace Code
                     throw new ArgumentOutOfRangeException();
             }
         }
-    }
 
-    public interface ITransformable
-    {
-        Vector3 Position { get; }
-        Vector2Int IntPosition { get; }
+        public Vector3 Position => transform.position;
+
+        public Vector2Int IntPosition =>
+            new Vector2Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
     }
 }

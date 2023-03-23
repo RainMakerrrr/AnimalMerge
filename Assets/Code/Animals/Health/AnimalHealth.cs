@@ -36,6 +36,7 @@ namespace Code.Animals.Health
         {
             Debug.Log("Die");
             Died?.Invoke();
+            Destroy(gameObject);
         }
     }
 }

@@ -9,14 +9,14 @@ namespace Code
     {
         [SerializeField] private AnimalSpawner _spawner;
         [SerializeField] private TargetFinder _targetFinder;
-        
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.K))
             {
                 _targetFinder.Setup();
             }
-            
+
             if (Input.GetKeyDown(KeyCode.Z))
             {
                 //Sequence sequence = DOTween.Sequence();
@@ -35,14 +35,21 @@ namespace Code
             {
                 AnimalMovement closestEnemy = _targetFinder.FindClosestEnemy(animal.transform.position, "Enemy");
 
-                if (animal.GetComponent<AnimalMovement>().CanMove(closestEnemy.transform.position))
+                var animalMovement = animal.GetComponent<AnimalMovement>();
+
+                if (animalMovement.CurrentTarget == null)
+                    animalMovement.CurrentTarget = closestEnemy;
+
+                if (animalMovement.CurrentTarget == null) return;
+                
+                if (animalMovement.IsCloseToTarget(animalMovement.CurrentTarget.transform.position))
                 {
-                    animal.GetComponent<AnimalAttack>().Attack();
+                    await animal.GetComponent<AnimalAttack>().Attack();
                 }
                 else
                 {
-                    await animal.GetComponent<AnimalMovement>().Move(closestEnemy.transform.position);
-                    //yield return StartCoroutine(animal.GetComponent<AnimalMovement>().Move(closestEnemy.transform.position));
+                    await animalMovement.Move(animalMovement.CurrentTarget.transform.position,
+                        animal.GetComponent<AnimalAttack>().Attack);
                 }
             }
         }
