@@ -3,6 +3,7 @@ using System.Linq;
 using Code.Animals;
 using Framework.Code;
 using Framework.Code.Infrastructure.Services.Assets;
+using UnityEngine;
 using Zenject;
 
 namespace Code.Infrastructure.Factories.Animals
@@ -24,6 +25,8 @@ namespace Code.Infrastructure.Factories.Animals
         {
             _animalPrefabs = _assetProvider.LoadCollection<Animal>(AssetPath.Animals)
                 .ToDictionary(animal => animal.Type);
+
+            Debug.Log(_animalPrefabs.Count);
         }
 
         public Animal Create(AnimalType type)

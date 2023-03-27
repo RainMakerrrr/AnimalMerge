@@ -663,8 +663,24 @@ MonoBehaviour:
   _nodes: []
   _raycastOffset: 0.4
   _tilesPerMove: 2
-  _sizeEffectX: 0
   _sizeEffectY: 2
+  _currentPathNode: {fileID: 0}
+  CurrentTarget: {fileID: 0}
+  _direction: {x: 0, y: 0, z: 1}
+--- !u!114 &1844876298284866006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3895256424223697870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _max: 100
+  _animator: {fileID: -2089410257738388429}
 --- !u!114 &5215318008747409579
 MonoBehaviour:
   m_ObjectHideFlags: 0

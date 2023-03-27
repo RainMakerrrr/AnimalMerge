@@ -5,6 +5,7 @@
         Elephant,
         Cheetah,
         Deer,
-        Fox
+        Fox,
+        Hedgehog
     }
 }

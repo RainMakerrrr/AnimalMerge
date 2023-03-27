@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Code.Abilities;
 using Code.Animals.Health;
 using UnityEngine;
 
@@ -15,6 +16,14 @@ namespace Code.Animals
         public ITransformable Transformable => _movement;
 
         private ITarget _target;
+
+        protected IAbility Ability;
+
+        public virtual void InitBehaviours()
+        {
+            
+        }
+        
         public AnimalType Type => _type;
 
         public void SetTarget(ITarget target)
@@ -28,5 +37,12 @@ namespace Code.Animals
         public async Task Move() => await _movement.Move(_target.Transformable.Position);
 
         public void Attack() => _attack.Attack();
+    }
+
+    public class FoxFacade : AnimalFacade
+    {
+        public override void InitBehaviours()
+        {
+        }
     }
 }

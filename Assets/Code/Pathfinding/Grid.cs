@@ -70,6 +70,8 @@ namespace Code.Pathfinding
                     return nodes.Count >= 1;
                 case AnimalType.Fox:
                     return nodes.Count >= 1;
+                case AnimalType.Hedgehog:
+                    return nodes.Count >= 1;
             }
 
             return false;
@@ -82,7 +84,7 @@ namespace Code.Pathfinding
             PathNode node = nodes.FirstOrDefault();
             if (node == null) return;
 
-            List<PathNode> neighbours = node.GetNeighbours(animal.ObjectSizeType);
+            List<PathNode> neighbours = node.GetNeighbours(animal.ObjectSizeType, animal.Direction);
             if (neighbours.Count == 0)
             {
                 node.IsWalkable = false;

@@ -227,6 +227,20 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5745380572253845886}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &-6456207366961591874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5746118840335119186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _max: 100
+  _animator: {fileID: 584509779}
 --- !u!114 &-2567988923125274092
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,8 +292,10 @@ MonoBehaviour:
   _nodes: []
   _raycastOffset: 0.14
   _tilesPerMove: 2
-  _sizeEffectX: 0
   _sizeEffectY: 1
+  _currentPathNode: {fileID: 0}
+  CurrentTarget: {fileID: 0}
+  _direction: {x: 0, y: 0, z: 1}
 --- !u!114 &584509779
 MonoBehaviour:
   m_ObjectHideFlags: 0

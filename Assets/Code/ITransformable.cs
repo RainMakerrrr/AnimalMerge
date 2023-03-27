@@ -6,5 +6,7 @@ namespace Code
     {
         Vector3 Position { get; }
         Vector2Int IntPosition { get; }
+
+        void Shift();
     }
 }

@@ -13,12 +13,14 @@ namespace Code.Animals
         [SerializeField] private Vector3 _spawnPoint;
         [SerializeField] private AnimalMover _mover;
         [SerializeField] private Grid _mergeGrid;
-        
+        [SerializeField] private Grid _gameGrid;
+
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Elephant};
+        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Hedgehog};
 
         private readonly List<Animal> _animals = new List<Animal>();
+        public List<Animal> _enemies = new List<Animal>();
 
         public IReadOnlyList<Animal> Animals => _animals;
 
@@ -44,7 +46,7 @@ namespace Code.Animals
                     Animal animal = _factory.Create(animalType);
                     _animals.Add(animal);
                     //animal.transform.position = _spawnPoint;
-                    
+
                     _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
                 }
             }

@@ -21,7 +21,8 @@ namespace Code.Pathfinding
             _grid = grid;
         }
 
-        public List<PathNode> FindPath(int startX, int startY, int endX, int endY, ObjectSizeType objectSizeType)
+        public List<PathNode> FindPath(int startX, int startY, int endX, int endY, ObjectSizeType objectSizeType,
+            Vector3 direction)
         {
             PathNode startNode = _grid.GetGridObject(startX, startY);
             PathNode endNode = _grid.GetGridObject(endX, endY);
@@ -30,7 +31,7 @@ namespace Code.Pathfinding
 
             _closedList = new List<PathNode>();
             
-            List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
+            List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType, direction).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
                 .ToList();
             
             //Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
@@ -61,7 +62,7 @@ namespace Code.Pathfinding
                         Debug.LogWarning($"Current - {current.name}, walkable - {current.IsWalkable}");
                     }
                     
-                    if (current.IsNeighboursFree(objectSizeType))
+                    if (current.IsNeighboursFree(objectSizeType, direction))
                     {
                         return CalculatePath(endNode);
 
@@ -77,7 +78,7 @@ namespace Code.Pathfinding
 
                     if (!neighbours.Contains(neighbour))
                     {
-                        if (!neighbour.IsWalkable || !neighbour.IsNeighboursFree(objectSizeType))
+                        if (!neighbour.IsWalkable || !neighbour.IsNeighboursFree(objectSizeType, direction))
                         {
                             _closedList.Add(neighbour);
                             continue;

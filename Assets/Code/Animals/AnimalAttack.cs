@@ -17,31 +17,34 @@ namespace Code.Animals
 
         private IDamageable _target;
 
+
+        public float Damage => _damage;
         public void SetTarget(IDamageable target) => _target = target;
 
-        //public void Attack() => _animator.PlayAttackAnimation();
-        public async Task Attack() => await _animator.WaitForAttackAnimation();
+        public async Task Attack()
+        {
+            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+            
+            await _animator.WaitForAttackAnimation();
+        }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_attackPoint.position, _radius);
         }
-
+        
         public void AttackAnimationHandler()
         {
             Debug.Log("Attack HANDLER");
 
             int count = Physics.OverlapSphereNonAlloc(_attackPoint.position, _radius, _colliders, _mask);
-            Debug.Log(count);
             if (count == 0) return;
-
+            
             foreach (Collider col in _colliders)
             {
-                Debug.Log(col.name);
-                var health = col.GetComponent<IDamageable>();
-                Debug.Log(health == null);
-                health?.TakeDamage(_damage);
+                var health = col.GetComponentInParent<IDamageable>();
+                health?.TakeDamage(this);
             }
 
             //_target?.TakeDamage(_damage);

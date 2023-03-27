@@ -4,6 +4,12 @@
     {
         float Current { get; }
         float Max { get; }
-        void TakeDamage(float damage);
+        bool IsDead { get; }
+        void TakeDamage(AnimalAttack attacker);
+    }
+
+    public interface IAttacker
+    {
+        IDamageable Target { get; }
     }
 }
