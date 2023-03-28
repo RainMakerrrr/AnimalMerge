@@ -29,35 +29,42 @@ namespace Code.Animals.Health
             Max = _max;
             Current = Max;
             _animal = GetComponent<Animal>();
-            _ability = new CounterAttack(this);
-            //_ability = new Dodge(GetComponent<ITransformable>());
+            //_ability = new CounterAttack(this);
+            _ability = new Dodge(GetComponent<ITransformable>());
         }
 
         public void TakeDamage(AnimalAttack attacker)
         {
-            // if (_animal.Type == AnimalType.Fox)
-            // {
-            //     if (_ability.CanUse)
-            //     {
-            //         _ability.Apply();
-            //         return;
-            //     }
-            // }
+            if (_animal.Type == AnimalType.Fox)
+            {
+                if (_ability.CanUse)
+                {
+                    _ability.Apply();
+                    return;
+                }
+            }
 
             LastAttack = attacker;
 
             Current -= attacker.Damage;
             TakenDamage?.Invoke();
-
-            _animator.TakeDamageAnimation();
             
-            if (_animal.Type == AnimalType.Hedgehog)
-            {
-                if (_ability.CanUse)
-                {
-                    _animator.CounterAttackAnimation();
-                }
-            }
+            _animator.TakeDamageAnimation();
+            // if (_animal.Type == AnimalType.Hedgehog)
+            // {
+            //     if (_ability.CanUse)
+            //     {
+            //         _animator.CounterAttackAnimation();
+            //     }
+            //     else
+            //     {
+            //         _animator.TakeDamageAnimation();
+            //     }
+            // }
+            // else
+            // {
+            //     _animator.TakeDamageAnimation();
+            // }
             
             if (IsDead)
             {

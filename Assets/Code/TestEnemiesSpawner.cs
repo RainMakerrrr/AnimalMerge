@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Code.Animals.Movement;
 using Code.Pathfinding;
 using UnityEngine;
 using Grid = Code.Pathfinding.Grid;

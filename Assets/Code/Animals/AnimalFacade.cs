@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals.Health;
+using Code.Animals.Movement;
 using UnityEngine;
 
 namespace Code.Animals
@@ -38,7 +39,7 @@ namespace Code.Animals
 
         public void Attack() => _attack.Attack();
     }
-
+    
     public class FoxFacade : AnimalFacade
     {
         public override void InitBehaviours()

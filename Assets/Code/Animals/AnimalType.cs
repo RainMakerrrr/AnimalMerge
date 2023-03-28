@@ -6,6 +6,7 @@
         Cheetah,
         Deer,
         Fox,
-        Hedgehog
+        Hedgehog,
+        Chicken
     }
 }

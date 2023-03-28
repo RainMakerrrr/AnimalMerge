@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Code.Animals;
+using Code.Animals.Movement;
 using Code.Infrastructure.Factories.Nodes;
 using UnityEngine;
 using Zenject;
@@ -43,7 +45,7 @@ namespace Code.Pathfinding
             {
                 for (int y = 0; y < _gridArray.GetLength(1); y++)
                 {
-                    PathNode node = _nodeFactory.Create(_originPosition + new Vector3(x, 0f, y), transform, x, y);
+                    PathNode node = _nodeFactory.Create(_originPosition + new Vector3(x, 0f, y), transform, x, y, this);
 
                     if (y == 0 || y == 1)
                     {
@@ -56,6 +58,13 @@ namespace Code.Pathfinding
             }
         }
 
+        public bool HasPathNode(PathNode node)
+        {
+            PathNode[] nodes = _gridArray.Cast<PathNode>().ToArray();
+
+            return nodes.Any(n => n == node);
+        }
+        
         public bool HasNodeFor(AnimalType animalType)
         {
             List<PathNode> nodes = SortNodes().ToList();
@@ -71,6 +80,8 @@ namespace Code.Pathfinding
                 case AnimalType.Fox:
                     return nodes.Count >= 1;
                 case AnimalType.Hedgehog:
+                    return nodes.Count >= 1;
+                case AnimalType.Chicken:
                     return nodes.Count >= 1;
             }
 
@@ -92,6 +103,8 @@ namespace Code.Pathfinding
             }
             else
             {
+                animal.SetCurrentNode(node);
+                
                 neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
 
                 animal.FillNodes(neighbours);

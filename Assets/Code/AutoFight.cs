@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Threading.Tasks;
 using Code.Animals;
+using Code.Animals.Movement;
 using UnityEngine;
 
 namespace Code

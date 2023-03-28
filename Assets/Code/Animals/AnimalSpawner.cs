@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Code.Animals.Movement;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
 using Zenject;
@@ -17,7 +18,7 @@ namespace Code.Animals
 
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Hedgehog};
+        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Chicken, AnimalType.Elephant, AnimalType.Fox};
 
         private readonly List<Animal> _animals = new List<Animal>();
         public List<Animal> _enemies = new List<Animal>();
@@ -35,11 +36,18 @@ namespace Code.Animals
             _factory.Load();
         }
 
+        private int _counter;
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                AnimalType animalType = _animalTypes[Random.Range(0, _animalTypes.Length)];
+                if (_counter >= _animalTypes.Length)
+                {
+                    _counter = 0;
+                }
+                
+                AnimalType animalType = _animalTypes[_counter];
 
                 if (_mergeGrid.HasNodeFor(animalType))
                 {
@@ -48,6 +56,8 @@ namespace Code.Animals
                     //animal.transform.position = _spawnPoint;
 
                     _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
+
+                    _counter++;
                 }
             }
         }

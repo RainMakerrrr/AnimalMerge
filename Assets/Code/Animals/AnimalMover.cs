@@ -1,4 +1,5 @@
-﻿using Code.Infrastructure.Services.Input;
+﻿using Code.Animals.Movement;
+using Code.Infrastructure.Services.Input;
 using UnityEngine;
 using Zenject;
 
@@ -60,8 +61,6 @@ namespace Code.Animals
                 if (_current != null)
                 {
                     _originalPosition = _current.transform.position;
-                    _current.ClearNodes();
-
                     _offset = _current.transform.position - GetMouseAsWorldPoint();
                 }
             }

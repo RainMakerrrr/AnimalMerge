@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
+using Code.Animals.Movement;
 using UnityEngine;
 using Random = UnityEngine.Random;
 

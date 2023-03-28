@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Code.Animals;
+using Code.Abilities;
+using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
 using UnityEngine;
 using Zenject;
 using Grid = Code.Pathfinding.Grid;
 
-namespace Code
+namespace Code.Animals.Movement
 {
     public class AnimalMovement : MonoBehaviour, ITransformable
     {
         private const string NodeLayerName = "PathNode";
+        private const string GameGridId = "Game Grid";
 
         [SerializeField] private float _yPos;
         [SerializeField] private float _zOffset;
@@ -24,6 +25,7 @@ namespace Code
         [SerializeField] private float _raycastOffset = 0.4f;
         [SerializeField] private int _tilesPerMove = 2;
         [SerializeField] private int _sizeEffectY;
+        [SerializeField] private Vector3 _direction = Vector3.forward;
 
         public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
@@ -44,19 +46,34 @@ namespace Code
         public Vector3 Direction => _direction;
 
         public AnimalMovement CurrentTarget;
-        [SerializeField] private Vector3 _direction = Vector3.forward;
 
+        private IAbility _ability;
+
+        private IAnimalFactory _animalFactory;
+
+        private readonly List<AnimalMovement> _additionalAnimals = new List<AnimalMovement>();
+
+        private Grid _mergeGrid;
 
         [Inject]
-        private void Construct(IPathfinder pathfinder, Grid grid)
+        private void Construct(IPathfinder pathfinder, Grid grid, IAnimalFactory animalFactory)
         {
             _pathfinder = pathfinder;
             _grid = grid;
+            _animalFactory = animalFactory;
+        }
+
+        public void AddAdditionalAnimalsRange(IEnumerable<AnimalMovement> animals)
+        {
+            _additionalAnimals.AddRange(animals);
         }
 
         private void Start()
         {
+            _mergeGrid = GameObject.Find("Merge Grid").GetComponent<Grid>();
+
             RotateToTarget(_direction);
+            _ability = new MultipleCharacters(this, _grid, _animalFactory, AnimalType.Chicken);
         }
 
         public void Place(Vector3 position)
@@ -73,6 +90,16 @@ namespace Code
 
         public void ClearNodes()
         {
+            if (_additionalAnimals.Count > 0)
+            {
+                _additionalAnimals.ForEach(animal =>
+                {
+                    animal.CurrentPathNode.IsWalkable = true;
+                    animal._nodes.ForEach(node => node.IsWalkable = true);
+                    animal._nodes.Clear();
+                });
+            }
+
             _nodes.ForEach(node => node.IsWalkable = true);
             _nodes.Clear();
         }
@@ -90,54 +117,26 @@ namespace Code
         public bool TryPlace()
         {
             if (Physics.Raycast(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down,
-                    out RaycastHit hit, 20f,
-                    LayerMask.GetMask(NodeLayerName)))
+                    out RaycastHit hit))
             {
-                var pathNode = hit.collider.GetComponent<PathNode>();
+                var raycastable = hit.collider.GetComponent<IRaycastable>();
 
-                Debug.Log(pathNode.name);
-
-                if (pathNode.CanPlace && pathNode.IsWalkable && pathNode.HasNeighbours(_sizeType, _direction))
+                if (raycastable != null)
                 {
-                    SetNewNode(pathNode);
-                    return true;
+                    Debug.Log(hit.collider.name);
                 }
-
-                PathNode lowerNeighbour = _grid.GetGridObject(pathNode.x, pathNode.y - 1);
-
-                if (lowerNeighbour != null)
-                {
-                    if (lowerNeighbour.CanPlace && pathNode.IsWalkable &&
-                        lowerNeighbour.HasNeighbours(_sizeType, _direction))
-                    {
-                        SetNewNode(lowerNeighbour);
-                        return true;
-                    }
-                }
-
-
-                PathNode leftNeighbour = _grid.GetGridObject(pathNode.x - 1, pathNode.y);
-
-                if (leftNeighbour != null)
-                {
-                    if (leftNeighbour.CanPlace && pathNode.IsWalkable &&
-                        leftNeighbour.HasNeighbours(_sizeType, _direction))
-                    {
-                        SetNewNode(leftNeighbour);
-                        return true;
-                    }
-                }
-
-
-                return false;
+                
+                return raycastable != null && raycastable.Accept(this);
             }
 
             return false;
         }
 
-        private void SetNewNode(PathNode pathNode)
+        public void SetNewNode(PathNode pathNode)
         {
-            _nodes.Clear();
+            if (_currentPathNode != null) _currentPathNode.IsWalkable = true;
+
+            ClearNodes();
 
             Place(pathNode.WorldPosition, Utilities.GetMovementOffset(pathNode, _sizeType, _direction));
             List<PathNode> neighbours = pathNode.GetNeighbours(_sizeType, _direction);
@@ -148,37 +147,29 @@ namespace Code
             _nodes = neighbours;
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
-        }
-
         public bool IsCloseToTarget(Vector3 target)
         {
             int sizeEffect = GetSizeOffset();
 
-            // int sizeEffect = ObjectSizeType == ObjectSizeType.Medium || ObjectSizeType == ObjectSizeType.Big
-            //     ? _sizeEffectY
-            //     : CurrentTarget._sizeEffectY;
-            //
-            // if (CurrentTarget.ObjectSizeType == ObjectSizeType.Big && ObjectSizeType == ObjectSizeType.Medium)
-            // {
-            //     sizeEffect = _sizeEffectY + 1;
-            // }
-            //
-            // if (ObjectSizeType == ObjectSizeType.Big  && CurrentTarget.ObjectSizeType == ObjectSizeType.Medium)
-            // {
-            //     sizeEffect = _sizeEffectY + 1;
-            // }
-            //
-            // if (ObjectSizeType == ObjectSizeType.Big && CurrentTarget.ObjectSizeType == ObjectSizeType.Small)
-            // {
-            //     sizeEffect = _sizeEffectY;
-            // }
-            
             return Mathf.Abs(_currentPathNode.y - target.z) <= sizeEffect &&
                    Mathf.Abs(_currentPathNode.x - target.x) <= 1f;
+        }
+
+        private void FixedUpdate()
+        {
+            // if (Physics.Raycast(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down, out RaycastHit hit))
+            // {
+            //     if (hit.collider != null)
+            //     {
+            //         Debug.Log(hit.collider.name);
+            //     }
+            // }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
         }
 
         private List<PathNode> FindPath(Vector2Int[] points)
@@ -209,7 +200,7 @@ namespace Code
             List<PathNode> path = FindPath(possibleMoves);
 
             if (path == null) return;
-            
+
             _animator.JumpAnimation();
 
             Vector3[] pathPositions = GetPathPositions(path);
@@ -238,11 +229,8 @@ namespace Code
 
             if (path == null || path.Count == 0) return;
 
-            Debug.LogError($"Me - {name}, last node - {path.Last().name}");
-
             if (path.Count > _tilesPerMove + 1)
                 path = path.Take(_tilesPerMove + 1).ToList();
-
 
             Vector3[] pathPositions = GetPathPositions(path);
 
@@ -252,7 +240,6 @@ namespace Code
                     if (i >= pathPositions.Length) return;
 
                     Vector3 direction = (transform.position - pathPositions[i]);
-                    //Vector3 direction = Utilities.GetDirection(transform.position, pathPositions[i]);
                     RotateToTarget(direction);
                 })
                 .OnUpdate(() => _animator.UpdateMovementAnimation(1f)).SetEase(Ease.Linear)
@@ -286,26 +273,7 @@ namespace Code
             int z = Mathf.RoundToInt(target.z);
 
             int sizeEffect = GetSizeOffset();
-            
-            // int sizeEffect = ObjectSizeType == ObjectSizeType.Medium
-            //     ? _sizeEffectY
-            //     : CurrentTarget._sizeEffectY;
-            //
-            // if (CurrentTarget.ObjectSizeType == ObjectSizeType.Big && ObjectSizeType == ObjectSizeType.Medium)
-            // {
-            //     sizeEffect = _sizeEffectY + 1;
-            // }
-            //
-            // if (ObjectSizeType == ObjectSizeType.Big  && CurrentTarget.ObjectSizeType == ObjectSizeType.Medium)
-            // {
-            //     sizeEffect = _sizeEffectY + 1;
-            // }
-            //
-            // if (ObjectSizeType == ObjectSizeType.Big && CurrentTarget.ObjectSizeType == ObjectSizeType.Small)
-            // {
-            //     sizeEffect = _sizeEffectY;
-            // }
-            //
+
             int zOffset = target.z > _currentPathNode.y ? z - sizeEffect : z + sizeEffect;
 
             Vector2Int[] points =
@@ -360,8 +328,9 @@ namespace Code
                         case ObjectSizeType.Medium:
                             return _sizeEffectY;
                         case ObjectSizeType.Big:
-                            return  _sizeEffectY + 1;
+                            return _sizeEffectY + 1;
                     }
+
                     break;
                 case ObjectSizeType.Big:
                     switch (CurrentTarget.ObjectSizeType)
@@ -373,6 +342,7 @@ namespace Code
                         case ObjectSizeType.Big:
                             return _sizeEffectY + 1;
                     }
+
                     break;
             }
 

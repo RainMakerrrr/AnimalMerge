@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Code.Animals;
+using Code.Animals.Movement;
 using UnityEngine;
 
 namespace Code.Pathfinding
 {
-    public class PathNode : MonoBehaviour
+    public class PathNode : MonoBehaviour, IRaycastable
     {
         private const string PathNodeLayer = "PathNode";
 
@@ -24,10 +26,16 @@ namespace Code.Pathfinding
 
         private readonly Collider[] _colliders = new Collider[8];
 
-        public void Construct(int x, int y)
+        private Grid _grid;
+        public PathNode LeftNeighbour => _grid.GetGridObject(x - 1, y);
+        public PathNode LowerNeighbour => _grid.GetGridObject(x, y - 1);
+
+
+        public void Construct(int x, int y, Grid grid)
         {
             this.x = x;
             this.y = y;
+            _grid = grid;
             IsWalkable = true;
         }
 
@@ -54,6 +62,8 @@ namespace Code.Pathfinding
                 }
             }
 
+            Debug.Log(nodes.Count);
+
             return nodes.Count == Utilities.GetNodeCount(objectSizeType);
         }
 
@@ -64,7 +74,7 @@ namespace Code.Pathfinding
             Collider[] overlapSphere = GetTilesInRadius(objectSizeType, direction);
 
             List<PathNode> pathNodes = new List<PathNode>();
-            
+
             foreach (Collider collider1 in overlapSphere)
             {
                 var pathNode = collider1.GetComponent<PathNode>();
@@ -79,6 +89,7 @@ namespace Code.Pathfinding
 
             return pathNodes.Count == Utilities.GetNodeCount(objectSizeType);
         }
+
 
         public Collider[] GetTilesInRadius(ObjectSizeType objectSizeType, Vector3 direction)
         {
@@ -114,5 +125,29 @@ namespace Code.Pathfinding
         }
 
         public override string ToString() => x + "," + y;
+        
+        public bool Accept(AnimalMovement animal)
+        {
+            PathNode[] possibleNodes =
+            {
+                this,
+                LowerNeighbour,
+                LeftNeighbour
+            };
+            
+            foreach (PathNode node in possibleNodes)
+            {
+                if (node == null) continue;
+
+                if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.ObjectSizeType, animal.Direction))
+                {
+                    animal.SetNewNode(node);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
