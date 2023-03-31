@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Code.Animals.Movement;
+﻿using System.Collections.Generic;
+using Code.Animals.Facades;
 using Code.Pathfinding;
 using UnityEngine;
 using Grid = Code.Pathfinding.Grid;
@@ -9,21 +8,21 @@ namespace Code
 {
     public class TestEnemiesSpawner : MonoBehaviour
     {
-        [SerializeField] private AnimalMovement[] _animals;
+        [SerializeField] private AnimalFacade[] _animals;
         [SerializeField] private Grid _gameGrid;
 
-        private List<AnimalMovement> _animalsInstances = new List<AnimalMovement>();
+        private readonly List<AnimalFacade> _animalsInstances = new List<AnimalFacade>();
 
-        public IReadOnlyList<AnimalMovement> AnimalInstances => _animalsInstances;
+        public IReadOnlyList<AnimalFacade> AnimalInstances => _animalsInstances;
 
         private void Start()
         {
             PathNode gridObject = _gameGrid.GetGridObject(3, 9);
-            _animals[0].Place(gridObject.WorldPosition);
+            _animals[0].Movement.Place(gridObject.WorldPosition);
             
-            _animals[0].SetCurrentNode(gridObject);
+            _animals[0].Movement.SetCurrentNode(gridObject);
 
-            List<PathNode> neighbours = gridObject.GetNeighbours(_animals[0].ObjectSizeType, _animals[0].Direction);
+            List<PathNode> neighbours = gridObject.GetNeighbours(_animals[0].Movement.ObjectSizeType, _animals[0].Movement.Direction);
             if (neighbours.Count == 0)
             {
                 gridObject.IsWalkable = false;
@@ -32,7 +31,7 @@ namespace Code
             {
                 neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
 
-                _animals[0].FillNodes(neighbours);
+                _animals[0].Movement.FillNodes(neighbours);
             }
             
             _animalsInstances.Add(_animals[0]);

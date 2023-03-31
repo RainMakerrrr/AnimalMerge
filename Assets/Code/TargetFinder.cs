@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
+using Code.Animals.Health;
 using Code.Animals.Movement;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -32,8 +33,9 @@ namespace Code
         {
             var animals = _colliders.Where(c =>
                     c != null && c.gameObject.activeSelf && c.gameObject.layer == LayerMask.NameToLayer(layerMask))
-                .Select(c => c.GetComponentInParent<AnimalMovement>());
-            
+                .Select(c => c.GetComponentInParent<AnimalMovement>())
+                .Where(a => a.GetComponent<IDamageable>().IsDead == false);
+
             animals = animals.OrderBy(animal => Mathf.Abs(position.x - animal.transform.position.x));
 
             return animals.FirstOrDefault();
@@ -41,9 +43,10 @@ namespace Code
 
         public ITarget FindClosestTarget(Vector3 position, string layerMask)
         {
-            IEnumerable<ITarget> targets = _colliders.Where(c => c.gameObject.layer == LayerMask.NameToLayer(layerMask))
-                .Select(c => c.GetComponent<ITarget>());
-            
+            IEnumerable<ITarget> targets = _colliders.Where(c =>
+                    c != null && c.gameObject.activeSelf && c.gameObject.layer == LayerMask.NameToLayer(layerMask))
+                .Select(c => c.GetComponentInParent<ITarget>()).Where(t => t.Damageable.IsDead == false);
+
             Debug.Log(targets.Count());
 
             targets = targets.OrderBy(target => Mathf.Abs(position.x - target.Transformable.Position.x));

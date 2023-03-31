@@ -1,9 +1,10 @@
-﻿using Code.Animals.Movement;
+﻿using Code.Animals.Facades;
+using Code.Animals.Movement;
 
 namespace Code.Animals
 {
     public interface IRaycastable
     {
-        bool Accept(AnimalMovement animal);
+        bool Accept(AnimalFacade animal);
     }
 }

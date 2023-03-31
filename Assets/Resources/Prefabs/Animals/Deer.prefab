@@ -1104,9 +1104,8 @@ MonoBehaviour:
   _raycastOffset: 0.4
   _tilesPerMove: 2
   _sizeEffectY: 0
-  _currentPathNode: {fileID: 0}
-  CurrentTarget: {fileID: 0}
   _direction: {x: 0, y: 0, z: 1}
+  _currentPathNode: {fileID: 0}
 --- !u!114 &6860071423001752281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1150,6 +1149,7 @@ MonoBehaviour:
   _attackPoint: {fileID: 0}
   _radius: 0
   _damage: 0
+  _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 0

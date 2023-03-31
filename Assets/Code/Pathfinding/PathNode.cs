@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
+using Code.Animals.Facades;
 using Code.Animals.Movement;
 using UnityEngine;
 
@@ -61,9 +62,7 @@ namespace Code.Pathfinding
                         nodes.Add(pathNode);
                 }
             }
-
-            Debug.Log(nodes.Count);
-
+            
             return nodes.Count == Utilities.GetNodeCount(objectSizeType);
         }
 
@@ -80,8 +79,6 @@ namespace Code.Pathfinding
                 var pathNode = collider1.GetComponent<PathNode>();
                 if (pathNode != null)
                 {
-                    Debug.Log(pathNode.name);
-
                     if (pathNode.IsWalkable)
                         pathNodes.Add(pathNode);
                 }
@@ -126,7 +123,7 @@ namespace Code.Pathfinding
 
         public override string ToString() => x + "," + y;
         
-        public bool Accept(AnimalMovement animal)
+        public bool Accept(AnimalFacade animal)
         {
             PathNode[] possibleNodes =
             {
@@ -139,9 +136,9 @@ namespace Code.Pathfinding
             {
                 if (node == null) continue;
 
-                if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.ObjectSizeType, animal.Direction))
+                if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.Movement.ObjectSizeType, animal.Movement.Direction))
                 {
-                    animal.SetNewNode(node);
+                    animal.Movement.SetNewNode(node);
 
                     return true;
                 }

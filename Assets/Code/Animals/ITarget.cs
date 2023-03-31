@@ -1,4 +1,5 @@
 ﻿using Code.Animals.Health;
+using Code.Pathfinding;
 
 namespace Code.Animals
 {

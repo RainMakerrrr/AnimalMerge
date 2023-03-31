@@ -33,10 +33,6 @@ namespace Code.Pathfinding
             
             List<PathNode> neighbours = startNode.GetTilesInRadius(objectSizeType, direction).Select(c => c.GetComponent<PathNode>()).Except(new []{startNode})
                 .ToList();
-            
-            //Debug.Log($"Colliders count - {startNode.GetTilesInRadius(objectSizeType).Length}");
-            
-            //Debug.Log($"Neighbours count - {neighbours.Count}");
 
             for (int x = 0; x < _grid.Width; x++)
             {
@@ -57,10 +53,6 @@ namespace Code.Pathfinding
 
                 if (current == endNode && current.IsWalkable)
                 {
-                    if (objectSizeType == ObjectSizeType.Medium)
-                    {
-                        Debug.LogWarning($"Current - {current.name}, walkable - {current.IsWalkable}");
-                    }
                     
                     if (current.IsNeighboursFree(objectSizeType, direction))
                     {

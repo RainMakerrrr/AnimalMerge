@@ -2216,6 +2216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a649175c284b3c91d11cbe744be535, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _facade: {fileID: 0}
 --- !u!114 &289849958536558385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3215,7 +3216,6 @@ MonoBehaviour:
   _sizeEffectY: 1
   _direction: {x: 0, y: 0, z: 1}
   _currentPathNode: {fileID: 0}
-  CurrentTarget: {fileID: 0}
 --- !u!114 &7601560266156037783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3232,6 +3232,7 @@ MonoBehaviour:
   _attackPoint: {fileID: 5246058216650030277}
   _radius: 0.3
   _damage: 15
+  _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 8388608

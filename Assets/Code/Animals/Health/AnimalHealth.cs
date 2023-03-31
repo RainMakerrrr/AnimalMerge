@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Code.Abilities;
 using UnityEngine;
 
@@ -10,83 +14,116 @@ namespace Code.Animals.Health
         public event Action Died;
 
         [SerializeField] private float _max;
-        [SerializeField] private AnimalAnimator _animator;
+        [SerializeField] protected AnimalAnimator _animator;
 
-        private IAbility _ability;
-        
+        public IAbility Ability { get; protected set; }
+
+        protected List<IAbility> MergedAbilities = new List<IAbility>();
+
         public float Current { get; private set; }
         public float Max { get; private set; }
 
         public bool IsDead => Current <= 0;
 
-        private Animal _animal;
+        private Collider[] _colliders;
 
-        public AnimalAttack LastAttack { get; private set; }
+        public AnimalAttack LastAttack { get; protected set; }
+
+        public void Construct(Collider[] colliders)
+        {
+            _colliders = colliders;
+        }
+
+        public void Upgrade(float multiplier)
+        {
+            _max *= multiplier;
+            Current = _max;
+        }
+
+        public void SetAbility(IAbility ability) => Ability = ability;
+
+        public void AddAbility(IAbility ability)
+        {
+            MergedAbilities.Add(ability);
+        }
 
 
         private void Start()
         {
             Max = _max;
             Current = Max;
-            _animal = GetComponent<Animal>();
-            //_ability = new CounterAttack(this);
-            _ability = new Dodge(GetComponent<ITransformable>());
         }
 
-        public void TakeDamage(AnimalAttack attacker)
+        public virtual async void TakeDamage(AnimalAttack attacker)
         {
-            if (_animal.Type == AnimalType.Fox)
-            {
-                if (_ability.CanUse)
-                {
-                    _ability.Apply();
-                    return;
-                }
-            }
-
             LastAttack = attacker;
 
+            bool isBlockedDamage = await ApplyAbilities();
+
+            if (isBlockedDamage)
+            {
+                EnableColliders();
+                return;
+            }
+            
             Current -= attacker.Damage;
             TakenDamage?.Invoke();
-            
+
             _animator.TakeDamageAnimation();
-            // if (_animal.Type == AnimalType.Hedgehog)
-            // {
-            //     if (_ability.CanUse)
-            //     {
-            //         _animator.CounterAttackAnimation();
-            //     }
-            //     else
-            //     {
-            //         _animator.TakeDamageAnimation();
-            //     }
-            // }
-            // else
-            // {
-            //     _animator.TakeDamageAnimation();
-            // }
-            
+
             if (IsDead)
             {
                 Die();
             }
         }
 
-
-        public void CounterAttackAnimationHandler()
+        private void EnableColliders()
         {
-            _ability.Apply();
-
+            foreach (Collider col in _colliders)
+            {
+                col.enabled = true;
+            }
         }
-        
+
+        private async Task<bool> ApplyAbilities()
+        {
+            List<IAbility> abilities = new List<IAbility>(MergedAbilities) {Ability};
+            abilities = abilities.Where(a => a != null).ToList();
+
+            bool isBlockedDamage = false;
+            
+            foreach (IAbility ability in abilities.OrderBy(a => a.Priority))
+            {
+                if (ability.CanUse)
+                {
+                    if (ability.IsBlockingDamage)
+                    {
+                        isBlockedDamage = true;
+                    }
+                    
+                    ability.Apply();
+                    await Task.Delay(TimeSpan.FromSeconds(1.3f));
+                }
+            }
+
+            return isBlockedDamage;
+        }
+
         private void Die()
         {
             Debug.Log("Die");
             Died?.Invoke();
-            
+
             _animator.DeathAnimation();
+
+            StartCoroutine(DestroyWithDelay());
+        }
+
+        private IEnumerator DestroyWithDelay()
+        {
+            yield return new WaitForSeconds(3f);
             
-            Destroy(gameObject, 3f);
+            Destroy(gameObject);
         }
     }
 }

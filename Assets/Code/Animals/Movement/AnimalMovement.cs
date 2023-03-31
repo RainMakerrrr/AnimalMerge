@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Code.Abilities;
+using Code.Animals.Facades;
 using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Core.PathCore;
+using DG.Tweening.Plugins.Options;
 using UnityEngine;
 using Zenject;
 using Grid = Code.Pathfinding.Grid;
@@ -31,21 +35,25 @@ namespace Code.Animals.Movement
 
         private IPathfinder _pathfinder;
         private Grid _grid;
+        private Grid _mergeGrid;
 
         public PathNode _currentPathNode;
 
         public ObjectSizeType ObjectSizeType => _sizeType;
 
+        public int SizeEffect => _sizeEffectY;
+
         public PathNode CurrentPathNode => _currentPathNode;
 
         public Vector3 Position => transform.position;
+
 
         public Vector2Int IntPosition =>
             new Vector2Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
 
         public Vector3 Direction => _direction;
 
-        public AnimalMovement CurrentTarget;
+        public ITarget CurrentTarget { get; set; }
 
         private IAbility _ability;
 
@@ -53,7 +61,8 @@ namespace Code.Animals.Movement
 
         private readonly List<AnimalMovement> _additionalAnimals = new List<AnimalMovement>();
 
-        private Grid _mergeGrid;
+        public void Upgrade(int multiplier) => _tilesPerMove *= multiplier;
+
 
         [Inject]
         private void Construct(IPathfinder pathfinder, Grid grid, IAnimalFactory animalFactory)
@@ -73,7 +82,7 @@ namespace Code.Animals.Movement
             _mergeGrid = GameObject.Find("Merge Grid").GetComponent<Grid>();
 
             RotateToTarget(_direction);
-            _ability = new MultipleCharacters(this, _grid, _animalFactory, AnimalType.Chicken);
+            _ability = new MultipleCharacters(this, _grid, _animalFactory, AnimalType.Chicken, 3);
         }
 
         public void Place(Vector3 position)
@@ -120,13 +129,8 @@ namespace Code.Animals.Movement
                     out RaycastHit hit))
             {
                 var raycastable = hit.collider.GetComponent<IRaycastable>();
-
-                if (raycastable != null)
-                {
-                    Debug.Log(hit.collider.name);
-                }
                 
-                return raycastable != null && raycastable.Accept(this);
+                return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
             }
 
             return false;
@@ -154,18 +158,6 @@ namespace Code.Animals.Movement
             return Mathf.Abs(_currentPathNode.y - target.z) <= sizeEffect &&
                    Mathf.Abs(_currentPathNode.x - target.x) <= 1f;
         }
-
-        private void FixedUpdate()
-        {
-            // if (Physics.Raycast(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down, out RaycastHit hit))
-            // {
-            //     if (hit.collider != null)
-            //     {
-            //         Debug.Log(hit.collider.name);
-            //     }
-            // }
-        }
-
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
@@ -188,7 +180,7 @@ namespace Code.Animals.Movement
             return null;
         }
 
-        public void Shift()
+        public async Task Shift()
         {
             Vector2Int[] possibleMoves =
             {
@@ -198,14 +190,14 @@ namespace Code.Animals.Movement
             };
 
             List<PathNode> path = FindPath(possibleMoves);
-
+            
             if (path == null) return;
 
             _animator.JumpAnimation();
 
             Vector3[] pathPositions = GetPathPositions(path);
 
-            transform.DOPath(pathPositions, pathPositions.Length / 2f)
+            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
                 {
                     if (i >= pathPositions.Length) return;
@@ -216,8 +208,16 @@ namespace Code.Animals.Movement
                 .OnComplete(() => RotateToTarget(Vector3.forward));
 
             _currentPathNode.IsWalkable = true;
+            _nodes.ForEach(node => node.IsWalkable = true);
+            _nodes.Clear();
+            
             _currentPathNode = path.LastOrDefault();
             _currentPathNode.IsWalkable = false;
+            List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
+            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+            FillNodes(neighbours);
+
+            await tween.AsyncWaitForCompletion();
         }
 
 
@@ -319,9 +319,9 @@ namespace Code.Animals.Movement
             switch (_sizeType)
             {
                 case ObjectSizeType.Small:
-                    return CurrentTarget._sizeEffectY;
+                    return CurrentTarget.Transformable.SizeEffect;
                 case ObjectSizeType.Medium:
-                    switch (CurrentTarget.ObjectSizeType)
+                    switch (CurrentTarget.Transformable.ObjectSizeType)
                     {
                         case ObjectSizeType.Small:
                             return _sizeEffectY;
@@ -333,7 +333,7 @@ namespace Code.Animals.Movement
 
                     break;
                 case ObjectSizeType.Big:
-                    switch (CurrentTarget.ObjectSizeType)
+                    switch (CurrentTarget.Transformable.ObjectSizeType)
                     {
                         case ObjectSizeType.Small:
                             return _sizeEffectY;

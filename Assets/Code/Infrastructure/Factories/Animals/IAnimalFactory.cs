@@ -1,10 +1,11 @@
 ﻿using Code.Animals;
+using Code.Animals.Facades;
 
 namespace Code.Infrastructure.Factories.Animals
 {
     public interface IAnimalFactory
     {
         void Load();
-        Animal Create(AnimalType type);
+        AnimalFacade Create(AnimalType type);
     }
 }

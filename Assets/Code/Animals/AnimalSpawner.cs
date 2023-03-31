@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Code.Animals.Facades;
 using Code.Animals.Movement;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
 using Zenject;
 using Grid = Code.Pathfinding.Grid;
-using Random = UnityEngine.Random;
 
 namespace Code.Animals
 {
     public class AnimalSpawner : MonoBehaviour
     {
-        [SerializeField] private Vector3 _spawnPoint;
-        [SerializeField] private AnimalMover _mover;
         [SerializeField] private Grid _mergeGrid;
         [SerializeField] private Grid _gameGrid;
 
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Chicken, AnimalType.Elephant, AnimalType.Fox};
+        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
-        private readonly List<Animal> _animals = new List<Animal>();
-        public List<Animal> _enemies = new List<Animal>();
-
-        public IReadOnlyList<Animal> Animals => _animals;
+        private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
+        public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal.gameObject.activeInHierarchy).ToList();
 
         [Inject]
         private void Construct(IAnimalFactory factory)
@@ -51,7 +47,7 @@ namespace Code.Animals
 
                 if (_mergeGrid.HasNodeFor(animalType))
                 {
-                    Animal animal = _factory.Create(animalType);
+                    AnimalFacade animal = _factory.Create(animalType);
                     _animals.Add(animal);
                     //animal.transform.position = _spawnPoint;
 

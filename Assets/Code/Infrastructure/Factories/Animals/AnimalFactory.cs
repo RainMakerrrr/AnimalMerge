@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
+using Code.Animals.Facades;
 using Framework.Code;
 using Framework.Code.Infrastructure.Services.Assets;
-using UnityEngine;
 using Zenject;
 
 namespace Code.Infrastructure.Factories.Animals
@@ -12,7 +12,7 @@ namespace Code.Infrastructure.Factories.Animals
     {
         private readonly IAssetProvider _assetProvider;
         private readonly DiContainer _container;
-        private Dictionary<AnimalType, Animal> _animalPrefabs;
+        private Dictionary<AnimalType, AnimalFacade> _animalPrefabs;
 
         [Inject]
         public AnimalFactory(IAssetProvider assetProvider, DiContainer container)
@@ -23,15 +23,13 @@ namespace Code.Infrastructure.Factories.Animals
 
         public void Load()
         {
-            _animalPrefabs = _assetProvider.LoadCollection<Animal>(AssetPath.Animals)
+            _animalPrefabs = _assetProvider.LoadCollection<AnimalFacade>(AssetPath.Animals)
                 .ToDictionary(animal => animal.Type);
-
-            Debug.Log(_animalPrefabs.Count);
         }
 
-        public Animal Create(AnimalType type)
+        public AnimalFacade Create(AnimalType type)
         {
-            return _container.InstantiatePrefabForComponent<Animal>(_animalPrefabs[type]);
+            return _container.InstantiatePrefabForComponent<AnimalFacade>(_animalPrefabs[type]);
         }
     }
 }

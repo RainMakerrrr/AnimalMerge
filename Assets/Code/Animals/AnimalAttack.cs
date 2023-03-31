@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Code.Animals.Health;
 using UnityEngine;
@@ -11,20 +12,20 @@ namespace Code.Animals
         [SerializeField] private Transform _attackPoint;
         [SerializeField] private float _radius;
         [SerializeField] private float _damage;
+        [SerializeField] private int _maxTargets;
         [SerializeField] private LayerMask _mask;
 
-        private readonly Collider[] _colliders = new Collider[1];
-
-        private IDamageable _target;
-
-
+        private Collider[] _colliders;
         public float Damage => _damage;
-        public void SetTarget(IDamageable target) => _target = target;
+
+        private void Start() => _colliders = new Collider[_maxTargets];
+
+        public void Upgrade(float multiplier) => _damage *= multiplier;
 
         public async Task Attack()
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
-            
+
             await _animator.WaitForAttackAnimation();
         }
 
@@ -33,21 +34,25 @@ namespace Code.Animals
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_attackPoint.position, _radius);
         }
-        
+
         public void AttackAnimationHandler()
         {
-            Debug.Log("Attack HANDLER");
-
             int count = Physics.OverlapSphereNonAlloc(_attackPoint.position, _radius, _colliders, _mask);
             if (count == 0) return;
             
+            //Collider closestCollider = GetClosestCollider();
+
+            //closestCollider.GetComponentInParent<IDamageable>()?.TakeDamage(this);
+
             foreach (Collider col in _colliders)
             {
                 var health = col.GetComponentInParent<IDamageable>();
                 health?.TakeDamage(this);
             }
-
-            //_target?.TakeDamage(_damage);
         }
+
+        private Collider GetClosestCollider() =>
+            _colliders.Where(c => c.GetComponentInParent<IDamageable>() != null)
+                .OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).First();
     }
 }

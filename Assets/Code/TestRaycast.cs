@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Code
 {
@@ -6,6 +7,17 @@ namespace Code
     {
         [SerializeField] private GameObject[] _tiles;
         [SerializeField] private float _radius;
+
+        private void Update()
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit))
+            {
+                if (hit.collider != null)
+                {
+                    Debug.Log(hit.collider.name);
+                }
+            }
+        }
 
         private void OnDrawGizmos()
         {

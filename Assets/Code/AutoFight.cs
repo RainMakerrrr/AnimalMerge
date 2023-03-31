@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Code.Animals;
+using Code.Animals.Facades;
+using Code.Animals.Health;
 using Code.Animals.Movement;
 using UnityEngine;
 
@@ -9,6 +10,9 @@ namespace Code
 {
     public class AutoFight : MonoBehaviour
     {
+        private const string AnimalLayerMask = "Animal";
+        private const string EnemyLayerMask = "Enemy";
+
         [SerializeField] private AnimalSpawner _spawner;
         [SerializeField] private TargetFinder _targetFinder;
         [SerializeField] private TestEnemiesSpawner _enemiesSpawner;
@@ -22,68 +26,41 @@ namespace Code
 
             if (Input.GetKeyDown(KeyCode.Z))
             {
-                //Sequence sequence = DOTween.Sequence();
-
                 Move();
-                // foreach (Animal animal in _spawner.Animals)
-                // {
-                //     //sequence.Append(animal.GetComponent<AnimalMovement>().Move());
-                // }
             }
         }
 
         private async void Move()
         {
-            await MoveAllAnimals();
-            await MoveAllEnemies();
+            await MoveUnits(_spawner.Animals, EnemyLayerMask);
+            await MoveUnits(_enemiesSpawner.AnimalInstances, AnimalLayerMask);
         }
+        
 
-        private async Task MoveAllEnemies()
+        private async Task MoveUnits(IEnumerable<AnimalFacade> animals, string layerMask)
         {
-            foreach (AnimalMovement enemy in _enemiesSpawner.AnimalInstances)
+            foreach (AnimalFacade animal in animals)
             {
-                AnimalMovement closestAnimal = _targetFinder.FindClosestEnemy(enemy.transform.position, "Animal");
-                
-                if (enemy.CurrentTarget == null)
-                    enemy.CurrentTarget = closestAnimal;
+                if (animal.GetComponent<IDamageable>().IsDead) return;
 
-                if (enemy.CurrentTarget == null) return;
-
-                if (enemy.IsCloseToTarget(enemy.CurrentTarget.CurrentPathNode.WorldPosition))
-                {
-                    enemy.RotateToTarget(closestAnimal.transform.position - enemy.transform.position);
-                    await enemy.GetComponent<AnimalAttack>().Attack();
-                }
-                else
-                {
-                    await enemy.Move(enemy.CurrentTarget.CurrentPathNode.WorldPosition,
-                        enemy.GetComponent<AnimalAttack>().Attack);
-                }
-            }
-        }
-
-        private async Task MoveAllAnimals()
-        {
-            foreach (Animal animal in _spawner.Animals)
-            {
-                AnimalMovement closestEnemy = _targetFinder.FindClosestEnemy(animal.transform.position, "Enemy");
+                ITarget closestEnemy = _targetFinder.FindClosestTarget(animal.transform.position, layerMask);
 
                 var animalMovement = animal.GetComponent<AnimalMovement>();
 
-                if (animalMovement.CurrentTarget == null)
-                    animalMovement.CurrentTarget = closestEnemy;
+                animalMovement.CurrentTarget ??= closestEnemy;
 
-                if (animalMovement.CurrentTarget == null) return;
+                if (animalMovement.CurrentTarget == null || animalMovement.CurrentTarget.Damageable.IsDead) return;
 
-                if (animalMovement.IsCloseToTarget(animalMovement.CurrentTarget.CurrentPathNode.WorldPosition))
+                if (animalMovement.IsCloseToTarget(animalMovement.CurrentTarget.Transformable.CurrentPathNode
+                        .WorldPosition))
                 {
-                    animalMovement.RotateToTarget(closestEnemy.transform.position - animal.transform.position);
-                    await animal.GetComponent<AnimalAttack>().Attack();
+                    animalMovement.RotateToTarget(closestEnemy.Transformable.Position - animal.transform.position);
+                    await animal.AttackInstance.Attack();
                 }
                 else
                 {
-                    await animalMovement.Move(animalMovement.CurrentTarget.CurrentPathNode.WorldPosition,
-                        animal.GetComponent<AnimalAttack>().Attack);
+                    await animalMovement.Move(animalMovement.CurrentTarget.Transformable.CurrentPathNode.WorldPosition,
+                        animal.AttackInstance.Attack);
                 }
             }
         }

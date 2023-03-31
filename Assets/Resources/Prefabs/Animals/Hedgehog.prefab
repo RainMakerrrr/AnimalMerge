@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 398027100}
   - component: {fileID: 398027101}
+  - component: {fileID: 1165212902779726181}
+  - component: {fileID: 5533359069743301579}
   m_Layer: 20
   m_Name: Collider
   m_TagString: Untagged
@@ -44,6 +46,34 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1.2
   m_Center: {x: 0, y: 1.03, z: -0.15}
+--- !u!114 &1165212902779726181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398027099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46a649175c284b3c91d11cbe744be535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _facade: {fileID: 4932021025012997636}
+--- !u!114 &5533359069743301579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 398027099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a3542b61f2a46baa01b91fdf8881277, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _attributes:
+  - {fileID: 895290010277412549}
+  _target: {fileID: 1165212902779726181}
 --- !u!1 &874650263865961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1020,6 +1050,7 @@ GameObject:
   m_Component:
   - component: {fileID: 564087782744325331}
   - component: {fileID: 2427858789388414427}
+  - component: {fileID: 895290010277412549}
   m_Layer: 20
   m_Name: Fox Tail
   m_TagString: Untagged
@@ -1128,6 +1159,19 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.38393676, y: 0.000000007450581, z: -0.099293485}
     m_Extent: {x: 0.32356805, y: 0.10235078, z: 0.25956798}
   m_DirtyAABB: 0
+--- !u!114 &895290010277412549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4694057708168263620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c71542ba42de4fe187242a162655da2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _type: 3
 --- !u!1 &4773600376250089916
 GameObject:
   m_ObjectHideFlags: 0
@@ -1822,9 +1866,11 @@ GameObject:
   - component: {fileID: 8994306188365062619}
   - component: {fileID: 7371413107812673445}
   - component: {fileID: 7371413107812673446}
-  - component: {fileID: 7371413107812673447}
   - component: {fileID: 7371413107812673440}
   - component: {fileID: 7371413107812673441}
+  - component: {fileID: 4932021025012997636}
+  - component: {fileID: -826941444165281398}
+  - component: {fileID: -15052929749299548}
   m_Layer: 20
   m_Name: Hedgehog
   m_TagString: Untagged
@@ -1901,23 +1947,8 @@ MonoBehaviour:
   _raycastOffset: 0
   _tilesPerMove: 2
   _sizeEffectY: 1
-  _currentPathNode: {fileID: 0}
-  CurrentTarget: {fileID: 0}
   _direction: {x: 0, y: 0, z: 1}
---- !u!114 &7371413107812673447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7371413107812673442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _max: 1000
-  _animator: {fileID: 7371413107812673441}
+  _currentPathNode: {fileID: 0}
 --- !u!114 &7371413107812673440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1934,6 +1965,7 @@ MonoBehaviour:
   _attackPoint: {fileID: 7856342109478288664}
   _radius: 0.5
   _damage: 30
+  _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 8388608
@@ -1951,6 +1983,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 8994306188365062619}
   _attackClip: {fileID: 0}
+--- !u!114 &4932021025012997636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7371413107812673442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d706eef2794d3e9d2aa7a631e33bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _type: 4
+  _animator: {fileID: 7371413107812673441}
+  _attack: {fileID: 7371413107812673440}
+  _upgrade: {fileID: -826941444165281398}
+  _colliders:
+  - {fileID: 398027101}
+  _health: {fileID: -15052929749299548}
+  _movement: {fileID: 7371413107812673446}
+--- !u!114 &-826941444165281398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7371413107812673442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fa677d643b040cfb28dc0190776fe4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _health: {fileID: -15052929749299548}
+  _attack: {fileID: 7371413107812673440}
+  _movement: {fileID: 7371413107812673446}
+--- !u!114 &-15052929749299548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7371413107812673442}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _max: 100
+  _animator: {fileID: 7371413107812673441}
 --- !u!1 &7463189828538510393
 GameObject:
   m_ObjectHideFlags: 0

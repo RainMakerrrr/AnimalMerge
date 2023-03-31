@@ -29,7 +29,7 @@ namespace Code.Animals
 
         public void TakeDamageAnimation() => _animator.SetTrigger(TakeDamage);
 
-        public void DeathAnimation() => _animator.SetTrigger(IsDead);
+        public void DeathAnimation() => _animator.SetBool(IsDead, true);
 
         public void JumpAnimation() => _animator.SetTrigger(Jump);
 

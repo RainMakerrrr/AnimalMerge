@@ -23,9 +23,15 @@ namespace Code.Animals.Merge
             _target.Merge -= OnMerge;
         }
 
-        private void OnMerge(AnimalType type)
+        private void OnMerge(List<AnimalType> types)
         {
-            _cachedAttributes[type].Apply();
+            foreach (AnimalType type in types)
+            {
+                if (_cachedAttributes.TryGetValue(type, out VisualMergeAttribute attribute))
+                {
+                    attribute.Apply();
+                }
+            }
         }
     }
 }
