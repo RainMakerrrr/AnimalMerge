@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "enhanced-mcp": {
+      "command": "node",
+      "args": [
+        "C:/BitbuckerProjects/animal-merge/advanced-mcp/index.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
