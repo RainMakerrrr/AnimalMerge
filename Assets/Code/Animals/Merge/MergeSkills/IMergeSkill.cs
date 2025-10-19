@@ -139,10 +139,16 @@ namespace Code.Animals.Merge.MergeSkills
 
         public void Merge(AnimalFacade animal, AnimalFacade other)
         {
+            if (animal == null)
+                return;
+
             animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, Probability));
 
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);
+
+            if (other == null)
+                return;
 
             foreach (IMergeSkill mergeSkill in other.MergeSkills)
             {

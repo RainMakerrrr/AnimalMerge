@@ -11,8 +11,23 @@ namespace Code.Animals.Merge
         [SerializeField] private AnimalFacade _facade;
         public event Action<List<AnimalType>> Merge; 
 
+        private void Awake()
+        {
+            if (_facade == null)
+                _facade = GetComponent<AnimalFacade>();
+        }
+
         public bool Accept(AnimalFacade animal)
         {
+            if (animal == null)
+                return false;
+
+            if (_facade == null)
+            {
+                Debug.LogError("MergeTarget: target AnimalFacade is not assigned.");
+                return false;
+            }
+
             List<AnimalType> types = animal.MergeSkills.Select(skill => skill.AnimalType).ToList();
             types.Add(animal.Type);
 
