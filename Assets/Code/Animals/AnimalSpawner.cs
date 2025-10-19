@@ -13,10 +13,10 @@ namespace Code.Animals
     {
         [SerializeField] private Grid _mergeGrid;
         [SerializeField] private Grid _gameGrid;
+        [SerializeField] private AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
         private IAnimalFactory _factory;
 
-        private readonly AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
         private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
         public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal.gameObject.activeInHierarchy).ToList();

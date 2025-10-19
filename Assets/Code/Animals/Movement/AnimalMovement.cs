@@ -125,8 +125,12 @@ namespace Code.Animals.Movement
 
         public bool TryPlace()
         {
-            if (Physics.Raycast(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down,
-                    out RaycastHit hit))
+            if (Physics.Raycast(
+                    transform.position + new Vector3(0f, 2f, _raycastOffset),
+                    Vector3.down,
+                    out RaycastHit hit,
+                    Mathf.Infinity,
+                    LayerMask.GetMask(NodeLayerName)))
             {
                 var raycastable = hit.collider.GetComponent<IRaycastable>();
                 

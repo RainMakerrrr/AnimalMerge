@@ -68,20 +68,28 @@ namespace Code.Animals
 
         private void DragAnimal()
         {
-            Vector3 position = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
-                _camera.WorldToScreenPoint(_current.transform.position).z);
-            Vector3 worldPosition = _camera.ScreenToWorldPoint(position);
-            worldPosition.y = 2f;
-            _current.transform.position = worldPosition + _offset;
+            Ray ray = _camera.ScreenPointToRay(_inputService.MousePosition);
+            Plane dragPlane = new Plane(Vector3.up, new Vector3(0f, _originalPosition.y, 0f));
+
+            if (dragPlane.Raycast(ray, out float enter))
+            {
+                Vector3 worldPosition = ray.GetPoint(enter);
+                _current.transform.position = worldPosition + _offset;
+            }
         }
 
         private Vector3 GetMouseAsWorldPoint()
         {
-            Vector3 position = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
-                _camera.WorldToScreenPoint(_current.transform.position).z);
-            Vector3 worldPosition = _camera.ScreenToWorldPoint(position);
+            Ray ray = _camera.ScreenPointToRay(_inputService.MousePosition);
+            float y = _current != null ? _current.transform.position.y : _originalPosition.y;
+            Plane plane = new Plane(Vector3.up, new Vector3(0f, y, 0f));
 
-            return worldPosition;
+            if (plane.Raycast(ray, out float enter))
+            {
+                return ray.GetPoint(enter);
+            }
+
+            return _current != null ? _current.transform.position : Vector3.zero;
         }
 
         private RaycastHit CastRay()
