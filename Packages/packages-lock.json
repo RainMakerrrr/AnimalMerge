@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.unity-bridge": {
+      "version": "file:C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      }
+    },
     "com.unity.ai.navigation": {
       "version": "1.1.6",
       "depth": 0,
