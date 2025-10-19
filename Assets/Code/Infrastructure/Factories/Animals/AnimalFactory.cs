@@ -4,6 +4,7 @@ using Code.Animals;
 using Code.Animals.Facades;
 using Framework.Code;
 using Framework.Code.Infrastructure.Services.Assets;
+using UnityEngine;
 using Zenject;
 
 namespace Code.Infrastructure.Factories.Animals
@@ -29,6 +30,7 @@ namespace Code.Infrastructure.Factories.Animals
 
         public AnimalFacade Create(AnimalType type)
         {
+            Debug.Log($"[AnimalFactory] type - {type}");
             return _container.InstantiatePrefabForComponent<AnimalFacade>(_animalPrefabs[type]);
         }
     }

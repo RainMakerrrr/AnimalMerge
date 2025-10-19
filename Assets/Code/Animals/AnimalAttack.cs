@@ -31,23 +31,32 @@ namespace Code.Animals
 
         private void OnDrawGizmos()
         {
+            if (_attackPoint == null) return;
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_attackPoint.position, _radius);
         }
 
         public void AttackAnimationHandler()
         {
+            var animal = GetComponent<Animal>();
+            if (animal != null && animal.Type == AnimalType.Hedgehog) return;
+            if (_attackPoint == null) return;
+
+            if (_colliders == null || _colliders.Length != _maxTargets)
+                _colliders = new Collider[_maxTargets];
+
             int count = Physics.OverlapSphereNonAlloc(_attackPoint.position, _radius, _colliders, _mask);
-            if (count == 0) return;
-            
-            //Collider closestCollider = GetClosestCollider();
+            if (count <= 0) return;
 
-            //closestCollider.GetComponentInParent<IDamageable>()?.TakeDamage(this);
-
-            foreach (Collider col in _colliders)
+            for (int i = 0; i < count; i++)
             {
+                Collider col = _colliders[i];
+                if (col == null) continue;
+
                 var health = col.GetComponentInParent<IDamageable>();
-                health?.TakeDamage(this);
+                if (health == null) continue;
+
+                health.TakeDamage(this);
             }
         }
 

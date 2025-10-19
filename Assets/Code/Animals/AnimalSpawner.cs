@@ -19,7 +19,7 @@ namespace Code.Animals
 
 
         private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
-        public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal.gameObject.activeInHierarchy).ToList();
+        public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal != null && animal.gameObject != null && animal.gameObject.activeInHierarchy).ToList();
 
         [Inject]
         private void Construct(IAnimalFactory factory)
