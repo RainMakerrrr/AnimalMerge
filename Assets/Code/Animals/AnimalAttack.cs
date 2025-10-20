@@ -11,6 +11,7 @@ namespace Code.Animals
         [SerializeField] private AnimalAnimator _animator;
         [SerializeField] private Transform _attackPoint;
         [SerializeField] private float _radius;
+        [SerializeField] private float _forwardReach = 0.25f;
         [SerializeField] private float _damage;
         [SerializeField] private int _maxTargets;
         [SerializeField] private LayerMask _mask;
@@ -33,7 +34,8 @@ namespace Code.Animals
         {
             if (_attackPoint == null) return;
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_attackPoint.position, _radius);
+            Vector3 center = _attackPoint.position + transform.forward * _forwardReach;
+            Gizmos.DrawWireSphere(center, _radius);
         }
 
         public void AttackAnimationHandler()
@@ -45,8 +47,16 @@ namespace Code.Animals
             if (_colliders == null || _colliders.Length != _maxTargets)
                 _colliders = new Collider[_maxTargets];
 
-            int count = Physics.OverlapSphereNonAlloc(_attackPoint.position, _radius, _colliders, _mask);
-            if (count <= 0) return;
+            Vector3 a = _attackPoint.position;
+            Vector3 b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
+            int count = Physics.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask);
+            if (count <= 0)
+            {
+                // Fallback to a simple sphere centered slightly forward
+                Vector3 center = _attackPoint.position + transform.forward * _forwardReach;
+                count = Physics.OverlapSphereNonAlloc(center, _radius, _colliders, _mask);
+                if (count <= 0) return;
+            }
 
             for (int i = 0; i < count; i++)
             {
