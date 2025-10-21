@@ -7,12 +7,10 @@ using Code.Animals.Facades;
 using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
-using DG.Tweening.Core;
-using DG.Tweening.Plugins.Core.PathCore;
-using DG.Tweening.Plugins.Options;
 using UnityEngine;
 using Zenject;
 using Grid = Code.Pathfinding.Grid;
+using Code.Debugging;
 
 namespace Code.Animals.Movement
 {
@@ -30,6 +28,9 @@ namespace Code.Animals.Movement
         [SerializeField] private int _tilesPerMove = 2;
         [SerializeField] private int _sizeEffectY;
         [SerializeField] private Vector3 _direction = Vector3.forward;
+        [SerializeField] private bool _debugDrawPath = true;
+
+        private Vector3[] _debugPathPoints;
 
         public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
@@ -104,12 +105,13 @@ namespace Code.Animals.Movement
                 _additionalAnimals.ForEach(animal =>
                 {
                     animal.CurrentPathNode.IsWalkable = true;
-                    animal._nodes.ForEach(node => node.IsWalkable = true);
+                    animal.CurrentPathNode.UpdateVisual();
+                    animal._nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
                     animal._nodes.Clear();
                 });
             }
 
-            _nodes.ForEach(node => node.IsWalkable = true);
+            _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
             _nodes.Clear();
         }
 
@@ -142,16 +144,21 @@ namespace Code.Animals.Movement
 
         public void SetNewNode(PathNode pathNode)
         {
-            if (_currentPathNode != null) _currentPathNode.IsWalkable = true;
+            if (_currentPathNode != null)
+            {
+                _currentPathNode.IsWalkable = true;
+                _currentPathNode.UpdateVisual();
+            }
 
             ClearNodes();
 
             Place(pathNode.WorldPosition, Utilities.GetMovementOffset(pathNode, _sizeType, _direction));
             List<PathNode> neighbours = pathNode.GetNeighbours(_sizeType, _direction);
-            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
             _currentPathNode = pathNode;
             _currentPathNode.IsWalkable = false;
+            _currentPathNode.UpdateVisual();
             _nodes = neighbours;
         }
 
@@ -166,6 +173,25 @@ namespace Code.Animals.Movement
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
+
+            if (_debugDrawPath && _debugPathPoints != null && _debugPathPoints.Length > 1)
+            {
+                Color prev = Gizmos.color;
+                Gizmos.color = Color.green;
+
+                for (int i = 1; i < _debugPathPoints.Length; i++)
+                {
+                    Gizmos.DrawLine(_debugPathPoints[i - 1], _debugPathPoints[i]);
+                }
+
+                Gizmos.color = Color.yellow;
+                for (int i = 0; i < _debugPathPoints.Length; i++)
+                {
+                    Gizmos.DrawSphere(_debugPathPoints[i], 0.05f);
+                }
+
+                Gizmos.color = prev;
+            }
         }
 
         private List<PathNode> FindPath(Vector2Int[] points)
@@ -200,6 +226,7 @@ namespace Code.Animals.Movement
             _animator.JumpAnimation();
 
             Vector3[] pathPositions = GetPathPositions(path);
+            _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
             Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
@@ -209,16 +236,22 @@ namespace Code.Animals.Movement
                     Vector3 direction = GetDirection(pathPositions[i]);
                     RotateToTarget(-direction);
                 })
-                .OnComplete(() => RotateToTarget(Vector3.forward));
+                .OnComplete(() =>
+                {
+                    RotateToTarget(Vector3.forward);
+                    _debugPathPoints = null;
+                });
 
             _currentPathNode.IsWalkable = true;
-            _nodes.ForEach(node => node.IsWalkable = true);
+            _currentPathNode.UpdateVisual();
+            _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
             _nodes.Clear();
             
             _currentPathNode = path.LastOrDefault();
             _currentPathNode.IsWalkable = false;
+            _currentPathNode.UpdateVisual();
             List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
-            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
             FillNodes(neighbours);
 
             await tween.AsyncWaitForCompletion();
@@ -228,8 +261,13 @@ namespace Code.Animals.Movement
         public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
             Vector2Int[] points = GetPossibleMoves(target);
+            PathFindLogger.Log($"Move request from {_currentPathNode} towards {target} -> candidates: {string.Join(",", points.Select(p => $"({p.x},{p.y})"))}");
 
             List<PathNode> path = FindPath(points);
+            if (path != null)
+            {
+                PathFindLogger.Log($"Path found len={path.Count} start={path.FirstOrDefault()} end={path.LastOrDefault()}");
+            }
 
             if (path == null || path.Count == 0) return;
 
@@ -237,6 +275,19 @@ namespace Code.Animals.Movement
                 path = path.Take(_tilesPerMove + 1).ToList();
 
             Vector3[] pathPositions = GetPathPositions(path);
+            _debugPathPoints = _debugDrawPath ? pathPositions : null;
+
+            // Free previous node and neighbours before moving so the tile color reverts to green
+            if (_currentPathNode != null)
+            {
+                _currentPathNode.IsWalkable = true;
+                _currentPathNode.UpdateVisual();
+            }
+            if (_nodes != null && _nodes.Count > 0)
+            {
+                _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
+                _nodes.Clear();
+            }
 
             Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
@@ -251,6 +302,7 @@ namespace Code.Animals.Movement
                 {
                     RotateToTarget(_direction);
                     _animator.UpdateMovementAnimation(0f);
+                    _debugPathPoints = null;
                 });
 
             await tween.AsyncWaitForCompletion();
@@ -258,9 +310,10 @@ namespace Code.Animals.Movement
             _currentPathNode = path.Last();
 
             List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
-            neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
             _currentPathNode.IsWalkable = false;
+            _currentPathNode.UpdateVisual();
             _nodes = neighbours;
 
             if (IsCloseToTarget(target))

@@ -16,6 +16,12 @@ namespace Code.Pathfinding
         [SerializeField] private int _height;
         [SerializeField] private float _cellSize;
 
+        [Header("Debug Visualization")]
+        [SerializeField] private bool _debugDrawGrid = true;
+        [SerializeField] private float _debugCellHeight = 0.02f;
+        [SerializeField] private Color _freeColor = new Color(0f, 1f, 0f, 0.35f);
+        [SerializeField] private Color _occupiedColor = new Color(1f, 0f, 0f, 0.35f);
+
         private Vector3 _originPosition;
 
         private PathNode[,] _gridArray;
@@ -54,6 +60,29 @@ namespace Code.Pathfinding
 
                     node.name = $"Tile {x},{y}";
                     _gridArray[x, y] = node;
+                    node.UpdateVisual();
+                }
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!_debugDrawGrid) return;
+            if (_gridArray == null) return;
+
+            float visualSize = 0.9f; // slightly smaller than 1 to see borders
+            Vector3 boxSize = new Vector3(visualSize, _debugCellHeight, visualSize);
+
+            for (int x = 0; x < _gridArray.GetLength(0); x++)
+            {
+                for (int y = 0; y < _gridArray.GetLength(1); y++)
+                {
+                    PathNode node = _gridArray[x, y];
+                    if (node == null) continue;
+
+                    Gizmos.color = node.IsWalkable ? _freeColor : _occupiedColor;
+                    Vector3 pos = node.transform.position + new Vector3(0f, _debugCellHeight * 0.5f, 0f);
+                    Gizmos.DrawCube(pos, boxSize);
                 }
             }
         }
@@ -99,13 +128,14 @@ namespace Code.Pathfinding
             if (neighbours.Count == 0)
             {
                 node.IsWalkable = false;
+                node.UpdateVisual();
                 animal.SetCurrentNode(node);
             }
             else
             {
                 animal.SetCurrentNode(node);
                 
-                neighbours.ForEach(neighbour => neighbour.IsWalkable = false);
+                neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
                 animal.FillNodes(neighbours);
             }

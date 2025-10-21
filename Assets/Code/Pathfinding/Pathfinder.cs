@@ -56,7 +56,16 @@ namespace Code.Pathfinding
                     
                     if (current.IsNeighboursFree(objectSizeType, direction))
                     {
-                        return CalculatePath(endNode);
+                        List<PathNode> resultPath = CalculatePath(endNode);
+                        // Visual refresh for nodes along the chosen path (optional, cheap)
+                        if (resultPath != null)
+                        {
+                            for (int i = 0; i < resultPath.Count; i++)
+                            {
+                                resultPath[i].UpdateVisual();
+                            }
+                        }
+                        return resultPath;
 
                     }
                 }
@@ -73,6 +82,7 @@ namespace Code.Pathfinding
                         if (!neighbour.IsWalkable || !neighbour.IsNeighboursFree(objectSizeType, direction))
                         {
                             _closedList.Add(neighbour);
+                            neighbour.UpdateVisual();
                             continue;
                         }
                     }

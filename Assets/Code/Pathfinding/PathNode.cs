@@ -31,6 +31,10 @@ namespace Code.Pathfinding
         public PathNode LeftNeighbour => _grid.GetGridObject(x - 1, y);
         public PathNode LowerNeighbour => _grid.GetGridObject(x, y - 1);
 
+        [SerializeField] private Renderer _renderer;
+        [SerializeField] private Color _freeColor = Color.green;
+        [SerializeField] private Color _occupiedColor = Color.red;
+
 
         public void Construct(int x, int y, Grid grid)
         {
@@ -38,6 +42,21 @@ namespace Code.Pathfinding
             this.y = y;
             _grid = grid;
             IsWalkable = true;
+        }
+
+        private void Awake()
+        {
+            if (_renderer == null)
+                _renderer = GetComponentInChildren<Renderer>();
+
+            UpdateVisual();
+        }
+
+        public void UpdateVisual()
+        {
+            if (_renderer == null) return;
+            var materialInstance = _renderer.material;
+            materialInstance.color = IsWalkable ? _freeColor : _occupiedColor;
         }
 
         private void OnDrawGizmosSelected()

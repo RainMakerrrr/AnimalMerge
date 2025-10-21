@@ -49,16 +49,25 @@ namespace Code
 
                 animalMovement.CurrentTarget ??= closestEnemy;
 
-                if (animalMovement.CurrentTarget == null || animalMovement.CurrentTarget.Damageable.IsDead) return;
+                if (animalMovement.CurrentTarget == null || animalMovement.CurrentTarget.Damageable.IsDead)
+                {
+                    Debug.Log($"[PathFindDebug] Target is null for {animal.name}");
+                    return;
+                }
 
+                Debug.Log($"[PathFindDebug] target is {animalMovement.CurrentTarget.Transformable.CurrentPathNode}");
+                
                 if (animalMovement.IsCloseToTarget(animalMovement.CurrentTarget.Transformable.CurrentPathNode
                         .WorldPosition))
                 {
+                    Debug.Log($"[PathFindDebug] is close to target, can attack {animal.name}");
                     animalMovement.RotateToTarget(closestEnemy.Transformable.Position - animal.transform.position);
                     await animal.AttackInstance.Attack();
                 }
                 else
                 {
+                    Debug.Log($"[PathFindDebug] move to target {animal.name}");
+
                     await animalMovement.Move(animalMovement.CurrentTarget.Transformable.CurrentPathNode.WorldPosition,
                         animal.AttackInstance.Attack);
                 }
