@@ -10,7 +10,6 @@ using DG.Tweening;
 using UnityEngine;
 using Zenject;
 using Grid = Code.Pathfinding.Grid;
-using Code.Debugging;
 
 namespace Code.Animals.Movement
 {
@@ -55,6 +54,8 @@ namespace Code.Animals.Movement
         public Vector3 Direction => _direction;
 
         public ITarget CurrentTarget { get; set; }
+
+        public List<PathNode> Nodes => _nodes;
 
         private IAbility _ability;
 
@@ -164,10 +165,24 @@ namespace Code.Animals.Movement
 
         public bool IsCloseToTarget(Vector3 target)
         {
+            if (_currentPathNode == null) return false;
+
             int sizeEffect = GetSizeOffset();
 
-            return Mathf.Abs(_currentPathNode.y - target.z) <= sizeEffect &&
-                   Mathf.Abs(_currentPathNode.x - target.x) <= 1f;
+            // Compute closeness in the local basis of movement: forward = _direction, right = perpendicular
+            Vector2Int current = new Vector2Int(_currentPathNode.x, _currentPathNode.y);
+            int targetX = Mathf.RoundToInt(target.x);
+            int targetZ = Mathf.RoundToInt(target.z);
+            Vector2Int delta = new Vector2Int(targetX - current.x, targetZ - current.y);
+
+            Vector2Int forward = new Vector2Int(Mathf.RoundToInt(_direction.x), Mathf.RoundToInt(_direction.z));
+            if (forward == Vector2Int.zero) forward = Vector2Int.up;
+            Vector2Int right = new Vector2Int(forward.y, -forward.x);
+
+            int longitudinal = Mathf.Abs(delta.x * forward.x + delta.y * forward.y);
+            int lateral = Mathf.Abs(delta.x * right.x + delta.y * right.y);
+
+            return longitudinal <= sizeEffect && lateral <= 1;
         }
         private void OnDrawGizmos()
         {
@@ -221,7 +236,7 @@ namespace Code.Animals.Movement
 
             List<PathNode> path = FindPath(possibleMoves);
             
-            if (path == null) return;
+            if (path == null || path.Count == 0) return;
 
             _animator.JumpAnimation();
 
@@ -242,33 +257,36 @@ namespace Code.Animals.Movement
                     _debugPathPoints = null;
                 });
 
-            _currentPathNode.IsWalkable = true;
-            _currentPathNode.UpdateVisual();
+            if (_currentPathNode != null)
+            {
+                _currentPathNode.IsWalkable = true;
+                _currentPathNode.UpdateVisual();
+            }
             _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
             _nodes.Clear();
             
             _currentPathNode = path.LastOrDefault();
-            _currentPathNode.IsWalkable = false;
-            _currentPathNode.UpdateVisual();
-            List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
-            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
-            FillNodes(neighbours);
+            if (_currentPathNode != null)
+            {
+                _currentPathNode.IsWalkable = false;
+                _currentPathNode.UpdateVisual();
+                List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
+                neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
+                FillNodes(neighbours);
+            }
 
             await tween.AsyncWaitForCompletion();
         }
 
+        //надо находить врага и просто брать среди их тайлов ближайший ко мне
 
         public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
             Vector2Int[] points = GetPossibleMoves(target);
-            PathFindLogger.Log($"Move request from {_currentPathNode} towards {target} -> candidates: {string.Join(",", points.Select(p => $"({p.x},{p.y})"))}");
 
             List<PathNode> path = FindPath(points);
-            if (path != null)
-            {
-                PathFindLogger.Log($"Path found len={path.Count} start={path.FirstOrDefault()} end={path.LastOrDefault()}");
-            }
 
+            Debug.Log($"[PathFindDebug] is path is null - {path}, count - {path?.Count ?? 0}");
             if (path == null || path.Count == 0) return;
 
             if (path.Count > _tilesPerMove + 1)
@@ -309,12 +327,15 @@ namespace Code.Animals.Movement
 
             _currentPathNode = path.Last();
 
-            List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
-            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
+            if (_currentPathNode != null)
+            {
+                List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
+                neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
-            _currentPathNode.IsWalkable = false;
-            _currentPathNode.UpdateVisual();
-            _nodes = neighbours;
+                _currentPathNode.IsWalkable = false;
+                _currentPathNode.UpdateVisual();
+                _nodes = neighbours;
+            }
 
             if (IsCloseToTarget(target))
             {

@@ -43,11 +43,18 @@ namespace Code
 
         public ITarget FindClosestTarget(Vector3 position, string layerMask)
         {
+            if (_colliders == null || _colliders.Length == 0)
+            {
+                Debug.LogWarning($"[TargetFinder] _colliders is null or empty! Call Setup() first.");
+                return null;
+            }
+
             IEnumerable<ITarget> targets = _colliders.Where(c =>
                     c != null && c.gameObject.activeSelf && c.gameObject.layer == LayerMask.NameToLayer(layerMask))
-                .Select(c => c.GetComponentInParent<ITarget>()).Where(t => t.Damageable.IsDead == false);
+                .Select(c => c.GetComponentInParent<ITarget>()).Where(t => t != null && t.Damageable != null && t.Damageable.IsDead == false);
 
-            Debug.Log(targets.Count());
+            int count = targets.Count();
+            Debug.Log($"[TargetFinder] Found {count} targets for layer {layerMask} from position {position}");
 
             targets = targets.OrderBy(target => Mathf.Abs(position.x - target.Transformable.Position.x));
 
