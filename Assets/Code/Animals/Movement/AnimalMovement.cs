@@ -35,7 +35,6 @@ namespace Code.Animals.Movement
 
         private IPathfinder _pathfinder;
         private Grid _grid;
-        private Grid _mergeGrid;
 
         public PathNode _currentPathNode;
 
@@ -81,8 +80,6 @@ namespace Code.Animals.Movement
 
         private void Start()
         {
-            _mergeGrid = GameObject.Find("Merge Grid").GetComponent<Grid>();
-
             RotateToTarget(_direction);
             _ability = new MultipleCharacters(this, _grid, _animalFactory, AnimalType.Chicken, 3);
         }
