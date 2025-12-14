@@ -1,0 +1,16 @@
+﻿[LOG] 
+  at C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension/Editor/HttpServer.cs:45
+[LOG] 
+  at C:\build\output\unity\unity\Modules\UnityWebRequest\Public\Prototypes\UnityWebRequestProto.h:513
+[LOG] 
+[LOG] 
+  at C:\build\output\unity\unity\Modules\UnityWebRequest\Public\Prototypes\UnityWebRequestProto.h:513
+[LOG] 
+[LOG] 
+  at C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension/Editor/UnityOperations.cs:167
+[LOG] 
+  at C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension/Editor/UnityOperations.cs:167
+[LOG] 
+  at C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension/Editor/UnityOperations.cs:167
+[LOG] 
+  at C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension/Editor/UnityOperations.cs:871

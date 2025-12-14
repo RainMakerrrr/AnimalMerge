@@ -10,7 +10,7 @@ namespace Framework.Code.Infrastructure.States
 {
 	public class LoseState : IState
 	{
-		readonly WindowPool windowPool;
+		private readonly WindowPool _windowPool;
 		readonly GameStateMachine stateMachine;
 		readonly IAnalyticsService analyticsService;
 		readonly IPersistentProgressService progressService;
@@ -20,7 +20,7 @@ namespace Framework.Code.Infrastructure.States
 		public LoseState(WindowPool windowPool, GameStateMachine stateMachine, IAnalyticsService analyticsService,
 			IPersistentProgressService progressService, ILevelFactory levelFactory, IAssetProvider assetProvider)
 		{
-			this.windowPool = windowPool;
+			this._windowPool = windowPool;
 			this.stateMachine = stateMachine;
 			this.analyticsService = analyticsService;
 			this.progressService = progressService;
@@ -36,7 +36,7 @@ namespace Framework.Code.Infrastructure.States
 			
 			ResetCollectablesProgress();
 
-			windowPool.EnableWindows(WindowType.Lose);
+			_windowPool.EnableWindows(WindowType.Lose);
 
 			DOVirtual.DelayedCall(gameData.StateSwitchDelay, () => stateMachine.Enter<LoadLevelState>());
 		}

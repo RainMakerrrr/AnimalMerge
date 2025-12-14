@@ -1,0 +1,32 @@
+[PathFindDebug] Target anchor rows: minY=8 maxY=9 centerX=3
+[PathFindDebug] Candidates ordered: (2,8),(3,8),(4,8),(2,12),(3,12),(4,12)
+[PathFindDebug] Move request from 0,0 towards (3.00, 0.00, 9.00) -> candidates: (2,8),(3,8),(4,8),(2,12),(3,12),(4,12)
+[PathFindDebug] Path found len=9 start=0,0 end=4,8
+[PathFindDebug] Target anchor rows: minY=8 maxY=9 centerX=3
+[PathFindDebug] Candidates ordered: (2,8),(3,8),(4,8),(2,11),(3,11),(4,11)
+[PathFindDebug] Move request from 1,1 towards (3.00, 0.00, 9.00) -> candidates: (2,8),(3,8),(4,8),(2,11),(3,11),(4,11)
+[PathFindDebug] Path found len=8 start=1,1 end=4,8
+[PathFindDebug] Target anchor rows: minY=8 maxY=9 centerX=3
+[PathFindDebug] Candidates ordered: (3,8),(2,8),(4,8),(3,12),(2,12),(4,12)
+[PathFindDebug] Move request from 3,0 towards (3.00, 0.00, 9.00) -> candidates: (3,8),(2,8),(4,8),(3,12),(2,12),(4,12)
+[PathFindDebug] Path found len=9 start=3,0 end=4,8
+[PathFindDebug] Target anchor rows: minY=2 maxY=3 centerX=3
+[PathFindDebug] Candidates ordered: (3,5),(2,5),(4,5),(3,2),(2,2),(4,2)
+[PathFindDebug] Move request from 3,9 towards (3.00, 0.00, 2.00) -> candidates: (3,5),(2,5),(4,5),(3,2),(2,2),(4,2)
+[PathFindDebug] Path found len=5 start=3,9 end=3,5
+[PathFindDebug] Target anchor rows: minY=6 maxY=7 centerX=3
+[PathFindDebug] Candidates ordered: (2,6),(3,6),(4,6),(2,10),(3,10),(4,10)
+[PathFindDebug] Move request from 0,2 towards (3.00, 0.00, 7.00) -> candidates: (2,6),(3,6),(4,6),(2,10),(3,10),(4,10)
+[PathFindDebug] Path found len=7 start=0,2 end=4,6
+[PathFindDebug] Target anchor rows: minY=6 maxY=7 centerX=3
+[PathFindDebug] Candidates ordered: (2,6),(3,6),(4,6),(2,9),(3,9),(4,9)
+[PathFindDebug] Move request from 1,3 towards (3.00, 0.00, 7.00) -> candidates: (2,6),(3,6),(4,6),(2,9),(3,9),(4,9)
+[PathFindDebug] Path found len=4 start=1,3 end=4,6
+[PathFindDebug] Target anchor rows: minY=6 maxY=7 centerX=3
+[PathFindDebug] Candidates ordered: (3,6),(2,6),(4,6),(3,10),(2,10),(4,10)
+[PathFindDebug] Move request from 3,2 towards (3.00, 0.00, 7.00) -> candidates: (3,6),(2,6),(4,6),(3,10),(2,10),(4,10)
+[PathFindDebug] Path found len=5 start=3,2 end=4,6
+[PathFindDebug] Target anchor rows: minY=6 maxY=7 centerX=3
+[PathFindDebug] Candidates ordered: (2,6),(3,6),(4,6),(2,10),(3,10),(4,10)
+[PathFindDebug] Move request from 1,4 towards (3.00, 0.00, 7.00) -> candidates: (2,6),(3,6),(4,6),(2,10),(3,10),(4,10)
+[PathFindDebug] Path found len=8 start=1,4 end=4,6
