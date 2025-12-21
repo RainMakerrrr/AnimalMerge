@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Code.NewPathfinding;
 using UnityEngine;
 using Zenject;
 
@@ -101,6 +102,11 @@ namespace Code.Pathfinding
                 }
             }
 
+            return null;
+        }
+
+        public List<GridNode> FindPath(Vector2Int startPos, Vector2Int targetPos, Vector2Int unitSize)
+        {
             return null;
         }
 
