@@ -129,15 +129,15 @@ namespace Code.Pathfinding
             {
                 node.IsWalkable = false;
                 node.UpdateVisual();
-                animal.SetCurrentNode(node);
+               // animal.SetCurrentNode(node);
             }
             else
             {
-                animal.SetCurrentNode(node);
+               // animal.SetCurrentNode(node);
                 
                 neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
-                animal.FillNodes(neighbours);
+                //animal.FillNodes(neighbours);
             }
 
             animal.Place(node.WorldPosition);

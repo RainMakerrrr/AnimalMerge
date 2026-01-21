@@ -18,7 +18,6 @@ namespace Code.GridPathfinding
         [Header("Colors")]
         [SerializeField] private Color _walkableColor = new Color(0.7f, 0.7f, 0.7f, 1f);  // Neutral gray
         [SerializeField] private Color _blockedColor = new Color(0.8f, 0.2f, 0.2f, 1f);   // Red
-        [SerializeField] private Color _occupiedColor = new Color(0.9f, 0.9f, 0.2f, 1f);  // Yellow
         [SerializeField] private Color _highlightColor = new Color(0.2f, 0.8f, 0.2f, 1f); // Green (for hover/selection)
 
         private MeshRenderer _meshRenderer;
@@ -40,16 +39,12 @@ namespace Code.GridPathfinding
 
         // Cell state
         public bool IsWalkable { get; set; }
-        public bool IsOccupied { get; set; }
-
-        // For debugging - track which unit occupies this cell
-        public object OccupyingUnit { get; set; }
 
         // World position (center of the cell)
         public Vector3 WorldPosition => transform.position;
 
         // Check if unit can be placed here
-        public bool CanPlace => IsWalkable && !IsOccupied && (Y == 0 || Y == 1);
+        public bool CanPlace => IsWalkable && (Y == 0 || Y == 1);
 
         private void Awake()
         {
@@ -71,7 +66,6 @@ namespace Code.GridPathfinding
             Y = y;
             _gridManager = gridManager;
             IsWalkable = isWalkable;
-            IsOccupied = false;
 
             gameObject.name = $"Cell_{x}_{y}";
             Reset();
@@ -95,20 +89,7 @@ namespace Code.GridPathfinding
         {
             if (_material == null) return;
 
-            Color targetColor;
-
-            if (!IsWalkable)
-            {
-                targetColor = _blockedColor;
-            }
-            else if (IsOccupied)
-            {
-                targetColor = _occupiedColor;
-            }
-            else
-            {
-                targetColor = _walkableColor;
-            }
+            Color targetColor = IsWalkable ? _walkableColor : _blockedColor;
 
             SetColor(targetColor);
         }
@@ -120,7 +101,7 @@ namespace Code.GridPathfinding
         {
             if (_material == null) return;
 
-            if (highlighted && IsWalkable && !IsOccupied)
+            if (highlighted && IsWalkable)
             {
                 SetColor(_highlightColor);
             }
@@ -190,11 +171,11 @@ namespace Code.GridPathfinding
                 if (_gridManager.CanPlaceUnit(pos, unitSize, direction))
                 {
                     GridCell targetCell = _gridManager.GetCell(pos);
-                    if (targetCell != null && targetCell.IsWalkable && !targetCell.IsOccupied &&
+                    if (targetCell != null && targetCell.IsWalkable &&
                         (pos.y == 0 || pos.y == 1)) // Can only place in bottom rows
                     {
                         movement.Place(targetCell.WorldPosition);
-                        
+
                         //todo fix
                         movement.SetCurrentNode(targetCell);
 
@@ -217,7 +198,7 @@ namespace Code.GridPathfinding
 
         public override string ToString()
         {
-            return $"Cell({X},{Y}) Walkable:{IsWalkable} Occupied:{IsOccupied}";
+            return $"Cell({X},{Y}) Walkable:{IsWalkable}";
         }
 
         public override int GetHashCode()

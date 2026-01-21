@@ -4,7 +4,7 @@ using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Animals.Movement;
-using Code.Pathfinding;
+using Code.GridPathfinding;
 using UnityEngine;
 using Zenject;
 
@@ -19,10 +19,10 @@ namespace Code
         [SerializeField] private TargetFinder _targetFinder;
         [SerializeField] private TestEnemiesSpawner _enemiesSpawner;
 
-        private IPathfinder _pathfinder;
+        private IPathfindingService _pathfinder;
 
         [Inject]
-        private void Construct(IPathfinder pathfinder)
+        private void Construct(IPathfindingService pathfinder)
         {
             _pathfinder = pathfinder;
         }
@@ -50,56 +50,56 @@ namespace Code
         }
 
 
-        private PathNode GetClosestEnemyTileWorldPosition(AnimalMovement mover, ITarget enemy)
+        private GridCell GetClosestEnemyTileWorldPosition(AnimalMovement mover, ITarget enemy)
         {
             var enemyTransformable = enemy.Transformable;
-            var rootNode = enemyTransformable.CurrentPathNode;
-            if (rootNode == null)
+            var rootCell = enemyTransformable.CurrentPathNode;
+            if (rootCell == null)
                 return null;
 
             // If we don't know our current node, fallback to root
             if (mover.CurrentPathNode == null)
-                return rootNode;
+                return rootCell;
 
             // Build candidate list: enemy occupied root + its reserved neighbours
-            List<PathNode> candidates = new List<PathNode> { rootNode };
+            List<GridCell> candidates = new List<GridCell> { rootCell };
             if (enemyTransformable is AnimalMovement enemyMovement && enemyMovement.Nodes != null &&
                 enemyMovement.Nodes.Count > 0)
             {
                 for (int i = 0; i < enemyMovement.Nodes.Count; i++)
                 {
-                    var node = enemyMovement.Nodes[i];
-                    if (node != null) candidates.Add(node);
+                    var cell = enemyMovement.Nodes[i];
+                    if (cell != null) candidates.Add(cell);
                 }
             }
 
             // Choose candidate by direct distance from mover to candidate node
             // Find the closest candidate node to our current position
-            PathNode bestNode = null;
+            GridCell bestCell = null;
             float minDistance = float.MaxValue;
             Vector3 moverPos = mover.CurrentPathNode.WorldPosition;
 
             for (int i = 0; i < candidates.Count; i++)
             {
-                var node = candidates[i];
-                if (node == null) continue;
-                
-                // Calculate direct distance from mover to candidate
-                float distance = (node.WorldPosition - moverPos).sqrMagnitude;
+                var cell = candidates[i];
+                if (cell == null) continue;
 
-                Debug.Log($"[PathFindDebug] Candidate node {node} distance: {distance},");
+                // Calculate direct distance from mover to candidate
+                float distance = (cell.WorldPosition - moverPos).sqrMagnitude;
+
+                Debug.Log($"[PathFindDebug] Candidate cell {cell} distance: {distance},");
 
                 if (distance < minDistance)
                 {
                     minDistance = distance;
-                    bestNode = node;
+                    bestCell = cell;
                 }
             }
 
-            Debug.Log($"[PathFindDebug] Selected best node: {bestNode} with distance: {minDistance}");
+            Debug.Log($"[PathFindDebug] Selected best cell: {bestCell} with distance: {minDistance}");
 
-            // Fallback to root node if no candidate path was found
-            return bestNode ?? rootNode;
+            // Fallback to root cell if no candidate path was found
+            return bestCell ?? rootCell;
         }
 
         private async Task MoveUnits(IEnumerable<AnimalFacade> animals, string layerMask)
@@ -131,11 +131,11 @@ namespace Code
                 }
 
 
-                PathNode targetNode = GetClosestEnemyTileWorldPosition(animalMovement, animalMovement.CurrentTarget);
+                GridCell targetCell = GetClosestEnemyTileWorldPosition(animalMovement, animalMovement.CurrentTarget);
 
-                Debug.Log($"[PathFindDebug] target is {targetNode}");
+                Debug.Log($"[PathFindDebug] target is {targetCell}");
 
-                if (targetNode != null && animalMovement.IsCloseToTarget(targetNode.WorldPosition))
+                if (targetCell != null && animalMovement.IsCloseToTarget(targetCell.WorldPosition))
                 {
                     Debug.Log($"[PathFindDebug] is close to target, can attack {animal.name}");
                     animalMovement.RotateToTarget(animalMovement.CurrentTarget.Transformable.Position -
@@ -144,10 +144,10 @@ namespace Code
                 }
                 else
                 {
-                    Debug.Log($"[PathFindDebug] move to target {animal.name}, target node - {targetNode}");
+                    Debug.Log($"[PathFindDebug] move to target {animal.name}, target cell - {targetCell}");
 
                     await animalMovement.Move(
-                        (targetNode ?? animalMovement.CurrentTarget.Transformable.CurrentPathNode).WorldPosition,
+                        (targetCell ?? animalMovement.CurrentTarget.Transformable.CurrentPathNode).WorldPosition,
                         animal.AttackInstance.Attack);
                 }
             }

@@ -28,7 +28,6 @@ namespace Code.GridPathfinding
         [SerializeField] private bool _showDebugGizmos = false;
         [SerializeField] private Color _walkableColor = Color.green;
         [SerializeField] private Color _blockedColor = Color.red;
-        [SerializeField] private Color _occupiedColor = Color.yellow;
         [SerializeField] private float _gizmoHeight = 0.1f;
 
         private GridCell[,] _cells;
@@ -178,9 +177,6 @@ namespace Code.GridPathfinding
             {
                 if (cell == null || !cell.IsWalkable)
                     return false;
-
-                if (!ignoreOccupied && cell.IsOccupied)
-                    return false;
             }
 
             return true;
@@ -327,8 +323,7 @@ namespace Code.GridPathfinding
             {
                 if (cell != null)
                 {
-                    cell.IsOccupied = true;
-                    cell.OccupyingUnit = unit;
+                    cell.IsWalkable = false;
                     cell.UpdateVisual();
                 }
             }
@@ -342,8 +337,7 @@ namespace Code.GridPathfinding
             {
                 if (cell != null)
                 {
-                    cell.IsOccupied = false;
-                    cell.OccupyingUnit = null;
+                    cell.IsWalkable = true;
                     cell.UpdateVisual();
                 }
             }
@@ -400,13 +394,7 @@ namespace Code.GridPathfinding
                     Vector3 worldPos = GridToWorld(x, y);
 
                     // Choose color based on cell state
-                    Color cellColor;
-                    if (!cell.IsWalkable)
-                        cellColor = _blockedColor;
-                    else if (cell.IsOccupied)
-                        cellColor = _occupiedColor;
-                    else
-                        cellColor = _walkableColor;
+                    Color cellColor = cell.IsWalkable ? _walkableColor : _blockedColor;
 
                     cellColor.a = 0.3f;
                     Gizmos.color = cellColor;
@@ -461,24 +449,51 @@ namespace Code.GridPathfinding
         #region Animal Placement Helpers
 
         /// <summary>
-        /// Checks if there are enough free cells to place an animal of the given type
+        /// Checks if there is space to actually place an animal of the given type
+        /// Verifies that contiguous cells in the correct shape are available
         /// </summary>
         public bool HasCellFor(AnimalType animalType)
         {
-            List<GridCell> freeCells = GetSortedFreeCells();
-
-            // Determine required cell count based on animal type
-            int requiredCells = animalType switch
+            // Determine unit size based on animal type
+            UnitSize unitSize = animalType switch
             {
-                AnimalType.Elephant => 2,  // 2x1 or larger
-                _ => 1  // All others need at least 1 cell
+                AnimalType.Elephant => new UnitSize(2, 2),  // 2x2 (Big) - 4 cells
+                AnimalType.Cheetah => new UnitSize(1, 2),   // 1x2 (Medium) - 2 adjacent cells
+                AnimalType.Deer => new UnitSize(1, 2),      // 1x2 (Medium) - 2 adjacent cells
+                AnimalType.Fox => new UnitSize(1, 2),       // 1x2 (Medium) - 2 adjacent cells
+                AnimalType.Hedgehog => new UnitSize(1, 2),  // 1x2 (Medium) - 2 adjacent cells
+                AnimalType.Chicken => new UnitSize(1, 1),   // 1x1 (Small) - 1 cell
+                _ => new UnitSize(1, 1)  // Default fallback
             };
 
-            return freeCells.Count >= requiredCells;
+            // Try to find a valid placement position in the bottom two rows
+            // For 1x2 units, we need to check both vertical and horizontal orientations
+            Direction[] directionsToCheck = unitSize.Width == 1 && unitSize.Height == 2
+                ? new[] { Direction.North, Direction.East }  // Try vertical and horizontal
+                : new[] { Direction.North };                  // Square units don't depend on direction
+
+            for (int y = 0; y <= 1; y++)
+            {
+                for (int x = 0; x < _width; x++)
+                {
+                    Vector2Int position = new Vector2Int(x, y);
+
+                    // Check if we can place the unit at this position with any valid direction
+                    foreach (Direction direction in directionsToCheck)
+                    {
+                        if (CanPlaceUnit(position, unitSize, direction))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
-        /// Places an animal on the first available cell in the grid
+        /// Places an animal on the first available valid position in the grid
         /// </summary>
         public void PlaceOnGrid(AnimalMovement animal)
         {
@@ -488,48 +503,45 @@ namespace Code.GridPathfinding
                 return;
             }
 
-            List<GridCell> freeCells = GetSortedFreeCells();
-            GridCell targetCell = freeCells.FirstOrDefault();
-
-            if (targetCell == null)
-            {
-                Debug.LogWarning("[GridManager] No free cells available for placement");
-                return;
-            }
-
             UnitSize unitSize = animal.ObjectSizeType.ToUnitSize();
             Direction direction = animal.Direction.ToDirection();
 
-            // Get neighbor cells (excluding the base targetCell)
-            List<GridCell> neighbourCells = GetNeighborCells(
-                targetCell.GridPosition,
-                unitSize,
-                direction
-            );
-
-            // Place the animal
-            animal.Place(targetCell.WorldPosition);
-            //todo fix
-            animal.SetCurrentNode(targetCell);
-
-            // Mark base cell as not walkable
-            targetCell.IsWalkable = false;
-            targetCell.UpdateVisual();
-
-            // Mark neighbor cells as not walkable (if any)
-            if (neighbourCells.Count > 0)
+            // Find the first valid placement position in bottom two rows
+            GridCell targetCell = null;
+            for (int y = 0; y <= 1 && targetCell == null; y++)
             {
-                neighbourCells.ForEach(cell =>
+                for (int x = 0; x < _width && targetCell == null; x++)
                 {
-                    cell.IsWalkable = false;
-                    cell.UpdateVisual();
-                });
-
-                //todo fix
-                animal.FillNodes(neighbourCells);
+                    Vector2Int position = new Vector2Int(x, y);
+                    if (CanPlaceUnit(position, unitSize, direction))
+                    {
+                        targetCell = GetCell(position);
+                    }
+                }
             }
 
+            if (targetCell == null)
+            {
+                Debug.LogWarning("[GridManager] No valid placement position found");
+                return;
+            }
+
+            // Place the animal at the target position
+            animal.Place(targetCell.WorldPosition);
+            animal.SetCurrentNode(targetCell);
+
+            // Get all occupied cells (includes the base cell and neighbors)
+            List<GridCell> allOccupiedCells = GetOccupiedCells(targetCell.GridPosition, unitSize, direction);
+
+            // Mark all cells as occupied (this sets IsWalkable = false)
             SetOccupied(targetCell.GridPosition, unitSize, direction, animal);
+
+            // Get neighbor cells (excluding the base targetCell) for the animal's internal tracking
+            List<GridCell> neighbourCells = GetNeighborCells(targetCell.GridPosition, unitSize, direction);
+            if (neighbourCells.Count > 0)
+            {
+                animal.FillNodes(neighbourCells);
+            }
         }
 
         /// <summary>
@@ -548,7 +560,7 @@ namespace Code.GridPathfinding
                 for (int x = 0; x < _width; x++)
                 {
                     GridCell cell = _cells[x, y];
-                    if (cell != null && cell.IsWalkable && !cell.IsOccupied && cell.CanPlace &&
+                    if (cell != null && cell.IsWalkable && cell.CanPlace &&
                         (y == 0 || y == 1))  // Only bottom two rows
                     {
                         freeCells.Add(cell);

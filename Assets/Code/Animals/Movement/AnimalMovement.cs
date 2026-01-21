@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals.Facades;
+using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
 using UnityEngine;
 using Zenject;
-using Grid = Code.Pathfinding.Grid;
 
 namespace Code.Animals.Movement
 {
@@ -22,7 +22,7 @@ namespace Code.Animals.Movement
         [SerializeField] private float _zOffset;
         [SerializeField] private ObjectSizeType _sizeType;
         [SerializeField] private AnimalAnimator _animator;
-        [SerializeField] private List<PathNode> _nodes = new List<PathNode>();
+        [SerializeField] private List<GridCell> _nodes = new List<GridCell>();
         [SerializeField] private float _raycastOffset = 0.4f;
         [SerializeField] private int _tilesPerMove = 2;
         [SerializeField] private int _sizeEffectY;
@@ -33,16 +33,16 @@ namespace Code.Animals.Movement
 
         public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
-        private IPathfinder _pathfinder;
-        private Grid _grid;
+        private IPathfindingService _pathfinder;
+        private IGridManager _gridManager;
 
-        public PathNode _currentPathNode;
+        public GridCell _currentPathNode;
 
         public ObjectSizeType ObjectSizeType => _sizeType;
 
         public int SizeEffect => _sizeEffectY;
 
-        public PathNode CurrentPathNode => _currentPathNode;
+        public GridCell CurrentPathNode => _currentPathNode;
 
         public Vector3 Position => transform.position;
 
@@ -54,7 +54,7 @@ namespace Code.Animals.Movement
 
         public ITarget CurrentTarget { get; set; }
 
-        public List<PathNode> Nodes => _nodes;
+        public List<GridCell> Nodes => _nodes;
 
         private IAbility _ability;
 
@@ -66,10 +66,10 @@ namespace Code.Animals.Movement
 
 
         [Inject]
-        private void Construct(IPathfinder pathfinder, Grid grid, IAnimalFactory animalFactory)
+        private void Construct(IPathfindingService pathfinder, IGridManager gridManager, IAnimalFactory animalFactory)
         {
             _pathfinder = pathfinder;
-            _grid = grid;
+            _gridManager = gridManager;
             _animalFactory = animalFactory;
         }
 
@@ -81,7 +81,7 @@ namespace Code.Animals.Movement
         private void Start()
         {
             RotateToTarget(_direction);
-            _ability = new MultipleCharacters(this, _grid, _animalFactory, AnimalType.Chicken, 3);
+            _ability = new MultipleCharacters(this, _gridManager, _animalFactory, AnimalType.Chicken, 3);
         }
 
         public void Place(Vector3 position)
@@ -102,23 +102,32 @@ namespace Code.Animals.Movement
             {
                 _additionalAnimals.ForEach(animal =>
                 {
-                    animal.CurrentPathNode.IsWalkable = true;
-                    animal.CurrentPathNode.UpdateVisual();
+                    if (animal.CurrentPathNode != null)
+                    {
+                        animal.CurrentPathNode.IsWalkable = true;
+                        animal.CurrentPathNode.UpdateVisual();
+                    }
                     animal._nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
                     animal._nodes.Clear();
                 });
+            }
+
+            if (_currentPathNode != null)
+            {
+                _currentPathNode.IsWalkable = true;
+                _currentPathNode.UpdateVisual();
             }
 
             _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
             _nodes.Clear();
         }
 
-        public void SetCurrentNode(PathNode node)
+        public void SetCurrentNode(GridCell node)
         {
             _currentPathNode = node;
         }
 
-        public void FillNodes(List<PathNode> nodes)
+        public void FillNodes(List<GridCell> nodes)
         {
             _nodes = nodes;
         }
@@ -140,21 +149,15 @@ namespace Code.Animals.Movement
             return false;
         }
 
-        public void SetNewNode(PathNode pathNode)
+        public void SetNewNode(GridCell gridCell)
         {
-            if (_currentPathNode != null)
-            {
-                _currentPathNode.IsWalkable = true;
-                _currentPathNode.UpdateVisual();
-            }
-
             ClearNodes();
 
-            Place(pathNode.WorldPosition, Utilities.GetMovementOffset(pathNode, _sizeType, _direction));
-            List<PathNode> neighbours = pathNode.GetNeighbours(_sizeType, _direction);
+            Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _sizeType, _direction));
+            List<GridCell> neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
             neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
-            _currentPathNode = pathNode;
+            _currentPathNode = gridCell;
             _currentPathNode.IsWalkable = false;
             _currentPathNode.UpdateVisual();
             _nodes = neighbours;
@@ -167,7 +170,7 @@ namespace Code.Animals.Movement
             int sizeEffect = GetSizeOffset();
 
             // Compute closeness in the local basis of movement: forward = _direction, right = perpendicular
-            Vector2Int current = new Vector2Int(_currentPathNode.x, _currentPathNode.y);
+            Vector2Int current = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
             int targetX = Mathf.RoundToInt(target.x);
             int targetZ = Mathf.RoundToInt(target.z);
             Vector2Int delta = new Vector2Int(targetX - current.x, targetZ - current.y);
@@ -206,17 +209,28 @@ namespace Code.Animals.Movement
             }
         }
 
-        private List<PathNode> FindPath(Vector2Int[] points)
+        private List<GridCell> FindPath(Vector2Int[] points)
         {
             ClearNodes();
 
+            UnitSize unitSize = _sizeType.ToUnitSize();
+            Direction direction = _direction.ToDirection();
+            Vector2Int startPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
+
             for (int i = 0; i < points.Length; i++)
             {
-                List<PathNode> path =
-                    _pathfinder.FindPath(_currentPathNode.x, _currentPathNode.y, points[i].x, points[i].y, _sizeType,
-                        _direction);
+                PathResult result = _pathfinder.FindPath(startPos, points[i], unitSize, direction);
 
-                if (path != null) return path;
+                if (result.Success && result.Path.Count > 0)
+                {
+                    // Convert Vector2Int path to GridCell path
+                    List<GridCell> path = result.Path
+                        .Select(pos => _gridManager.GetCell(pos))
+                        .Where(cell => cell != null)
+                        .ToList();
+
+                    if (path.Count > 0) return path;
+                }
             }
 
             return null;
@@ -226,12 +240,12 @@ namespace Code.Animals.Movement
         {
             Vector2Int[] possibleMoves =
             {
-                new Vector2Int(_currentPathNode.x + 1, _currentPathNode.y),
-                new Vector2Int(_currentPathNode.x - 1, _currentPathNode.y),
-                new Vector2Int(_currentPathNode.x, _currentPathNode.y - 1),
+                new Vector2Int(_currentPathNode.X + 1, _currentPathNode.Y),
+                new Vector2Int(_currentPathNode.X - 1, _currentPathNode.Y),
+                new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
             };
 
-            List<PathNode> path = FindPath(possibleMoves);
+            List<GridCell> path = FindPath(possibleMoves);
             
             if (path == null || path.Count == 0) return;
 
@@ -254,20 +268,14 @@ namespace Code.Animals.Movement
                     _debugPathPoints = null;
                 });
 
-            if (_currentPathNode != null)
-            {
-                _currentPathNode.IsWalkable = true;
-                _currentPathNode.UpdateVisual();
-            }
-            _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
-            _nodes.Clear();
-            
+            ClearNodes();
+
             _currentPathNode = path.LastOrDefault();
             if (_currentPathNode != null)
             {
                 _currentPathNode.IsWalkable = false;
                 _currentPathNode.UpdateVisual();
-                List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
+                List<GridCell> neighbours = _gridManager.GetNeighborCells(_currentPathNode.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
                 neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
                 FillNodes(neighbours);
             }
@@ -281,7 +289,7 @@ namespace Code.Animals.Movement
         {
             Vector2Int[] points = GetPossibleMoves(target);
 
-            List<PathNode> path = FindPath(points);
+            List<GridCell> path = FindPath(points);
 
             Debug.Log($"[PathFindDebug] is path is null - {path}, count - {path?.Count ?? 0}");
             if (path == null || path.Count == 0) return;
@@ -293,16 +301,7 @@ namespace Code.Animals.Movement
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
             // Free previous node and neighbours before moving so the tile color reverts to green
-            if (_currentPathNode != null)
-            {
-                _currentPathNode.IsWalkable = true;
-                _currentPathNode.UpdateVisual();
-            }
-            if (_nodes != null && _nodes.Count > 0)
-            {
-                _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
-                _nodes.Clear();
-            }
+            ClearNodes();
 
             Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
@@ -326,7 +325,7 @@ namespace Code.Animals.Movement
 
             if (_currentPathNode != null)
             {
-                List<PathNode> neighbours = _currentPathNode.GetNeighbours(_sizeType, _direction);
+                List<GridCell> neighbours = _gridManager.GetNeighborCells(_currentPathNode.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
                 neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
 
                 _currentPathNode.IsWalkable = false;
@@ -349,7 +348,7 @@ namespace Code.Animals.Movement
 
             int sizeEffect = GetSizeOffset();
 
-            int zOffset = target.z > _currentPathNode.y ? z - sizeEffect : z + sizeEffect;
+            int zOffset = target.z > _currentPathNode.Y ? z - sizeEffect : z + sizeEffect;
 
             Vector2Int[] points =
             {
@@ -368,7 +367,7 @@ namespace Code.Animals.Movement
             }
         }
 
-        private Vector3[] GetPathPositions(List<PathNode> path)
+        private Vector3[] GetPathPositions(List<GridCell> path)
         {
             Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
 

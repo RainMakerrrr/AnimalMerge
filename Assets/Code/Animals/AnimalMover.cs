@@ -62,6 +62,7 @@ namespace Code.Animals
                 {
                     _originalPosition = _current.transform.position;
                     _offset = _current.transform.position - GetMouseAsWorldPoint();
+                    _current.ClearNodes();
                 }
             }
         }

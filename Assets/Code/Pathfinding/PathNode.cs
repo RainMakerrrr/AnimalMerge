@@ -157,7 +157,7 @@ namespace Code.Pathfinding
 
                 if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.Movement.ObjectSizeType, animal.Movement.Direction))
                 {
-                    animal.Movement.SetNewNode(node);
+                    //animal.Movement.SetNewNode(node);
 
                     return true;
                 }

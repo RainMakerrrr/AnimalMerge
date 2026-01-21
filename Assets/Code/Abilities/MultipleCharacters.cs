@@ -3,18 +3,17 @@ using System.Linq;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Movement;
+using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
-using Code.Pathfinding;
 using ModestTree;
 using UnityEngine;
-using Grid = Code.Pathfinding.Grid;
 
 namespace Code.Abilities
 {
     public class MultipleCharacters : IAbility
     {
         private readonly AnimalMovement _movement;
-        private readonly Grid _gameGrid;
+        private readonly IGridManager _gridManager;
         private readonly IAnimalFactory _animalFactory;
         private readonly AnimalType _animalType;
         private readonly int _additionalCharactersCount;
@@ -25,43 +24,43 @@ namespace Code.Abilities
         public int Priority => 2;
         public bool CanUse => true;
 
-        public MultipleCharacters(AnimalMovement movement, Grid gameGrid, IAnimalFactory animalFactory,
+        public MultipleCharacters(AnimalMovement movement, IGridManager gridManager, IAnimalFactory animalFactory,
             AnimalType animalType, int additionalCharactersCount)
         {
             _animalFactory = animalFactory;
             _animalType = animalType;
             _additionalCharactersCount = additionalCharactersCount;
             _movement = movement;
-            _gameGrid = gameGrid;
+            _gridManager = gridManager;
             _additionalCharacters = new AnimalFacade[_additionalCharactersCount];
         }
 
         public void Apply()
         {
-            PathNode pathNode = _movement.CurrentPathNode;
-            if (pathNode == null) return;
+            GridCell currentCell = _movement.CurrentPathNode;
+            if (currentCell == null) return;
 
-            List<Vector2Int[]> possibleNodesPositions = GetPossibleNodesPositions(pathNode);
+            List<Vector2Int[]> possibleNodesPositions = GetPossibleNodesPositions(currentCell);
 
-            List<PathNode> freeNodes = FindFreeNodes(possibleNodesPositions);
-            if (freeNodes == null || freeNodes.Count < _additionalCharactersCount) return;
+            List<GridCell> freeCells = FindFreeCells(possibleNodesPositions);
+            if (freeCells == null || freeCells.Count < _additionalCharactersCount) return;
 
-            CreateAdditionalCharacters(freeNodes);
+            CreateAdditionalCharacters(freeCells);
         }
 
-        private void CreateAdditionalCharacters(IReadOnlyList<PathNode> freeNodes)
+        private void CreateAdditionalCharacters(IReadOnlyList<GridCell> freeCells)
         {
             Debug.Log("Create new chars");
 
-            for (int i = 0; i < freeNodes.Count; i++)
+            for (int i = 0; i < freeCells.Count; i++)
             {
                 var animal = _animalFactory.Create(_animalType);
                 AnimalMovement animalMovement = animal.GetComponent<AnimalMovement>();
 
-                animalMovement.SetCurrentNode(freeNodes[i]);
-                animalMovement.Place(freeNodes[i].WorldPosition);
+                animalMovement.SetCurrentNode(freeCells[i]);
+                animalMovement.Place(freeCells[i].WorldPosition);
 
-                freeNodes[i].IsWalkable = false;
+                freeCells[i].IsWalkable = false;
 
                 _additionalCharacters[i] = animal;
             }
@@ -76,66 +75,66 @@ namespace Code.Abilities
             }
         }
 
-        private List<PathNode> FindFreeNodes(List<Vector2Int[]> possibleNodesPositions)
+        private List<GridCell> FindFreeCells(List<Vector2Int[]> possibleNodesPositions)
         {
-            List<PathNode> nodes = new List<PathNode>();
+            List<GridCell> cells = new List<GridCell>();
 
             foreach (Vector2Int[] possibleNodesPosition in possibleNodesPositions)
             {
                 foreach (Vector2Int position in possibleNodesPosition)
                 {
-                    PathNode node = _gameGrid.GetGridObject(position.x, position.y);
+                    GridCell cell = _gridManager.GetCell(position.x, position.y);
 
-                    if (node != null && node.IsWalkable && node.CanPlace)
+                    if (cell != null && cell.IsWalkable && cell.CanPlace)
                     {
-                        nodes.Add(node);
+                        cells.Add(cell);
                     }
                 }
 
-                if (nodes.Count == _additionalCharactersCount)
+                if (cells.Count == _additionalCharactersCount)
                 {
-                    return nodes;
+                    return cells;
                 }
 
-                nodes.Clear();
+                cells.Clear();
             }
 
             return null;
         }
 
-        private List<Vector2Int[]> GetPossibleNodesPositions(PathNode pathNode)
+        private List<Vector2Int[]> GetPossibleNodesPositions(GridCell cell)
         {
             List<Vector2Int[]> result = new List<Vector2Int[]>
             {
                 new[]
                 {
-                    new Vector2Int(pathNode.x, pathNode.y + 1),
-                    new Vector2Int(pathNode.x + 1, pathNode.y),
-                    new Vector2Int(pathNode.x + 1, pathNode.y + 1)
+                    new Vector2Int(cell.X, cell.Y + 1),
+                    new Vector2Int(cell.X + 1, cell.Y),
+                    new Vector2Int(cell.X + 1, cell.Y + 1)
                 },
                 new[]
                 {
-                    new Vector2Int(pathNode.x, pathNode.y + 1),
-                    new Vector2Int(pathNode.x - 1, pathNode.y),
-                    new Vector2Int(pathNode.x - 1, pathNode.y + 1)
+                    new Vector2Int(cell.X, cell.Y + 1),
+                    new Vector2Int(cell.X - 1, cell.Y),
+                    new Vector2Int(cell.X - 1, cell.Y + 1)
                 },
                 new[]
                 {
-                    new Vector2Int(pathNode.x, pathNode.y + 1),
-                    new Vector2Int(pathNode.x - 1, pathNode.y),
-                    new Vector2Int(pathNode.x - 1, pathNode.y + 1)
+                    new Vector2Int(cell.X, cell.Y + 1),
+                    new Vector2Int(cell.X - 1, cell.Y),
+                    new Vector2Int(cell.X - 1, cell.Y + 1)
                 },
                 new[]
                 {
-                    new Vector2Int(pathNode.x, pathNode.y - 1),
-                    new Vector2Int(pathNode.x + 1, pathNode.y),
-                    new Vector2Int(pathNode.x + 1, pathNode.y - 1)
+                    new Vector2Int(cell.X, cell.Y - 1),
+                    new Vector2Int(cell.X + 1, cell.Y),
+                    new Vector2Int(cell.X + 1, cell.Y - 1)
                 },
                 new[]
                 {
-                    new Vector2Int(pathNode.x, pathNode.y - 1),
-                    new Vector2Int(pathNode.x - 1, pathNode.y),
-                    new Vector2Int(pathNode.x - 1, pathNode.y - 1)
+                    new Vector2Int(cell.X, cell.Y - 1),
+                    new Vector2Int(cell.X - 1, cell.Y),
+                    new Vector2Int(cell.X - 1, cell.Y - 1)
                 }
             };
 

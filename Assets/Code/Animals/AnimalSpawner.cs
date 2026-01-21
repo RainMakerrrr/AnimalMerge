@@ -2,17 +2,17 @@
 using System.Linq;
 using Code.Animals.Facades;
 using Code.Animals.Movement;
+using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
 using Zenject;
-using Grid = Code.Pathfinding.Grid;
 
 namespace Code.Animals
 {
     public class AnimalSpawner : MonoBehaviour
     {
-        [SerializeField] private Grid _mergeGrid;
-        [SerializeField] private Grid _gameGrid;
+        [SerializeField] private GridManager _mergeGrid;
+        [SerializeField] private GridManager _gameGrid;
         [SerializeField] private AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
         private IAnimalFactory _factory;
@@ -42,10 +42,10 @@ namespace Code.Animals
                 {
                     _counter = 0;
                 }
-                
+
                 AnimalType animalType = _animalTypes[_counter];
 
-                if (_mergeGrid.HasNodeFor(animalType))
+                if (_mergeGrid.HasCellFor(animalType))
                 {
                     AnimalFacade animal = _factory.Create(animalType);
                     _animals.Add(animal);

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Code.GridPathfinding;
 using Code.Pathfinding;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Code
         Vector2Int IntPosition { get; }
         ObjectSizeType ObjectSizeType { get; }
         int SizeEffect { get; }
-        PathNode CurrentPathNode { get; }
+        GridCell CurrentPathNode { get; }
 
         Task Shift();
     }
