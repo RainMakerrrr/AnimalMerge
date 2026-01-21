@@ -25,6 +25,6 @@ namespace Code.Infrastructure.Factories.Abilities
 
         public MultipleCharacters CreateMultipleCharactersAbility(AnimalMovement movement, AnimalType animalType,
             int count) =>
-            new MultipleCharacters(movement, _grid, _animalFactory, animalType, count);
+            new MultipleCharacters(movement, null, _animalFactory, animalType, count);
     }
 }
