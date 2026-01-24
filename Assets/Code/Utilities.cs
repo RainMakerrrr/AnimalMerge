@@ -7,6 +7,27 @@ namespace Code
 {
     public static class Utilities
     {
+        /// <summary>
+        /// Calculates the offset for a single axis based on the direction component.
+        /// The anchor point is always the "back-left" cell relative to the unit's facing direction.
+        /// </summary>
+        /// <param name="directionComponent">Direction component (x or z)</param>
+        /// <returns>Offset value: 0.5 if moving forward/right, -0.5 if moving backward/left, 0.5 if stationary</returns>
+        private static float GetAxisOffset(float directionComponent)
+        {
+            if (Mathf.Approximately(directionComponent, 0f))
+                return 0.5f; // Default offset when not moving along this axis
+
+            return directionComponent > 0 ? 0.5f : -0.5f;
+        }
+
+        /// <summary>
+        /// Calculates the world position offset for a unit based on its size and movement direction.
+        /// The anchor point (GridCell position) represents the "back-left" corner relative to the unit's facing direction.
+        /// Examples for 2x2 unit:
+        /// - Direction (0,0,1) forward: anchor at (3,0), occupies cells: (3,0), (3,1), (4,0), (4,1), offset = (0.5, 0, 0.5)
+        /// - Direction (0,0,-1) backward: anchor at (3,9), occupies cells: (3,9), (3,8), (4,8), (4,9), offset = (0.5, 0, -0.5)
+        /// </summary>
         public static Vector3 GetMovementOffset(ObjectSizeType sizeType, Vector3 direction)
         {
             switch (sizeType)
@@ -15,22 +36,24 @@ namespace Code
                     // 1x1 unit: no offset needed, WorldPosition is already at cell center
                     return Vector3.zero;
                 case ObjectSizeType.Medium:
-                    // 1x2 unit: offset depends on orientation
-                    // North/South (vertical): offset in Z only
-                    // East/West (horizontal): offset in X only
+                    // 1x2 unit: offset depends on orientation and direction
+                    // Vertical orientation (moving along Z): offset in Z axis based on direction
+                    // Horizontal orientation (moving along X): offset in X axis based on direction
                     if (Mathf.Abs(direction.z) > Mathf.Abs(direction.x))
                     {
-                        return new Vector3(0f, 0f, 0.5f);
+                        // Moving vertically: 1x2 in Z direction
+                        return new Vector3(0f, 0f, GetAxisOffset(direction.z));
                     }
                     else
                     {
-                        return new Vector3(0.5f, 0f, 0f);
+                        // Moving horizontally: 2x1 in X direction
+                        return new Vector3(GetAxisOffset(direction.x), 0f, 0f);
                     }
                 case ObjectSizeType.Big:
-                    // 2x2 unit: offset to center over 4 cells, adjusted for direction
-                    float xOffset = Mathf.Approximately(direction.x, 0) ? 0.5f : (direction.x > 0 ? 0.5f : -0.5f);
-                    float zOffset = Mathf.Approximately(direction.z, 0) ? 0.5f : (direction.z > 0 ? 0.5f : -0.5f);
-                    return new Vector3(xOffset, 0f, zOffset);
+                    Debug.Log($"[GetMovementOffset] Direction: {direction}, sizeType: {sizeType}]");
+                    // 2x2 unit: offset to center over 4 cells, adjusted for movement direction
+                    // Both X and Z offsets depend on their respective direction components
+                    return new Vector3(GetAxisOffset(direction.x), 0f, GetAxisOffset(direction.z));
                 default:
                     throw new ArgumentOutOfRangeException();
             }

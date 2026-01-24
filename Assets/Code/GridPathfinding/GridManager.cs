@@ -216,6 +216,7 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Adjusts position to ensure all cells of a unit fit within grid bounds.
         /// If a unit would extend beyond grid boundaries, shifts the position to keep it in bounds.
+        /// Now accounts for negative direction movement (South, West).
         /// </summary>
         private Vector2Int AdjustPositionToFitBounds(Vector2Int position, UnitSize size, Direction direction)
         {
@@ -225,7 +226,12 @@ namespace Code.GridPathfinding
             int adjustedX = position.x;
             int adjustedY = position.y;
 
-            // For 2x1 units, determine actual dimensions based on direction
+            // Get direction vector to determine positive/negative movement
+            Vector3 directionVector = DirectionToVector(direction);
+            int xDirection = GetCellOffsetDirection(directionVector.x);
+            int zDirection = GetCellOffsetDirection(directionVector.z);
+
+            // For 1x2 units, determine actual dimensions based on direction
             int xExtent = width;
             int yExtent = height;
 
@@ -239,22 +245,45 @@ namespace Code.GridPathfinding
                 }
             }
 
-            // Clamp position so unit fits within bounds
-            // If position.x + xExtent > _width, adjust position.x
-            if (position.x + xExtent > _width)
+            // Adjust X coordinate based on direction
+            if (xDirection > 0)
             {
-                adjustedX = _width - xExtent;
+                // Positive direction: check if extends beyond right boundary
+                if (position.x + xExtent > _width)
+                {
+                    adjustedX = _width - xExtent;
+                }
+            }
+            else
+            {
+                // Negative direction: check if extends beyond left boundary
+                if (position.x - (xExtent - 1) < 0)
+                {
+                    adjustedX = xExtent - 1;
+                }
             }
 
-            // If position.y + yExtent > _height, adjust position.y
-            if (position.y + yExtent > _height)
+            // Adjust Y coordinate based on direction
+            if (zDirection > 0)
             {
-                adjustedY = _height - yExtent;
+                // Positive direction: check if extends beyond top boundary
+                if (position.y + yExtent > _height)
+                {
+                    adjustedY = _height - yExtent;
+                }
+            }
+            else
+            {
+                // Negative direction: check if extends beyond bottom boundary
+                if (position.y - (yExtent - 1) < 0)
+                {
+                    adjustedY = yExtent - 1;
+                }
             }
 
-            // Ensure position is not negative
-            adjustedX = Mathf.Max(0, adjustedX);
-            adjustedY = Mathf.Max(0, adjustedY);
+            // Final clamp to ensure position is within valid range
+            adjustedX = Mathf.Clamp(adjustedX, 0, _width - 1);
+            adjustedY = Mathf.Clamp(adjustedY, 0, _height - 1);
 
             return new Vector2Int(adjustedX, adjustedY);
         }
@@ -262,37 +291,47 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Calculates which cells a unit occupies based on size and direction.
         /// Automatically adjusts position if unit would extend beyond grid bounds.
+        /// The anchor point is always the "back-left" cell relative to the unit's movement direction.
+        /// Examples for 2x2 unit:
+        /// - Direction North (0,0,1): anchor at (3,0), occupies: (3,0), (4,0), (3,1), (4,1)
+        /// - Direction South (0,0,-1): anchor at (3,9), occupies: (3,9), (4,9), (3,8), (4,8)
         /// </summary>
         private List<GridCell> GetOccupiedCellsInternal(Vector2Int position, UnitSize size, Direction direction)
         {
-            // Adjust position to ensure all cells fit within bounds
+            // Adjust position to ensure all cells fit within bounds (now supports negative directions)
             position = AdjustPositionToFitBounds(position, size, direction);
 
             var cells = new List<GridCell>();
             int width = size.Width;
             int height = size.Height;
 
-            // For 2x1 units, direction affects which dimension is which
+            // For 1x2 units, direction affects which dimension is which
             // North/South: unit is vertical (height along Y axis)
             // East/West: unit is horizontal (height along X axis)
             if ((width == 1 && height == 2) || (width == 2 && height == 1))
             {
                 if (direction == Direction.North || direction == Direction.South)
                 {
-                    // Vertical orientation: (x,y) and (x,y+1)
+                    // Vertical orientation: unit extends along Z axis
+                    // North: +1 direction, South: -1 direction
+                    int zDirection = direction == Direction.North ? 1 : -1;
+
                     for (int dy = 0; dy < height; dy++)
                     {
-                        var cell = GetCell(position.x, position.y + dy);
+                        var cell = GetCell(position.x, position.y + dy * zDirection);
                         if (cell != null)
                             cells.Add(cell);
                     }
                 }
                 else // East or West
                 {
-                    // Horizontal orientation: (x,y) and (x+1,y)
+                    // Horizontal orientation: unit extends along X axis
+                    // East: +1 direction, West: -1 direction
+                    int xDirection = direction == Direction.East ? 1 : -1;
+
                     for (int dx = 0; dx < height; dx++)  // Using height as horizontal extent
                     {
-                        var cell = GetCell(position.x + dx, position.y);
+                        var cell = GetCell(position.x + dx * xDirection, position.y);
                         if (cell != null)
                             cells.Add(cell);
                     }
@@ -300,12 +339,19 @@ namespace Code.GridPathfinding
             }
             else
             {
-                // For square units (1x1, 2x2), direction doesn't matter
+                // For square units (1x1, 2x2), calculate occupied cells based on movement direction
+                // The anchor point is the "back-left" corner, and cells extend in the direction of movement
+                Vector3 directionVector = DirectionToVector(direction);
+                int xDirection = GetCellOffsetDirection(directionVector.x);
+                int zDirection = GetCellOffsetDirection(directionVector.z);
+
                 for (int dx = 0; dx < width; dx++)
                 {
                     for (int dy = 0; dy < height; dy++)
                     {
-                        var cell = GetCell(position.x + dx, position.y + dy);
+                        int actualX = position.x + dx * xDirection;
+                        int actualY = position.y + dy * zDirection;
+                        var cell = GetCell(actualX, actualY);
                         if (cell != null)
                             cells.Add(cell);
                     }
@@ -313,6 +359,30 @@ namespace Code.GridPathfinding
             }
 
             return cells;
+        }
+
+        /// <summary>
+        /// Converts Direction enum to Vector3 direction
+        /// </summary>
+        private Vector3 DirectionToVector(Direction direction)
+        {
+            return direction switch
+            {
+                Direction.North => new Vector3(0, 0, 1),   // Forward
+                Direction.South => new Vector3(0, 0, -1),  // Backward
+                Direction.East => new Vector3(1, 0, 0),    // Right
+                Direction.West => new Vector3(-1, 0, 0),   // Left
+                _ => new Vector3(0, 0, 1)                  // Default: North
+            };
+        }
+
+        /// <summary>
+        /// Determines cell offset direction based on direction component.
+        /// Returns +1 for positive or zero direction, -1 for negative direction.
+        /// </summary>
+        private int GetCellOffsetDirection(float directionComponent)
+        {
+            return directionComponent < 0 ? -1 : 1;
         }
 
         public void SetOccupied(Vector2Int position, UnitSize size, Direction direction, object unit)
