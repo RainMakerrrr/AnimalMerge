@@ -165,24 +165,58 @@ namespace Code.Animals.Movement
 
         public bool IsCloseToTarget(Vector3 target)
         {
-            if (_currentPathNode == null) return false;
+            if (_currentPathNode == null || CurrentTarget == null) return false;
 
-            int sizeEffect = GetSizeOffset();
+            // Собрать все клетки, которые занимает атакующий юнит
+            List<GridCell> attackerCells = new List<GridCell> { _currentPathNode };
+            attackerCells.AddRange(_nodes);
 
-            // Compute closeness in the local basis of movement: forward = _direction, right = perpendicular
-            Vector2Int current = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
-            int targetX = Mathf.RoundToInt(target.x);
-            int targetZ = Mathf.RoundToInt(target.z);
-            Vector2Int delta = new Vector2Int(targetX - current.x, targetZ - current.y);
+            // Получить клетки, которые занимает цель
+            ITransformable targetTransformable = CurrentTarget.Transformable;
+            List<GridCell> targetCells = new List<GridCell>();
 
-            Vector2Int forward = new Vector2Int(Mathf.RoundToInt(_direction.x), Mathf.RoundToInt(_direction.z));
-            if (forward == Vector2Int.zero) forward = Vector2Int.up;
-            Vector2Int right = new Vector2Int(forward.y, -forward.x);
+            // Добавляем главную клетку цели
+            if (targetTransformable.CurrentPathNode != null)
+            {
+                targetCells.Add(targetTransformable.CurrentPathNode);
+            }
 
-            int longitudinal = Mathf.Abs(delta.x * forward.x + delta.y * forward.y);
-            int lateral = Mathf.Abs(delta.x * right.x + delta.y * right.y);
+            // Если цель - AnimalMovement, используем её Nodes
+            // Для других целей предполагаем, что они занимают только CurrentPathNode
+            if (targetTransformable is AnimalMovement targetAnimal)
+            {
+                targetCells.AddRange(targetAnimal.Nodes);
+            }
 
-            return longitudinal <= sizeEffect && lateral <= 1;
+            // Если не удалось получить клетки цели, проверяем по позиции
+            if (targetCells.Count == 0)
+            {
+                Vector2Int targetGridPos = new Vector2Int(
+                    Mathf.RoundToInt(target.x),
+                    Mathf.RoundToInt(target.z)
+                );
+                GridCell targetMainCell = _gridManager.GetCell(targetGridPos);
+                if (targetMainCell == null) return false;
+                targetCells.Add(targetMainCell);
+            }
+
+            // Проверить, есть ли хотя бы одна пара соседних клеток (включая диагонали)
+            foreach (GridCell attackerCell in attackerCells)
+            {
+                foreach (GridCell targetCell in targetCells)
+                {
+                    int dx = Mathf.Abs(attackerCell.X - targetCell.X);
+                    int dy = Mathf.Abs(attackerCell.Y - targetCell.Y);
+
+                    // Соседство по Чебышёву: max(dx, dy) <= 1, исключая совпадение
+                    if (dx <= 1 && dy <= 1 && !(dx == 0 && dy == 0))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
         private void OnDrawGizmos()
         {
