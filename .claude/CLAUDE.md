@@ -8,6 +8,29 @@
 - **Dependency Injection**: Zenject
 - **Async**: Unity Tasks (prefer over Coroutines)
 
+## Documentation
+
+### Technical Specifications
+All technical specifications are located in `Documentation/Specifications/`:
+
+- **[01_Pathfinding_System_Specification.md](../Documentation/Specifications/01_Pathfinding_System_Specification.md)** - Система поиска пути
+  - Базируется на GridPathfinding
+  - Поддержка разных размеров юнитов (1×1, 1×2, 2×2)
+  - A* алгоритм с учетом габаритов
+  - Direction только для прямоугольных юнитов (1×2, 2×1)
+
+**ВАЖНО:** При работе с любой системой, для которой есть спецификация, ВСЕГДА сначала читай спецификацию, чтобы понять:
+- Текущую архитектуру
+- Принятые решения
+- Геймплейные требования из концепт-дока
+- План реализации
+
+### Game Design Document
+- **[Концепт-док 2.0](../Концепт-док 2.0-2026012418375932.pdf)** - Основной геймдизайн документ
+  - Механики мерджа животных
+  - Правила боя и передвижения
+  - Баланс животных и боссов
+
 ## Code Style
 - Follow **Microsoft C# Coding Conventions** strictly
 - https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
