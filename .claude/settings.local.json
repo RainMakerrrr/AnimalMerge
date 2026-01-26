@@ -15,7 +15,18 @@
       "mcp__ai-game-developer__assets-refresh",
       "Bash(timeout /t 3 /nobreak)",
       "mcp__ai-game-developer__editor-application-get-state",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(exit 0)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(timeout /t 10 /nobreak)",
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(Get-ChildItem \"C:\\\\BitbuckerProjects\\\\animal-merge\" -Recurse -Filter \"AnimalMovement.cs*\")",
+      "Bash(Select-Object FullName)",
+      "Bash(timeout /t 20 /nobreak)",
+      "Bash(timeout /t 25 /nobreak)",
+      "Bash(timeout /t 30 /nobreak)"
     ]
   }
 }

@@ -13,6 +13,7 @@ using Zenject;
 
 namespace Code.Animals.Movement
 {
+    [RequireComponent(typeof(UnitOccupancy))]
     public class AnimalMovement : MonoBehaviour, ITransformable
     {
         private const string NodeLayerName = "PathNode";
@@ -35,6 +36,9 @@ namespace Code.Animals.Movement
 
         private IPathfindingService _pathfinder;
         private IGridManager _gridManager;
+        private ITargetDetector _targetDetector;
+        private IUnitOccupancy _unitOccupancy;
+        private IMovementAnimator _movementAnimator;
 
         public GridCell _currentPathNode;
 
@@ -64,18 +68,29 @@ namespace Code.Animals.Movement
 
         public void Upgrade(int multiplier) => _tilesPerMove *= multiplier;
 
+        private void Awake()
+        {
+            _unitOccupancy = GetComponent<UnitOccupancy>();
+            _movementAnimator = new AnimalMovementAnimator(_animator);
+        }
 
         [Inject]
-        private void Construct(IPathfindingService pathfinder, IGridManager gridManager, IAnimalFactory animalFactory)
+        private void Construct(
+            IPathfindingService pathfinder,
+            IGridManager gridManager,
+            IAnimalFactory animalFactory,
+            ITargetDetector targetDetector)
         {
             _pathfinder = pathfinder;
             _gridManager = gridManager;
             _animalFactory = animalFactory;
+            _targetDetector = targetDetector;
         }
 
         public void AddAdditionalAnimalsRange(IEnumerable<AnimalMovement> animals)
         {
             _additionalAnimals.AddRange(animals);
+            _unitOccupancy.AddAdditionalUnits(animals);
         }
 
         private void Start()
@@ -98,38 +113,24 @@ namespace Code.Animals.Movement
 
         public void ClearNodes()
         {
-            if (_additionalAnimals.Count > 0)
-            {
-                _additionalAnimals.ForEach(animal =>
-                {
-                    if (animal.CurrentPathNode != null)
-                    {
-                        animal.CurrentPathNode.IsWalkable = true;
-                        animal.CurrentPathNode.UpdateVisual();
-                    }
-                    animal._nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
-                    animal._nodes.Clear();
-                });
-            }
-
-            if (_currentPathNode != null)
-            {
-                _currentPathNode.IsWalkable = true;
-                _currentPathNode.UpdateVisual();
-            }
-
-            _nodes.ForEach(node => { node.IsWalkable = true; node.UpdateVisual(); });
-            _nodes.Clear();
+            _unitOccupancy.ClearOccupancy();
         }
 
         public void SetCurrentNode(GridCell node)
         {
             _currentPathNode = node;
+            _unitOccupancy.SetCurrentCell(node);
         }
 
         public void FillNodes(List<GridCell> nodes)
         {
             _nodes = nodes;
+            _unitOccupancy.SetOccupiedCells(nodes);
+        }
+
+        public bool IsCloseToTarget(Vector3 target)
+        {
+            return _targetDetector.IsCloseToTarget(_currentPathNode, _nodes, CurrentTarget);
         }
 
         public bool TryPlace()
@@ -154,70 +155,13 @@ namespace Code.Animals.Movement
             ClearNodes();
 
             Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _sizeType, _direction));
-            List<GridCell> neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
-            neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
+            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
 
             _currentPathNode = gridCell;
-            _currentPathNode.IsWalkable = false;
-            _currentPathNode.UpdateVisual();
             _nodes = neighbours;
+            _unitOccupancy.MarkCellsAsOccupied(gridCell, neighbours);
         }
 
-        public bool IsCloseToTarget(Vector3 target)
-        {
-            if (_currentPathNode == null || CurrentTarget == null) return false;
-
-            // Собрать все клетки, которые занимает атакующий юнит
-            List<GridCell> attackerCells = new List<GridCell> { _currentPathNode };
-            attackerCells.AddRange(_nodes);
-
-            // Получить клетки, которые занимает цель
-            ITransformable targetTransformable = CurrentTarget.Transformable;
-            List<GridCell> targetCells = new List<GridCell>();
-
-            // Добавляем главную клетку цели
-            if (targetTransformable.CurrentPathNode != null)
-            {
-                targetCells.Add(targetTransformable.CurrentPathNode);
-            }
-
-            // Если цель - AnimalMovement, используем её Nodes
-            // Для других целей предполагаем, что они занимают только CurrentPathNode
-            if (targetTransformable is AnimalMovement targetAnimal)
-            {
-                targetCells.AddRange(targetAnimal.Nodes);
-            }
-
-            // Если не удалось получить клетки цели, проверяем по позиции
-            if (targetCells.Count == 0)
-            {
-                Vector2Int targetGridPos = new Vector2Int(
-                    Mathf.RoundToInt(target.x),
-                    Mathf.RoundToInt(target.z)
-                );
-                GridCell targetMainCell = _gridManager.GetCell(targetGridPos);
-                if (targetMainCell == null) return false;
-                targetCells.Add(targetMainCell);
-            }
-
-            // Проверить, есть ли хотя бы одна пара соседних клеток (включая диагонали)
-            foreach (GridCell attackerCell in attackerCells)
-            {
-                foreach (GridCell targetCell in targetCells)
-                {
-                    int dx = Mathf.Abs(attackerCell.X - targetCell.X);
-                    int dy = Mathf.Abs(attackerCell.Y - targetCell.Y);
-
-                    // Соседство по Чебышёву: max(dx, dy) <= 1, исключая совпадение
-                    if (dx <= 1 && dy <= 1 && !(dx == 0 && dy == 0))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
@@ -225,7 +169,7 @@ namespace Code.Animals.Movement
 
             if (_debugDrawPath && _debugPathPoints != null && _debugPathPoints.Length > 1)
             {
-                Color prev = Gizmos.color;
+                var prev = Gizmos.color;
                 Gizmos.color = Color.green;
 
                 for (int i = 1; i < _debugPathPoints.Length; i++)
@@ -247,18 +191,18 @@ namespace Code.Animals.Movement
         {
             ClearNodes();
 
-            UnitSize unitSize = _sizeType.ToUnitSize();
-            Direction direction = _direction.ToDirection();
-            Vector2Int startPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
+            var unitSize = _sizeType.ToUnitSize();
+            var direction = _direction.ToDirection();
+            var startPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
 
             for (int i = 0; i < points.Length; i++)
             {
-                PathResult result = _pathfinder.FindPath(startPos, points[i], unitSize, direction);
+                var result = _pathfinder.FindPath(startPos, points[i], unitSize, direction);
 
                 if (result.Success && result.Path.Count > 0)
                 {
                     // Convert Vector2Int path to GridCell path
-                    List<GridCell> path = result.Path
+                    var path = result.Path
                         .Select(pos => _gridManager.GetCell(pos))
                         .Where(cell => cell != null)
                         .ToList();
@@ -272,301 +216,38 @@ namespace Code.Animals.Movement
 
         public async Task Shift()
         {
-            Vector2Int[] possibleMoves =
-            {
-                new Vector2Int(_currentPathNode.X + 1, _currentPathNode.Y),
-                new Vector2Int(_currentPathNode.X - 1, _currentPathNode.Y),
-                new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
-            };
+            var dodgePositions = GetDodgePositions();
+            var path = FindPath(dodgePositions);
 
-            List<GridCell> path = FindPath(possibleMoves);
-            
             if (path == null || path.Count == 0) return;
 
-            _animator.JumpAnimation();
-
-            Vector3[] pathPositions = GetPathPositions(path);
-            _debugPathPoints = _debugDrawPath ? pathPositions : null;
-
-            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
-                .OnWaypointChange(i =>
-                {
-                    if (i >= pathPositions.Length) return;
-
-                    Vector3 direction = GetDirection(pathPositions[i]);
-                    RotateToTarget(-direction);
-                })
-                .OnComplete(() =>
-                {
-                    RotateToTarget(Vector3.forward);
-                    _debugPathPoints = null;
-                });
-
-            ClearNodes();
-
-            _currentPathNode = path.LastOrDefault();
-            if (_currentPathNode != null)
-            {
-                _currentPathNode.IsWalkable = false;
-                _currentPathNode.UpdateVisual();
-                List<GridCell> neighbours = _gridManager.GetNeighborCells(_currentPathNode.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
-                neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
-                FillNodes(neighbours);
-            }
-
-            await tween.AsyncWaitForCompletion();
+            await ExecuteDodgeMovement(path);
+            UpdateNodeOccupancy(path.Last());
         }
 
         public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
-            Vector2Int[] points = GetPossibleMoves(target);
+            var possiblePositions = _targetDetector.GetPossibleAttackPositions(
+                _currentPathNode, CurrentTarget, _sizeType.ToUnitSize(), _direction.ToDirection());
 
-            List<GridCell> path = FindPath(points);
-
+            var path = FindPath(possiblePositions);
             if (path == null || path.Count == 0) return;
 
-            if (path.Count > _tilesPerMove + 1)
-                path = path.Take(_tilesPerMove + 1).ToList();
+            path = LimitPathBySpeed(path);
 
-            Vector3[] pathPositions = GetPathPositions(path);
-            _debugPathPoints = _debugDrawPath ? pathPositions : null;
+            await ExecuteMovement(path);
 
-            // Free previous node and neighbours before moving so the tile color reverts to green
-            ClearNodes();
+            UpdateNodeOccupancy(path.Last());
 
-            Tween tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
-                .OnWaypointChange(i =>
-                {
-                    if (i >= pathPositions.Length) return;
-
-                    Vector3 direction = (transform.position - pathPositions[i]);
-                    RotateToTarget(direction);
-                })
-                .OnUpdate(() => _animator.UpdateMovementAnimation(1f)).SetEase(Ease.Linear)
-                .OnComplete(() =>
-                {
-                    RotateToTarget(_direction);
-                    _animator.UpdateMovementAnimation(0f);
-                    _debugPathPoints = null;
-                });
-
-            await tween.AsyncWaitForCompletion();
-
-            _currentPathNode = path.Last();
-
-            if (_currentPathNode != null)
-            {
-                List<GridCell> neighbours = _gridManager.GetNeighborCells(_currentPathNode.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
-                neighbours.ForEach(neighbour => { neighbour.IsWalkable = false; neighbour.UpdateVisual(); });
-
-                _currentPathNode.IsWalkable = false;
-                _currentPathNode.UpdateVisual();
-                _nodes = neighbours;
-            }
-
-            if (IsCloseToTarget(target))
+            if (_targetDetector.IsCloseToTarget(_currentPathNode, _nodes, CurrentTarget))
             {
                 RotateToTarget(target - transform.position);
-                //RotateToTarget(target - transform.position);
                 await reachedTargetCallback?.Invoke()!;
             }
         }
 
-        /// <summary>
-        /// Получить все клетки, занимаемые целью
-        /// </summary>
-        private List<GridCell> GetAllTargetCells(ITransformable targetTransformable)
-        {
-            List<GridCell> targetCells = new List<GridCell>();
 
-            if (targetTransformable.CurrentPathNode != null)
-            {
-                targetCells.Add(targetTransformable.CurrentPathNode);
-            }
 
-            if (targetTransformable is AnimalMovement targetAnimal)
-            {
-                targetCells.AddRange(targetAnimal.Nodes);
-            }
-
-            return targetCells;
-        }
-
-        /// <summary>
-        /// Вычисляет все возможные anchor points, при которых юнит займет указанную клетку
-        /// </summary>
-        private List<Vector2Int> GetAnchorPointsForCell(Vector2Int targetCell, UnitSize unitSize, Direction unitDirection)
-        {
-            List<Vector2Int> anchors = new List<Vector2Int>();
-            int width = unitSize.Width;
-            int height = unitSize.Height;
-
-            // 1×1 юнит
-            if (width == 1 && height == 1)
-            {
-                anchors.Add(targetCell);
-                return anchors;
-            }
-
-            // 1×2 юнит (прямоугольный)
-            if (width == 1 && height == 2)
-            {
-                if (unitDirection == Code.GridPathfinding.Direction.North)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x, anchor.y+1)
-                    anchors.Add(targetCell); // targetCell как anchor
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1)); // targetCell как вторая клетка
-                }
-                else if (unitDirection == Code.GridPathfinding.Direction.South)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x, anchor.y-1)
-                    anchors.Add(targetCell);
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y + 1));
-                }
-                else if (unitDirection == Code.GridPathfinding.Direction.East)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x+1, anchor.y)
-                    anchors.Add(targetCell);
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));
-                }
-                else if (unitDirection == Code.GridPathfinding.Direction.West)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x-1, anchor.y)
-                    anchors.Add(targetCell);
-                    anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y));
-                }
-                return anchors;
-            }
-
-            // 2×2 юнит (квадратный)
-            if (width == 2 && height == 2)
-            {
-                if (unitDirection == Code.GridPathfinding.Direction.North || unitDirection == Code.GridPathfinding.Direction.East)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x+1, anchor.y), (anchor.x, anchor.y+1), (anchor.x+1, anchor.y+1)
-                    anchors.Add(targetCell);                                       // (0,0)
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));   // (1,0)
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));   // (0,1)
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y - 1)); // (1,1)
-                }
-                else if (unitDirection == Code.GridPathfinding.Direction.South)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x+1, anchor.y), (anchor.x, anchor.y-1), (anchor.x+1, anchor.y-1)
-                    anchors.Add(targetCell);
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y + 1));
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y + 1));
-                }
-                else if (unitDirection == Code.GridPathfinding.Direction.West)
-                {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x-1, anchor.y), (anchor.x, anchor.y+1), (anchor.x-1, anchor.y+1)
-                    anchors.Add(targetCell);
-                    anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y));
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));
-                    anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y - 1));
-                }
-                return anchors;
-            }
-
-            return anchors;
-        }
-
-        private Vector2Int[] GetPossibleMoves(Vector3 target)
-        {
-            // 1. Получить все клетки цели
-            ITransformable targetTransformable = CurrentTarget?.Transformable;
-            if (targetTransformable == null)
-            {
-                // Fallback: если нет CurrentTarget, используем простую логику
-                int x = Mathf.RoundToInt(target.x);
-                int z = Mathf.RoundToInt(target.z);
-                return new Vector2Int[]
-                {
-                    new Vector2Int(x, z + 1),       // Up
-                    new Vector2Int(x, z - 1),       // Down
-                    new Vector2Int(x + 1, z),       // Right
-                    new Vector2Int(x - 1, z),       // Left
-                    new Vector2Int(x + 1, z + 1),   // Up-Right
-                    new Vector2Int(x + 1, z - 1),   // Down-Right
-                    new Vector2Int(x - 1, z + 1),   // Up-Left
-                    new Vector2Int(x - 1, z - 1)    // Down-Left
-                };
-            }
-
-            List<GridCell> targetCells = GetAllTargetCells(targetTransformable);
-            if (targetCells.Count == 0)
-            {
-                // Fallback: если не удалось получить клетки цели
-                int x = Mathf.RoundToInt(target.x);
-                int z = Mathf.RoundToInt(target.z);
-                return new Vector2Int[]
-                {
-                    new Vector2Int(x, z + 1),
-                    new Vector2Int(x, z - 1),
-                    new Vector2Int(x + 1, z),
-                    new Vector2Int(x - 1, z),
-                    new Vector2Int(x + 1, z + 1),
-                    new Vector2Int(x + 1, z - 1),
-                    new Vector2Int(x - 1, z + 1),
-                    new Vector2Int(x - 1, z - 1)
-                };
-            }
-
-            // 2. Построить зону атаки (все соседи клеток цели)
-            HashSet<Vector2Int> attackZone = new HashSet<Vector2Int>();
-            foreach (GridCell targetCell in targetCells)
-            {
-                for (int dx = -1; dx <= 1; dx++)
-                {
-                    for (int dy = -1; dy <= 1; dy++)
-                    {
-                        if (dx == 0 && dy == 0) continue;
-                        attackZone.Add(new Vector2Int(targetCell.X + dx, targetCell.Y + dy));
-                    }
-                }
-            }
-
-            // 3. Для каждой клетки зоны атаки найти возможные anchor points
-            HashSet<Vector2Int> candidateAnchors = new HashSet<Vector2Int>();
-            UnitSize unitSize = _sizeType.ToUnitSize();
-            Direction direction = _direction.ToDirection();
-
-            foreach (Vector2Int attackCell in attackZone)
-            {
-                List<Vector2Int> anchors = GetAnchorPointsForCell(attackCell, unitSize, direction);
-                foreach (Vector2Int anchor in anchors)
-                {
-                    candidateAnchors.Add(anchor);
-                }
-            }
-
-            // 4. Фильтровать: проверить какие anchor points валидны
-            List<Vector2Int> validPositions = new List<Vector2Int>();
-            foreach (Vector2Int anchor in candidateAnchors)
-            {
-                if (_gridManager.CanPlaceUnit(anchor, unitSize, direction, ignoreOccupied: true))
-                {
-                    validPositions.Add(anchor);
-                }
-            }
-
-            // 5. Сортировка по приоритету
-            Vector2Int currentPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
-            validPositions.Sort((a, b) =>
-            {
-                int deltaXa = Mathf.Abs(a.x - currentPos.x);
-                int deltaXb = Mathf.Abs(b.x - currentPos.x);
-
-                int xComparison = deltaXa.CompareTo(deltaXb);
-                if (xComparison != 0) return xComparison;
-
-                int deltaYa = a.y - currentPos.y;
-                int deltaYb = b.y - currentPos.y;
-                return deltaYb.CompareTo(deltaYa);
-            });
-
-            return validPositions.ToArray();
-        }
 
         public void RotateToTarget(Vector3 target)
         {
@@ -578,7 +259,7 @@ namespace Code.Animals.Movement
 
         private Vector3[] GetPathPositions(List<GridCell> path)
         {
-            Vector3[] pathPositions = path.Select(node => node.WorldPosition).ToArray();
+            var pathPositions = path.Select(node => node.WorldPosition).ToArray();
 
             for (int i = 0; i < pathPositions.Length; i++)
             {
@@ -591,10 +272,90 @@ namespace Code.Animals.Movement
 
         private Vector3 GetDirection(Vector3 target)
         {
-            Vector3 position = transform.position;
-            Vector3 direction = (target - position).normalized;
+            var position = transform.position;
+            var direction = (target - position).normalized;
 
             return direction;
+        }
+
+        private List<GridCell> LimitPathBySpeed(List<GridCell> path)
+        {
+            if (path.Count > _tilesPerMove + 1)
+                return path.Take(_tilesPerMove + 1).ToList();
+            return path;
+        }
+
+        private async Task ExecuteMovement(List<GridCell> path)
+        {
+            var pathPositions = GetPathPositions(path);
+            _debugPathPoints = _debugDrawPath ? pathPositions : null;
+
+            _unitOccupancy.ClearOccupancy();
+
+            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+                .OnWaypointChange(i =>
+                {
+                    if (i >= pathPositions.Length) return;
+                    var direction = (transform.position - pathPositions[i]);
+                    RotateToTarget(direction);
+                })
+                .OnUpdate(() => _movementAnimator.PlayMovementAnimation(1f))
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    RotateToTarget(_direction);
+                    _movementAnimator.StopMovementAnimation();
+                    _debugPathPoints = null;
+                });
+
+            await tween.AsyncWaitForCompletion();
+        }
+
+        private void UpdateNodeOccupancy(GridCell finalCell)
+        {
+            if (finalCell == null) return;
+
+            var neighbours = _gridManager.GetNeighborCells(
+                finalCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
+
+            _currentPathNode = finalCell;
+            _nodes = neighbours;
+            _unitOccupancy.MarkCellsAsOccupied(finalCell, neighbours);
+        }
+
+        private Vector2Int[] GetDodgePositions()
+        {
+            return new Vector2Int[]
+            {
+                new Vector2Int(_currentPathNode.X + 1, _currentPathNode.Y),
+                new Vector2Int(_currentPathNode.X - 1, _currentPathNode.Y),
+                new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
+            };
+        }
+
+        private async Task ExecuteDodgeMovement(List<GridCell> path)
+        {
+            _movementAnimator.PlayJumpAnimation();
+
+            var pathPositions = GetPathPositions(path);
+            _debugPathPoints = _debugDrawPath ? pathPositions : null;
+
+            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+                .OnWaypointChange(i =>
+                {
+                    if (i >= pathPositions.Length) return;
+                    var direction = GetDirection(pathPositions[i]);
+                    RotateToTarget(-direction);
+                })
+                .OnComplete(() =>
+                {
+                    RotateToTarget(Vector3.forward);
+                    _debugPathPoints = null;
+                });
+
+            _unitOccupancy.ClearOccupancy();
+
+            await tween.AsyncWaitForCompletion();
         }
 
     }

@@ -1,3 +1,4 @@
+using Code.Animals.Movement;
 using Code.GridPathfinding;
 using UnityEngine;
 using Zenject;
@@ -30,6 +31,11 @@ namespace Code.Infrastructure.Installers
             // Bind PathfindingService
             Container.Bind<IPathfindingService>()
                 .To<PathfindingService>()
+                .AsSingle();
+
+            // Bind TargetDetector for movement positioning logic
+            Container.Bind<ITargetDetector>()
+                .To<TargetPositionCalculator>()
                 .AsSingle();
 
             Debug.Log("[PathfindingInstaller] Pathfinding system installed successfully");

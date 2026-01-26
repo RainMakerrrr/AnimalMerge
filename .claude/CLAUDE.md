@@ -18,6 +18,13 @@ All technical specifications are located in `Documentation/Specifications/`:
   - Поддержка разных размеров юнитов (1×1, 1×2, 2×2)
   - A* алгоритм с учетом габаритов
   - Direction только для прямоугольных юнитов (1×2, 2×1)
+  - Алгоритм GetPossibleMoves для поиска позиций атаки
+
+- **[02_Pathfinding_Test_Cases.md](../Documentation/Specifications/02_Pathfinding_Test_Cases.md)** - Тест-кейсы для системы поиска пути
+  - 34 комплексных тест-кейса
+  - Покрытие GetAnchorPointsForCell, GetAllTargetCells, GetPossibleMoves
+  - Unit, Integration и Performance тесты
+  - Регрессионные тесты для проверки исправлений
 
 **ВАЖНО:** При работе с любой системой, для которой есть спецификация, ВСЕГДА сначала читай спецификацию, чтобы понять:
 - Текущую архитектуру
@@ -39,6 +46,23 @@ All technical specifications are located in `Documentation/Specifications/`:
 - Use PascalCase for properties
 - Always use explicit access modifiers (public, private, protected)
 - One class per file, file name matches class name
+- **Use `var` for local variables**: Always use implicit typing (`var`) for local variable declarations when the type is obvious from the right side of the assignment
+  ```csharp
+  // ✅ CORRECT - Use var
+  var path = FindPath(points);
+  var neighbours = _gridManager.GetNeighborCells(position, size, direction);
+  var tween = transform.DOPath(pathPositions, duration);
+
+  // ❌ AVOID - Don't use explicit types for locals
+  List<GridCell> path = FindPath(points);
+  List<GridCell> neighbours = _gridManager.GetNeighborCells(position, size, direction);
+  Tween tween = transform.DOPath(pathPositions, duration);
+
+  // Note: Field declarations, parameters, and return types still use explicit types
+  private IGridManager _gridManager; // Field - explicit type
+  public List<GridCell> GetCells() { } // Return type - explicit
+  public void Process(List<GridCell> cells) { } // Parameter - explicit
+  ```
 
 ## Architecture Principles
 
