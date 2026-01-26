@@ -34,9 +34,9 @@ namespace Code
 
                 animal.Movement.SetCurrentNode(gridCell);
 
-                UnitSize unitSize = animal.Movement.ObjectSizeType.ToUnitSize();
-                Direction direction = animal.Movement.Direction.ToDirection();
-                List<GridCell> neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, unitSize, direction);
+                var unitSize = animal.Movement.UnitSize;
+                var direction = animal.Movement.Direction;
+                var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, unitSize, direction);
 
                 if (neighbours.Count == 0)
                 {

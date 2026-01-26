@@ -573,8 +573,8 @@ namespace Code.GridPathfinding
                 return;
             }
 
-            UnitSize unitSize = animal.ObjectSizeType.ToUnitSize();
-            Direction direction = animal.Direction.ToDirection();
+            var unitSize = animal.UnitSize;
+            var direction = animal.Direction;
 
             // Find the first valid placement position in bottom two rows
             GridCell targetCell = null;

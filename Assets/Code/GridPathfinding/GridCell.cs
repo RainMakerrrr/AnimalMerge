@@ -155,8 +155,8 @@ namespace Code.GridPathfinding
             if (movement == null)
                 return false;
 
-            UnitSize unitSize = movement.ObjectSizeType.ToUnitSize();
-            Direction direction = movement.Direction.ToDirection();
+            var unitSize = movement.UnitSize;
+            var direction = movement.Direction;
 
             // Try this cell and neighbors
             Vector2Int[] possiblePositions =

@@ -21,13 +21,13 @@ namespace Code.Animals.Movement
 
         [SerializeField] private float _yPos;
         [SerializeField] private float _zOffset;
-        [SerializeField] private ObjectSizeType _sizeType;
+        [SerializeField] private UnitSize _unitSize = UnitSize.Small;
         [SerializeField] private AnimalAnimator _animator;
         [SerializeField] private List<GridCell> _nodes = new List<GridCell>();
         [SerializeField] private float _raycastOffset = 0.4f;
         [SerializeField] private int _tilesPerMove = 2;
         [SerializeField] private int _sizeEffectY;
-        [SerializeField] private Vector3 _direction = Vector3.forward;
+        [SerializeField] private Direction _direction = Direction.North;
         [SerializeField] private bool _debugDrawPath = true;
 
         private Vector3[] _debugPathPoints;
@@ -42,7 +42,7 @@ namespace Code.Animals.Movement
 
         public GridCell _currentPathNode;
 
-        public ObjectSizeType ObjectSizeType => _sizeType;
+        public UnitSize UnitSize => _unitSize;
 
         public int SizeEffect => _sizeEffectY;
 
@@ -54,7 +54,7 @@ namespace Code.Animals.Movement
         public Vector2Int IntPosition =>
             new Vector2Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.z));
 
-        public Vector3 Direction => _direction;
+        public Direction Direction => _direction;
 
         public ITarget CurrentTarget { get; set; }
 
@@ -95,14 +95,14 @@ namespace Code.Animals.Movement
 
         private void Start()
         {
-            RotateToTarget(_direction);
+            RotateToTarget(DirectionToVector3(_direction));
             _ability = new MultipleCharacters(this, _gridManager, _animalFactory, AnimalType.Chicken, 3);
         }
 
         public void Place(Vector3 position)
         {
             position.y = _yPos;
-            transform.position = position + Utilities.GetMovementOffset(_sizeType, _direction) + Offset;
+            transform.position = position + Utilities.GetMovementOffset(_unitSize, _direction) + Offset;
         }
 
         private void Place(Vector3 position, Vector3 offset)
@@ -154,8 +154,8 @@ namespace Code.Animals.Movement
         {
             ClearNodes();
 
-            Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _sizeType, _direction));
-            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
+            Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _unitSize, _direction));
+            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction);
 
             _currentPathNode = gridCell;
             _nodes = neighbours;
@@ -191,13 +191,11 @@ namespace Code.Animals.Movement
         {
             ClearNodes();
 
-            var unitSize = _sizeType.ToUnitSize();
-            var direction = _direction.ToDirection();
             var startPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
 
             for (int i = 0; i < points.Length; i++)
             {
-                var result = _pathfinder.FindPath(startPos, points[i], unitSize, direction);
+                var result = _pathfinder.FindPath(startPos, points[i], _unitSize, _direction);
 
                 if (result.Success && result.Path.Count > 0)
                 {
@@ -228,7 +226,7 @@ namespace Code.Animals.Movement
         public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
             var possiblePositions = _targetDetector.GetPossibleAttackPositions(
-                _currentPathNode, CurrentTarget, _sizeType.ToUnitSize(), _direction.ToDirection());
+                _currentPathNode, CurrentTarget, _unitSize, _direction);
 
             var path = FindPath(possiblePositions);
             if (path == null || path.Count == 0) return;
@@ -264,7 +262,7 @@ namespace Code.Animals.Movement
             for (int i = 0; i < pathPositions.Length; i++)
             {
                 pathPositions[i].y = _yPos;
-                pathPositions[i] += Utilities.GetMovementOffset(_sizeType, _direction) + Offset;
+                pathPositions[i] += Utilities.GetMovementOffset(_unitSize, _direction) + Offset;
             }
 
             return pathPositions;
@@ -276,6 +274,23 @@ namespace Code.Animals.Movement
             var direction = (target - position).normalized;
 
             return direction;
+        }
+
+        private Vector3 DirectionToVector3(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.North:
+                    return Vector3.forward;
+                case Direction.South:
+                    return Vector3.back;
+                case Direction.East:
+                    return Vector3.right;
+                case Direction.West:
+                    return Vector3.left;
+                default:
+                    return Vector3.forward;
+            }
         }
 
         private List<GridCell> LimitPathBySpeed(List<GridCell> path)
@@ -303,7 +318,7 @@ namespace Code.Animals.Movement
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
-                    RotateToTarget(_direction);
+                    RotateToTarget(DirectionToVector3(_direction));
                     _movementAnimator.StopMovementAnimation();
                     _debugPathPoints = null;
                 });
@@ -316,7 +331,7 @@ namespace Code.Animals.Movement
             if (finalCell == null) return;
 
             var neighbours = _gridManager.GetNeighborCells(
-                finalCell.GridPosition, _sizeType.ToUnitSize(), _direction.ToDirection());
+                finalCell.GridPosition, _unitSize, _direction);
 
             _currentPathNode = finalCell;
             _nodes = neighbours;

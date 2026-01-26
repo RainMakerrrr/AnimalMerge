@@ -1262,6 +1262,10 @@ PrefabInstance:
       value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 1663455553, guid: ac9e236193048d44bbfc0478ecfd822e, type: 3}
+      propertyPath: _direction
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1663455553, guid: ac9e236193048d44bbfc0478ecfd822e, type: 3}
       propertyPath: _direction.z
       value: -1
       objectReference: {fileID: 0}
@@ -2851,6 +2855,7 @@ GameObject:
   - component: {fileID: 2952742400231704768}
   - component: {fileID: 57357053369636908}
   - component: {fileID: 57357053369636907}
+  - component: {fileID: 2952742400231704769}
   m_Layer: 23
   m_Name: ENEMYElephant
   m_TagString: Animal
@@ -2967,13 +2972,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _yPos: 0
   _zOffset: 0.5
-  _sizeType: 2
+  _unitSize:
+    Width: 1
+    Height: 1
   _animator: {fileID: 57357053369636905}
   _nodes: []
   _raycastOffset: 0.4
   _tilesPerMove: 2
   _sizeEffectY: 2
-  _direction: {x: 0, y: 0, z: -1}
+  _direction: 2
   _debugDrawPath: 1
   _currentPathNode: {fileID: 0}
 --- !u!4 &57357053394173876
@@ -5393,6 +5400,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _max: 1000
   _animator: {fileID: 57357053369636905}
+--- !u!114 &2952742400231704769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 57357053369636906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c7b43a8d235e446bbab9f4d72b9701, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentCell: {fileID: 0}
+  _occupiedCells: []
 --- !u!4 &2987251204928952079
 Transform:
   m_ObjectHideFlags: 0

@@ -2234,6 +2234,7 @@ GameObject:
   - component: {fileID: -5345208149981297111}
   - component: {fileID: -1976432522646680732}
   - component: {fileID: 5201212615172606138}
+  - component: {fileID: 6375875760433076691}
   m_Layer: 20
   m_Name: Elephant
   m_TagString: Animal
@@ -2308,13 +2309,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _yPos: 0
   _zOffset: -0.5
-  _sizeType: 2
+  _unitSize:
+    Width: 2
+    Height: 2
   _animator: {fileID: 2153842122831812288}
   _nodes: []
   _raycastOffset: 0.4
   _tilesPerMove: 2
   _sizeEffectY: 2
-  _direction: {x: 0, y: 0, z: 1}
+  _direction: 0
+  _debugDrawPath: 1
   _currentPathNode: {fileID: 0}
 --- !u!114 &2153842122831812289
 MonoBehaviour:
@@ -2331,6 +2335,7 @@ MonoBehaviour:
   _animator: {fileID: 2153842122831812288}
   _attackPoint: {fileID: 2024135566376324305}
   _radius: 1.2
+  _forwardReach: 0.25
   _damage: 50
   _maxTargets: 4
   _mask:
@@ -2407,6 +2412,20 @@ MonoBehaviour:
   _health: {fileID: -5345208149981297111}
   _attack: {fileID: 2153842122831812289}
   _movement: {fileID: 2153842122831812318}
+--- !u!114 &6375875760433076691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2153842122831812291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c7b43a8d235e446bbab9f4d72b9701, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentCell: {fileID: 0}
+  _occupiedCells: []
 --- !u!1 &2153842122843693113
 GameObject:
   m_ObjectHideFlags: 0

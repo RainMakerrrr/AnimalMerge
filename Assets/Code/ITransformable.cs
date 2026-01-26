@@ -9,7 +9,7 @@ namespace Code
     {
         Vector3 Position { get; }
         Vector2Int IntPosition { get; }
-        ObjectSizeType ObjectSizeType { get; }
+        UnitSize UnitSize { get; }
         int SizeEffect { get; }
         GridCell CurrentPathNode { get; }
 

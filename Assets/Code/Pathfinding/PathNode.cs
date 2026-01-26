@@ -4,6 +4,7 @@ using System.Linq;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Movement;
+using Code.GridPathfinding;
 using UnityEngine;
 
 namespace Code.Pathfinding
@@ -151,11 +152,11 @@ namespace Code.Pathfinding
                 LeftNeighbour
             };
             
-            foreach (PathNode node in possibleNodes)
+            foreach (var node in possibleNodes)
             {
                 if (node == null) continue;
 
-                if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.Movement.ObjectSizeType, animal.Movement.Direction))
+                if (node.CanPlace && node.IsWalkable && node.HasNeighbours(animal.Movement.UnitSize.ToObjectSizeType(), animal.Movement.Direction.ToVector3()))
                 {
                     //animal.Movement.SetNewNode(node);
 

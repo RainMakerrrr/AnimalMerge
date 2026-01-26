@@ -74,6 +74,69 @@ namespace Code
             return GetMovementOffset(sizeType, direction);
         }
 
+        /// <summary>
+        /// Converts Direction enum to Vector3 direction
+        /// </summary>
+        private static Vector3 DirectionToVector3(GridPathfinding.Direction direction)
+        {
+            switch (direction)
+            {
+                case GridPathfinding.Direction.North:
+                    return Vector3.forward;
+                case GridPathfinding.Direction.South:
+                    return Vector3.back;
+                case GridPathfinding.Direction.East:
+                    return Vector3.right;
+                case GridPathfinding.Direction.West:
+                    return Vector3.left;
+                default:
+                    return Vector3.forward;
+            }
+        }
+
+        /// <summary>
+        /// Overload for UnitSize and Direction - modern types without casting
+        /// </summary>
+        public static Vector3 GetMovementOffset(GridPathfinding.UnitSize unitSize, GridPathfinding.Direction direction)
+        {
+            var directionVector = DirectionToVector3(direction);
+
+            // 1×1 unit
+            if (unitSize.Width == 1 && unitSize.Height == 1)
+            {
+                return Vector3.zero;
+            }
+
+            // 1×2 unit
+            if (unitSize.Width == 1 && unitSize.Height == 2)
+            {
+                return new Vector3(0f, 0f, GetAxisOffset(directionVector.z));
+            }
+
+            // 2×1 unit
+            if (unitSize.Width == 2 && unitSize.Height == 1)
+            {
+                return new Vector3(GetAxisOffset(directionVector.x), 0f, 0f);
+            }
+
+            // 2×2 unit
+            if (unitSize.Width == 2 && unitSize.Height == 2)
+            {
+                return new Vector3(GetAxisOffset(directionVector.x), 0f, GetAxisOffset(directionVector.z));
+            }
+
+            // Default fallback
+            return Vector3.zero;
+        }
+
+        /// <summary>
+        /// Overload for GridCell with UnitSize and Direction
+        /// </summary>
+        public static Vector3 GetMovementOffset(GridPathfinding.GridCell cell, GridPathfinding.UnitSize unitSize, GridPathfinding.Direction direction)
+        {
+            return GetMovementOffset(unitSize, direction);
+        }
+
         public static int GetNodeCount(ObjectSizeType sizeType)
         {
             switch (sizeType)

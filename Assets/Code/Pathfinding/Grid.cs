@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Code.Animals;
 using Code.Animals.Movement;
+using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Nodes;
 using UnityEngine;
 using Zenject;
@@ -119,12 +120,12 @@ namespace Code.Pathfinding
 
         public void PlaceOnGrid(AnimalMovement animal)
         {
-            IEnumerable<PathNode> nodes = SortNodes();
+            var nodes = SortNodes();
 
-            PathNode node = nodes.FirstOrDefault();
+            var node = nodes.FirstOrDefault();
             if (node == null) return;
 
-            List<PathNode> neighbours = node.GetNeighbours(animal.ObjectSizeType, animal.Direction);
+            var neighbours = node.GetNeighbours(animal.UnitSize.ToObjectSizeType(), animal.Direction.ToVector3());
             if (neighbours.Count == 0)
             {
                 node.IsWalkable = false;
