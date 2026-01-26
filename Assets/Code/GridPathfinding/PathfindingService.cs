@@ -92,7 +92,13 @@ namespace Code.GridPathfinding
                     if (_closedSet.Contains(neighbor))
                         continue;
 
-                    float tentativeGCost = currentCell.GCost + 1; // Grid movement cost is 1
+                    // Calculate movement cost: 1 for orthogonal, sqrt(2) for diagonal
+                    int dx = Mathf.Abs(neighbor.X - currentCell.X);
+                    int dy = Mathf.Abs(neighbor.Y - currentCell.Y);
+                    bool isDiagonal = (dx == 1 && dy == 1);
+                    float movementCost = isDiagonal ? 1.414f : 1f;
+
+                    float tentativeGCost = currentCell.GCost + movementCost;
 
                     if (tentativeGCost < neighbor.GCost)
                     {
@@ -122,13 +128,17 @@ namespace Code.GridPathfinding
         {
             _neighbors.Clear();
 
-            // 4-directional movement: up, down, left, right
+            // 8-directional movement: up, down, left, right, and 4 diagonals
             Vector2Int[] directions = new Vector2Int[]
             {
                 new Vector2Int(0, 1),   // Up
                 new Vector2Int(0, -1),  // Down
                 new Vector2Int(1, 0),   // Right
-                new Vector2Int(-1, 0)   // Left
+                new Vector2Int(-1, 0),  // Left
+                new Vector2Int(1, 1),   // Up-Right
+                new Vector2Int(1, -1),  // Down-Right
+                new Vector2Int(-1, 1),  // Up-Left
+                new Vector2Int(-1, -1)  // Down-Left
             };
 
             foreach (var dir in directions)
@@ -150,11 +160,18 @@ namespace Code.GridPathfinding
         }
 
         /// <summary>
-        /// Calculates Manhattan distance heuristic
+        /// Calculates Octile distance heuristic (for 8-directional movement)
         /// </summary>
         private float CalculateHeuristic(Vector2Int from, Vector2Int to)
         {
-            return Mathf.Abs(from.x - to.x) + Mathf.Abs(from.y - to.y);
+            int dx = Mathf.Abs(from.x - to.x);
+            int dy = Mathf.Abs(from.y - to.y);
+
+            // Octile distance: D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
+            // where D = 1 (orthogonal cost), D2 = 1.414 (diagonal cost)
+            float D = 1f;
+            float D2 = 1.414f;
+            return D * (dx + dy) + (D2 - 2 * D) * Mathf.Min(dx, dy);
         }
 
         /// <summary>
