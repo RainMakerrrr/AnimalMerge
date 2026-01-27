@@ -2973,8 +2973,8 @@ MonoBehaviour:
   _yPos: 0
   _zOffset: 0.5
   _unitSize:
-    Width: 1
-    Height: 1
+    Width: 2
+    Height: 2
   _animator: {fileID: 57357053369636905}
   _nodes: []
   _raycastOffset: 0.4
