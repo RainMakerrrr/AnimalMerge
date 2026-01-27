@@ -235,7 +235,7 @@ namespace Code.GridPathfinding
             int xExtent = width;
             int yExtent = height;
 
-            if ((width == 1 && height == 2) || (width == 2 && height == 1))
+            if (size.IsRectangular())
             {
                 if (direction == Direction.East || direction == Direction.West)
                 {
@@ -308,7 +308,7 @@ namespace Code.GridPathfinding
             // For 1x2 units, direction affects which dimension is which
             // North/South: unit is vertical (height along Y axis)
             // East/West: unit is horizontal (height along X axis)
-            if ((width == 1 && height == 2) || (width == 2 && height == 1))
+            if (size.IsRectangular())
             {
                 if (direction == Direction.North || direction == Direction.South)
                 {
@@ -537,8 +537,8 @@ namespace Code.GridPathfinding
             };
 
             // Try to find a valid placement position in the bottom two rows
-            // For 1x2 units, we need to check both vertical and horizontal orientations
-            Direction[] directionsToCheck = unitSize.Width == 1 && unitSize.Height == 2
+            // For rectangular units (1×2 or 2×1), we need to check both vertical and horizontal orientations
+            Direction[] directionsToCheck = unitSize.IsRectangular()
                 ? new[] { Direction.North, Direction.East }  // Try vertical and horizontal
                 : new[] { Direction.North };                  // Square units don't depend on direction
 

@@ -55,5 +55,21 @@ namespace Code.GridPathfinding
         {
             return $"{Width}x{Height}";
         }
+
+        /// <summary>
+        /// Checks if this unit is rectangular (1×2 or 2×1)
+        /// </summary>
+        public bool IsRectangular()
+        {
+            return (Width == 1 && Height == 2) || (Width == 2 && Height == 1);
+        }
+
+        /// <summary>
+        /// Checks if this unit is square (width == height)
+        /// </summary>
+        public bool IsSquare()
+        {
+            return Width == Height;
+        }
     }
 }

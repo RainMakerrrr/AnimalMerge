@@ -160,18 +160,16 @@ namespace Code.Animals.Movement
         private List<Vector2Int> GetAnchorPointsForCell(Vector2Int targetCell, UnitSize unitSize, Direction unitDirection)
         {
             var anchors = new List<Vector2Int>();
-            var width = unitSize.Width;
-            var height = unitSize.Height;
 
             // 1×1 юнит
-            if (width == 1 && height == 1)
+            if (unitSize == UnitSize.Small)
             {
                 anchors.Add(targetCell);
                 return anchors;
             }
 
             // 1×2 юнит (прямоугольный)
-            if (width == 1 && height == 2)
+            if (unitSize == UnitSize.Medium)
             {
                 if (unitDirection == Direction.North)
                 {
@@ -201,7 +199,7 @@ namespace Code.Animals.Movement
             }
 
             // 2×2 юнит (квадратный)
-            if (width == 2 && height == 2)
+            if (unitSize == UnitSize.Large)
             {
                 if (unitDirection == Direction.North || unitDirection == Direction.East)
                 {
