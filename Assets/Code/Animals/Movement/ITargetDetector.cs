@@ -18,7 +18,7 @@ namespace Code.Animals.Movement
         /// <param name="direction">Направление атакующего юнита</param>
         /// <returns>Массив возможных позиций anchor points для атаки</returns>
         Vector2Int[] GetPossibleAttackPositions(
-            GridCell currentNode,
+            IGridCell currentNode,
             ITarget target,
             UnitSize unitSize,
             Direction direction);
@@ -31,8 +31,8 @@ namespace Code.Animals.Movement
         /// <param name="target">Цель для проверки</param>
         /// <returns>True если юнит находится рядом с целью и может атаковать</returns>
         bool IsCloseToTarget(
-            GridCell currentNode,
-            List<GridCell> occupiedNodes,
+            IGridCell currentNode,
+            List<IGridCell> occupiedNodes,
             ITarget target);
     }
 }

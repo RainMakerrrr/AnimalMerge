@@ -83,7 +83,7 @@ namespace Code.Abilities
             {
                 foreach (Vector2Int position in possibleNodesPosition)
                 {
-                    GridCell cell = _gridManager.GetCell(position.x, position.y);
+                    var cell = _gridManager.GetCell(position.x, position.y) as GridCell;
 
                     if (cell != null && cell.IsWalkable && cell.CanPlace)
                     {

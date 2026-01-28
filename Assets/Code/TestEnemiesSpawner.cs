@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Code.Animals.Facades;
 using Code.GridPathfinding;
 using Code.Pathfinding;
@@ -29,7 +30,7 @@ namespace Code
             {
                 var animal = _animals[i];
                 var position = _positions[i];
-                GridCell gridCell = _gridManager.GetCell(position.x, position.y);
+                var gridCell = _gridManager.GetCell(position.x, position.y) as GridCell;
                 animal.Movement.Place(gridCell.WorldPosition);
 
                 animal.Movement.SetCurrentNode(gridCell);
@@ -47,14 +48,18 @@ namespace Code
                 {
                     neighbours.ForEach(neighbour =>
                     {
-                        neighbour.IsWalkable = false;
-                        neighbour.UpdateVisual();
+                        var cell = neighbour as GridCell;
+                        if (cell != null)
+                        {
+                            cell.IsWalkable = false;
+                            cell.UpdateVisual();
+                        }
                     });
 
                     gridCell.IsWalkable = false;
                     gridCell.UpdateVisual();
 
-                    animal.Movement.FillNodes(neighbours);
+                    animal.Movement.FillNodes(neighbours.Cast<GridCell>().ToList());
                 }
 
                 _animalsInstances.Add(animal);

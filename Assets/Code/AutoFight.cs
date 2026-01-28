@@ -53,7 +53,7 @@ namespace Code
         private GridCell GetClosestEnemyTileWorldPosition(AnimalMovement mover, ITarget enemy)
         {
             var enemyTransformable = enemy.Transformable;
-            var rootCell = enemyTransformable.CurrentPathNode;
+            var rootCell = enemyTransformable.CurrentPathNode as GridCell;
             if (rootCell == null)
                 return null;
 

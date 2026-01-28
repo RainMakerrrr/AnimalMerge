@@ -216,7 +216,7 @@ namespace DG.Tweening
 
         #region .NET 4.6 or Newer
 
-#if (NET_4_6 || NET_STANDARD_2_0)
+#if (NET_4_6 || NET_STANDARD_2_0 || NET_STANDARD_2_1)
 
         #region Async Instructions
 

@@ -12,9 +12,9 @@ namespace Code.GridPathfinding
         private readonly IGridManager _gridManager;
 
         // Object pooling to reduce GC allocations
-        private readonly List<GridCell> _openList = new List<GridCell>(256);
-        private readonly HashSet<GridCell> _closedSet = new HashSet<GridCell>();
-        private readonly List<GridCell> _neighbors = new List<GridCell>(4);
+        private readonly List<IGridCell> _openList = new List<IGridCell>(256);
+        private readonly HashSet<IGridCell> _closedSet = new HashSet<IGridCell>();
+        private readonly List<IGridCell> _neighbors = new List<IGridCell>(4);
 
         public PathfindingService(IGridManager gridManager)
         {
@@ -124,7 +124,7 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Gets valid neighboring cells considering unit size and direction
         /// </summary>
-        private List<GridCell> GetValidNeighbors(GridCell cell, UnitSize unitSize, Direction direction, bool ignoreOccupied)
+        private List<IGridCell> GetValidNeighbors(IGridCell cell, UnitSize unitSize, Direction direction, bool ignoreOccupied)
         {
             _neighbors.Clear();
 
@@ -177,9 +177,9 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Gets the cell with the lowest FCost from the open list
         /// </summary>
-        private GridCell GetLowestFCostCell()
+        private IGridCell GetLowestFCostCell()
         {
-            GridCell lowestCell = _openList[0];
+            var lowestCell = _openList[0];
 
             for (int i = 1; i < _openList.Count; i++)
             {
@@ -196,7 +196,7 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Reconstructs the path by following parent pointers
         /// </summary>
-        private List<Vector2Int> ReconstructPath(GridCell endCell)
+        private List<Vector2Int> ReconstructPath(IGridCell endCell)
         {
             var path = new List<Vector2Int>();
             var currentCell = endCell;

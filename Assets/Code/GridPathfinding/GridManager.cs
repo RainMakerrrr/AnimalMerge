@@ -78,7 +78,7 @@ namespace Code.GridPathfinding
             Debug.Log($"[GridPathfinding] Grid initialized: {_width}x{_height}, CellSize: {_cellSize}");
         }
 
-        public GridCell GetCell(int x, int y)
+        public IGridCell GetCell(int x, int y)
         {
             if (!IsInBounds(x, y))
                 return null;
@@ -86,7 +86,7 @@ namespace Code.GridPathfinding
             return _cells[x, y];
         }
 
-        public GridCell GetCell(Vector2Int position)
+        public IGridCell GetCell(Vector2Int position)
         {
             return GetCell(position.x, position.y);
         }
@@ -182,9 +182,9 @@ namespace Code.GridPathfinding
             return true;
         }
 
-        public List<GridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction)
+        public List<IGridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction)
         {
-            return GetOccupiedCellsInternal(position, size, direction);
+            return GetOccupiedCellsInternal(position, size, direction).Cast<IGridCell>().ToList();
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Code.GridPathfinding
         /// so that calling code can mark the original position as occupied and all returned
         /// cells as neighbors.
         /// </summary>
-        public List<GridCell> GetNeighborCells(Vector2Int position, UnitSize size, Direction direction)
+        public List<IGridCell> GetNeighborCells(Vector2Int position, UnitSize size, Direction direction)
         {
             // Get all cells (internally adjusts position to fit bounds)
             var allCells = GetOccupiedCellsInternal(position, size, direction);
@@ -204,13 +204,13 @@ namespace Code.GridPathfinding
             // Remove the cell at the ORIGINAL position as the "base" cell
             // This ensures that when TestEnemiesSpawner marks gridCell (original) and neighbors,
             // all actual occupied cells get marked correctly
-            var baseCellAtOriginalPosition = GetCell(position);
+            var baseCellAtOriginalPosition = GetCell(position) as GridCell;
             if (baseCellAtOriginalPosition != null && allCells.Contains(baseCellAtOriginalPosition))
             {
                 allCells.Remove(baseCellAtOriginalPosition);
             }
 
-            return allCells;
+            return allCells.Cast<IGridCell>().ToList();
         }
 
         /// <summary>
@@ -318,7 +318,7 @@ namespace Code.GridPathfinding
 
                     for (int dy = 0; dy < height; dy++)
                     {
-                        var cell = GetCell(position.x, position.y + dy * zDirection);
+                        var cell = GetCell(position.x, position.y + dy * zDirection) as GridCell;
                         if (cell != null)
                             cells.Add(cell);
                     }
@@ -331,7 +331,7 @@ namespace Code.GridPathfinding
 
                     for (int dx = 0; dx < height; dx++)  // Using height as horizontal extent
                     {
-                        var cell = GetCell(position.x + dx * xDirection, position.y);
+                        var cell = GetCell(position.x + dx * xDirection, position.y) as GridCell;
                         if (cell != null)
                             cells.Add(cell);
                     }
@@ -351,7 +351,7 @@ namespace Code.GridPathfinding
                     {
                         int actualX = position.x + dx * xDirection;
                         int actualY = position.y + dy * zDirection;
-                        var cell = GetCell(actualX, actualY);
+                        var cell = GetCell(actualX, actualY) as GridCell;
                         if (cell != null)
                             cells.Add(cell);
                     }
@@ -419,7 +419,7 @@ namespace Code.GridPathfinding
             if (cell != null)
             {
                 cell.IsWalkable = walkable;
-                cell.UpdateVisual();
+                (cell as GridCell)?.UpdateVisual();
             }
         }
 
@@ -585,7 +585,7 @@ namespace Code.GridPathfinding
                     Vector2Int position = new Vector2Int(x, y);
                     if (CanPlaceUnit(position, unitSize, direction))
                     {
-                        targetCell = GetCell(position);
+                        targetCell = GetCell(position) as GridCell;
                     }
                 }
             }
@@ -601,13 +601,13 @@ namespace Code.GridPathfinding
             animal.SetCurrentNode(targetCell);
 
             // Get all occupied cells (includes the base cell and neighbors)
-            List<GridCell> allOccupiedCells = GetOccupiedCells(targetCell.GridPosition, unitSize, direction);
+            var allOccupiedCells = GetOccupiedCells(targetCell.GridPosition, unitSize, direction).Cast<GridCell>().ToList();
 
             // Mark all cells as occupied (this sets IsWalkable = false)
             SetOccupied(targetCell.GridPosition, unitSize, direction, animal);
 
             // Get neighbor cells (excluding the base targetCell) for the animal's internal tracking
-            List<GridCell> neighbourCells = GetNeighborCells(targetCell.GridPosition, unitSize, direction);
+            var neighbourCells = GetNeighborCells(targetCell.GridPosition, unitSize, direction).Cast<GridCell>().ToList();
             if (neighbourCells.Count > 0)
             {
                 animal.FillNodes(neighbourCells);

@@ -11,7 +11,7 @@ namespace Code
         Vector2Int IntPosition { get; }
         UnitSize UnitSize { get; }
         int SizeEffect { get; }
-        GridCell CurrentPathNode { get; }
+        IGridCell CurrentPathNode { get; }
 
         Task Shift();
     }

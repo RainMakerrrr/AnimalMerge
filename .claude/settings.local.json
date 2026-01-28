@@ -27,7 +27,12 @@
       "Bash(timeout /t 20 /nobreak)",
       "Bash(timeout /t 25 /nobreak)",
       "Bash(timeout /t 30 /nobreak)",
-      "Bash(timeout /t 2 /nobreak)"
+      "Bash(timeout /t 2 /nobreak)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(timeout 3 sleep:*)",
+      "mcp__ai-game-developer__tests-run",
+      "Bash(test:*)"
     ]
   }
 }

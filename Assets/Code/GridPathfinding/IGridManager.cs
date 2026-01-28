@@ -15,12 +15,12 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Gets the cell at the specified grid position
         /// </summary>
-        GridCell GetCell(int x, int y);
+        IGridCell GetCell(int x, int y);
 
         /// <summary>
         /// Gets the cell at the specified grid position (Vector2Int overload)
         /// </summary>
-        GridCell GetCell(Vector2Int position);
+        IGridCell GetCell(Vector2Int position);
 
         /// <summary>
         /// Checks if the grid position is within bounds
@@ -71,14 +71,14 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Gets all cells that a unit would occupy at the given position
         /// </summary>
-        List<GridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction);
+        List<IGridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction);
 
         /// <summary>
         /// Gets the neighbor cells (additional cells excluding the base position cell)
         /// that a unit occupies based on its size and direction.
         /// This matches the old PathNode.GetNeighbours behavior.
         /// </summary>
-        List<GridCell> GetNeighborCells(Vector2Int position, UnitSize size, Direction direction);
+        List<IGridCell> GetNeighborCells(Vector2Int position, UnitSize size, Direction direction);
 
         /// <summary>
         /// Marks cells as occupied by a unit

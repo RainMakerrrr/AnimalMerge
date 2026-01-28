@@ -19,7 +19,7 @@ namespace Code.Animals.Movement
         }
 
         public Vector2Int[] GetPossibleAttackPositions(
-            GridCell currentNode,
+            IGridCell currentNode,
             ITarget target,
             UnitSize unitSize,
             Direction direction)
@@ -92,14 +92,14 @@ namespace Code.Animals.Movement
         }
 
         public bool IsCloseToTarget(
-            GridCell currentNode,
-            List<GridCell> occupiedNodes,
+            IGridCell currentNode,
+            List<IGridCell> occupiedNodes,
             ITarget target)
         {
             if (currentNode == null || target == null) return false;
 
             // Собрать все клетки, которые занимает атакующий юнит
-            var attackerCells = new List<GridCell> { currentNode };
+            var attackerCells = new List<IGridCell> { currentNode };
             if (occupiedNodes != null)
             {
                 attackerCells.AddRange(occupiedNodes);
@@ -137,9 +137,9 @@ namespace Code.Animals.Movement
         /// <summary>
         /// Получить все клетки, занимаемые целью
         /// </summary>
-        private List<GridCell> GetAllTargetCells(ITransformable targetTransformable)
+        private List<IGridCell> GetAllTargetCells(ITransformable targetTransformable)
         {
-            var targetCells = new List<GridCell>();
+            var targetCells = new List<IGridCell>();
 
             if (targetTransformable.CurrentPathNode != null)
             {
@@ -148,7 +148,7 @@ namespace Code.Animals.Movement
 
             if (targetTransformable is AnimalMovement targetAnimal)
             {
-                targetCells.AddRange(targetAnimal.Nodes);
+                targetCells.AddRange(targetAnimal.Nodes.Cast<IGridCell>());
             }
 
             return targetCells;

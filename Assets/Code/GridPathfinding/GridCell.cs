@@ -13,7 +13,7 @@ namespace Code.GridPathfinding
     /// </summary>
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(Collider))]
-    public class GridCell : MonoBehaviour, IRaycastable
+    public class GridCell : MonoBehaviour, IRaycastable, IGridCell
     {
         [Header("Colors")]
         [SerializeField] private Color _walkableColor = new Color(0.7f, 0.7f, 0.7f, 1f);  // Neutral gray
@@ -36,6 +36,13 @@ namespace Code.GridPathfinding
 
         // Pathfinding data
         public GridCell Parent { get; set; }
+
+        // Explicit interface implementation for IGridCell.Parent
+        IGridCell IGridCell.Parent
+        {
+            get => Parent;
+            set => Parent = value as GridCell;
+        }
 
         // Cell state
         public bool IsWalkable { get; set; }
@@ -170,7 +177,7 @@ namespace Code.GridPathfinding
             {
                 if (_gridManager.CanPlaceUnit(pos, unitSize, direction))
                 {
-                    GridCell targetCell = _gridManager.GetCell(pos);
+                    var targetCell = _gridManager.GetCell(pos) as GridCell;
                     if (targetCell != null && targetCell.IsWalkable &&
                         (pos.y == 0 || pos.y == 1)) // Can only place in bottom rows
                     {
@@ -179,7 +186,7 @@ namespace Code.GridPathfinding
                         //todo fix
                         movement.SetCurrentNode(targetCell);
 
-                        List<GridCell> occupiedCells = _gridManager.GetOccupiedCells(pos, unitSize, direction);
+                        var occupiedCells = _gridManager.GetOccupiedCells(pos, unitSize, direction).Cast<GridCell>().ToList();
                         _gridManager.SetOccupied(pos, unitSize, direction, movement);
 
                         if (occupiedCells.Count > 0)

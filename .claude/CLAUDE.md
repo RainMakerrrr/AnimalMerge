@@ -644,3 +644,9 @@ void Update() {
 8. Check for warnings in Console
 9. Verify no performance regressions
 10. Update documentation if adding new systems
+
+## Test
+1. Use NSubstitute for mocks.
+2. Use Fluent Assertions for asserts.
+3. Place editor tests in the Assets/Code/Tests/EditorTests folder.
+4. Place tests intended for Play Mode in the Assets/Code/Tests/PlayModeTests folder.

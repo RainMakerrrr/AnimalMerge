@@ -48,6 +48,9 @@ namespace Code.Animals.Movement
 
         public GridCell CurrentPathNode => _currentPathNode;
 
+        // Explicit interface implementation for ITransformable.CurrentPathNode
+        IGridCell ITransformable.CurrentPathNode => _currentPathNode;
+
         public Vector3 Position => transform.position;
 
 
@@ -130,7 +133,7 @@ namespace Code.Animals.Movement
 
         public bool IsCloseToTarget(Vector3 target)
         {
-            return _targetDetector.IsCloseToTarget(_currentPathNode, _nodes, CurrentTarget);
+            return _targetDetector.IsCloseToTarget(_currentPathNode, _nodes.Cast<IGridCell>().ToList(), CurrentTarget);
         }
 
         public bool TryPlace()
@@ -155,7 +158,7 @@ namespace Code.Animals.Movement
             ClearNodes();
 
             Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _unitSize, _direction));
-            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction);
+            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
 
             _currentPathNode = gridCell;
             _nodes = neighbours;
@@ -203,6 +206,7 @@ namespace Code.Animals.Movement
                     var path = result.Path
                         .Select(pos => _gridManager.GetCell(pos))
                         .Where(cell => cell != null)
+                        .Cast<GridCell>()
                         .ToList();
 
                     if (path.Count > 0) return path;
@@ -237,7 +241,7 @@ namespace Code.Animals.Movement
 
             UpdateNodeOccupancy(path.Last());
 
-            if (_targetDetector.IsCloseToTarget(_currentPathNode, _nodes, CurrentTarget))
+            if (_targetDetector.IsCloseToTarget(_currentPathNode, _nodes.Cast<IGridCell>().ToList(), CurrentTarget))
             {
                 RotateToTarget(target - transform.position);
                 await reachedTargetCallback?.Invoke()!;
@@ -322,7 +326,7 @@ namespace Code.Animals.Movement
                     _movementAnimator.StopMovementAnimation();
                     _debugPathPoints = null;
                 });
-
+            
             await tween.AsyncWaitForCompletion();
         }
 
@@ -331,7 +335,7 @@ namespace Code.Animals.Movement
             if (finalCell == null) return;
 
             var neighbours = _gridManager.GetNeighborCells(
-                finalCell.GridPosition, _unitSize, _direction);
+                finalCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
 
             _currentPathNode = finalCell;
             _nodes = neighbours;
