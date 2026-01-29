@@ -17,5 +17,8 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": false,
+    "internalsVisibleTo": [
+        "Code.Editor.Tests"
+    ]
 }

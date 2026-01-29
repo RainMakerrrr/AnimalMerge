@@ -647,6 +647,6 @@ void Update() {
 
 ## Test
 1. Use NSubstitute for mocks.
-2. Use Fluent Assertions for asserts.
+2. Use Fluent Assertions for asserts.Прод
 3. Place editor tests in the Assets/Code/Tests/EditorTests folder.
 4. Place tests intended for Play Mode in the Assets/Code/Tests/PlayModeTests folder.

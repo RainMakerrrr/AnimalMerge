@@ -63,6 +63,26 @@ namespace Code.Animals.Movement
 
         public List<GridCell> Nodes => _nodes;
 
+        /// <summary>
+        /// Returns all grid cells occupied by this unit (CurrentPathNode + Nodes)
+        /// </summary>
+        public List<IGridCell> GetOccupiedCells()
+        {
+            var occupiedCells = new List<IGridCell>();
+
+            if (_currentPathNode != null)
+            {
+                occupiedCells.Add(_currentPathNode);
+            }
+
+            if (_nodes != null && _nodes.Count > 0)
+            {
+                occupiedCells.AddRange(_nodes.Cast<IGridCell>());
+            }
+
+            return occupiedCells;
+        }
+
         private IAbility _ability;
 
         private IAnimalFactory _animalFactory;

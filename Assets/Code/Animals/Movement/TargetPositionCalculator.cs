@@ -67,7 +67,26 @@ namespace Code.Animals.Movement
             var validPositions = new List<Vector2Int>();
             foreach (var anchor in candidateAnchors)
             {
-                if (_gridManager.CanPlaceUnit(anchor, unitSize, direction, ignoreOccupied: true))
+                // First check if unit can be placed (ignoring occupancy for pathfinding purposes)
+                if (!_gridManager.CanPlaceUnit(anchor, unitSize, direction, ignoreOccupied: true))
+                {
+                    continue; // Can't place (out of bounds, etc.)
+                }
+
+                // Check if this anchor would cause overlap with target cells
+                var occupiedByAnchor = _gridManager.GetOccupiedCells(anchor, unitSize, direction);
+                bool overlapsWithTarget = false;
+
+                foreach (var occupiedCell in occupiedByAnchor)
+                {
+                    if (targetCells.Any(tc => tc.X == occupiedCell.X && tc.Y == occupiedCell.Y))
+                    {
+                        overlapsWithTarget = true;
+                        break;
+                    }
+                }
+
+                if (!overlapsWithTarget)
                 {
                     validPositions.Add(anchor);
                 }
@@ -137,21 +156,14 @@ namespace Code.Animals.Movement
         /// <summary>
         /// Получить все клетки, занимаемые целью
         /// </summary>
-        private List<IGridCell> GetAllTargetCells(ITransformable targetTransformable)
+        public List<IGridCell> GetAllTargetCells(ITransformable targetTransformable)
         {
-            var targetCells = new List<IGridCell>();
-
-            if (targetTransformable.CurrentPathNode != null)
+            if (targetTransformable == null)
             {
-                targetCells.Add(targetTransformable.CurrentPathNode);
+                return new List<IGridCell>();
             }
 
-            if (targetTransformable is AnimalMovement targetAnimal)
-            {
-                targetCells.AddRange(targetAnimal.Nodes.Cast<IGridCell>());
-            }
-
-            return targetCells;
+            return targetTransformable.GetOccupiedCells();
         }
 
         /// <summary>

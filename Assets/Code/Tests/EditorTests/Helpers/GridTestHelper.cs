@@ -75,8 +75,57 @@ namespace Code.Tests.EditorTests.Helpers
                 Arg.Any<bool>()
             ).Returns(call =>
             {
-                var pos = call.ArgAt<Vector2Int>(0);
-                return gridManager.IsInBounds(pos);
+                var anchor = call.ArgAt<Vector2Int>(0);
+                var size = call.ArgAt<UnitSize>(1);
+                var direction = call.ArgAt<Direction>(2);
+                var ignoreOccupied = call.ArgAt<bool>(3);
+
+                // Get all cells this unit would occupy
+                var occupiedPositions = GetOccupiedPositions(anchor, size, direction);
+
+                // Check each cell
+                foreach (var cellPos in occupiedPositions)
+                {
+                    // Must be in bounds
+                    if (!gridManager.IsInBounds(cellPos))
+                        return false;
+
+                    // Must be walkable (unless ignoreOccupied is true, we still check walkability for obstacles)
+                    var cell = gridManager.GetCell(cellPos) as TestGridCell;
+                    if (cell == null || !cell.IsWalkable)
+                        return false;
+                }
+
+                return true;
+            });
+
+            // Setup GetOccupiedCells
+            gridManager.GetOccupiedCells(
+                Arg.Any<Vector2Int>(),
+                Arg.Any<UnitSize>(),
+                Arg.Any<Direction>()
+            ).Returns(call =>
+            {
+                var anchor = call.ArgAt<Vector2Int>(0);
+                var size = call.ArgAt<UnitSize>(1);
+                var direction = call.ArgAt<Direction>(2);
+
+                var occupiedPositions = GetOccupiedPositions(anchor, size, direction);
+                var result = new List<IGridCell>();
+
+                foreach (var pos in occupiedPositions)
+                {
+                    if (gridManager.IsInBounds(pos))
+                    {
+                        var cell = gridManager.GetCell(pos);
+                        if (cell != null)
+                        {
+                            result.Add(cell);
+                        }
+                    }
+                }
+
+                return result;
             });
 
             return gridManager;
@@ -119,6 +168,41 @@ namespace Code.Tests.EditorTests.Helpers
         {
             var cell = grid.GetCell(position);
             return cell != null && cell.GridPosition == position;
+        }
+
+        /// <summary>
+        /// Gets all positions occupied by a unit of given size and direction at anchor position
+        /// </summary>
+        private static List<Vector2Int> GetOccupiedPositions(Vector2Int anchor, UnitSize size, Direction direction)
+        {
+            var positions = new List<Vector2Int>();
+
+            if (size.Equals(UnitSize.Small)) // 1×1
+            {
+                positions.Add(anchor);
+            }
+            else if (size.Equals(UnitSize.Medium)) // 1×2
+            {
+                if (direction == Direction.North || direction == Direction.South)
+                {
+                    positions.Add(anchor);
+                    positions.Add(anchor + new Vector2Int(0, 1));
+                }
+                else // East or West
+                {
+                    positions.Add(anchor);
+                    positions.Add(anchor + new Vector2Int(1, 0));
+                }
+            }
+            else if (size.Equals(UnitSize.Large)) // 2×2
+            {
+                positions.Add(anchor);
+                positions.Add(anchor + new Vector2Int(1, 0));
+                positions.Add(anchor + new Vector2Int(0, 1));
+                positions.Add(anchor + new Vector2Int(1, 1));
+            }
+
+            return positions;
         }
     }
 }

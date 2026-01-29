@@ -313,6 +313,9 @@ namespace Code.Tests.EditorTests.GridPathfinding.TargetPositionCalculatorTests
             transformable.IntPosition.Returns(position);
             transformable.UnitSize.Returns(targetSize);
 
+            // Setup GetOccupiedCells - return single cell for small unit
+            transformable.GetOccupiedCells().Returns(new System.Collections.Generic.List<IGridCell> { targetCell });
+
             target.Transformable.Returns(transformable);
 
             return target;
