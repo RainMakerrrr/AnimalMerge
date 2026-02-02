@@ -19,6 +19,7 @@
     "versionDefines": [],
     "noEngineReferences": false,
     "internalsVisibleTo": [
-        "Code.Editor.Tests"
+        "Code.Editor.Tests",
+        "Code.PlayMode.Tests"
     ]
 }
