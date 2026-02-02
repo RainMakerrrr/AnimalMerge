@@ -1,6 +1,25 @@
 {
-    "name": "PlayModeTests",
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ]
+    "name": "Code.PlayMode.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9233417ced0fcd94585e4ed7a39be4f9",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "NSubstitute.dll",
+        "FluentAssertions.dll",
+        "UnityEngine.TestRunner.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
