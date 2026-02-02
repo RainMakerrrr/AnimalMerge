@@ -15,6 +15,10 @@ namespace Code.Animals.Movement
 
         private readonly List<AnimalMovement> _additionalUnits = new List<AnimalMovement>();
 
+        // Temporary storage for restore on failed placement
+        private GridCell _savedCurrentCell;
+        private List<GridCell> _savedOccupiedCells;
+
         public GridCell CurrentCell => _currentCell;
 
         public IReadOnlyList<GridCell> OccupiedCells => _occupiedCells;
@@ -88,7 +92,7 @@ namespace Code.Animals.Movement
 
             if (neighbors != null)
             {
-                foreach (GridCell neighbor in neighbors)
+                foreach (var neighbor in neighbors)
                 {
                     neighbor.IsWalkable = false;
                     neighbor.UpdateVisual();
@@ -96,6 +100,39 @@ namespace Code.Animals.Movement
 
                 _occupiedCells = neighbors;
             }
+        }
+
+        /// <summary>
+        /// Saves the current grid state before attempting placement.
+        /// Call this before ClearOccupancy() when starting drag.
+        /// </summary>
+        public void SaveState()
+        {
+            _savedCurrentCell = _currentCell;
+            _savedOccupiedCells = _occupiedCells != null
+                ? new List<GridCell>(_occupiedCells)
+                : null;
+        }
+
+        /// <summary>
+        /// Restores the saved grid state when placement fails.
+        /// Re-marks the cells as occupied by the unit.
+        /// </summary>
+        public void RestoreState()
+        {
+            if (_savedCurrentCell != null)
+            {
+                MarkCellsAsOccupied(_savedCurrentCell, _savedOccupiedCells);
+            }
+        }
+
+        /// <summary>
+        /// Clears the saved state after successful placement.
+        /// </summary>
+        public void ClearSavedState()
+        {
+            _savedCurrentCell = null;
+            _savedOccupiedCells = null;
         }
     }
 }

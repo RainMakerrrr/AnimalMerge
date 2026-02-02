@@ -169,5 +169,57 @@ namespace Code
             //
             // return direction;
         }
+
+        /// <summary>
+        /// Calculates theoretical bounds (min/max X and Y) for a unit at a given position
+        /// without auto-adjustment. Used to check if unit would fit in grid before placement.
+        /// </summary>
+        /// <param name="position">Anchor point position</param>
+        /// <param name="size">Unit size</param>
+        /// <param name="direction">Unit direction</param>
+        /// <returns>Tuple of (minX, maxX, minY, maxY)</returns>
+        public static (int minX, int maxX, int minY, int maxY) CalculateUnitBounds(
+            Vector2Int position,
+            GridPathfinding.UnitSize size,
+            GridPathfinding.Direction direction)
+        {
+            var width = size.Width;
+            var height = size.Height;
+
+            if (size.IsRectangular())
+            {
+                // 1x2 units: direction affects orientation
+                if (direction == GridPathfinding.Direction.North || direction == GridPathfinding.Direction.South)
+                {
+                    // Vertical: extends along Y axis
+                    var yDir = direction == GridPathfinding.Direction.North ? 1 : -1;
+                    var minY = yDir > 0 ? position.y : position.y - (height - 1);
+                    var maxY = yDir > 0 ? position.y + (height - 1) : position.y;
+                    return (position.x, position.x, minY, maxY);
+                }
+                else
+                {
+                    // Horizontal: extends along X axis
+                    var xDir = direction == GridPathfinding.Direction.East ? 1 : -1;
+                    var minX = xDir > 0 ? position.x : position.x - (height - 1);
+                    var maxX = xDir > 0 ? position.x + (height - 1) : position.x;
+                    return (minX, maxX, position.y, position.y);
+                }
+            }
+            else
+            {
+                // Square units (1x1, 2x2): direction determines which way it extends
+                // For North (most common): extends in positive X and Y
+                var xDir = direction == GridPathfinding.Direction.West ? -1 : 1;
+                var yDir = direction == GridPathfinding.Direction.South ? -1 : 1;
+
+                var minX = xDir > 0 ? position.x : position.x - (width - 1);
+                var maxX = xDir > 0 ? position.x + (width - 1) : position.x;
+                var minY = yDir > 0 ? position.y : position.y - (height - 1);
+                var maxY = yDir > 0 ? position.y + (height - 1) : position.y;
+
+                return (minX, maxX, minY, maxY);
+            }
+        }
     }
 }

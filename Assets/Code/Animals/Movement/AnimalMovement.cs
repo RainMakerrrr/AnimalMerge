@@ -161,12 +161,12 @@ namespace Code.Animals.Movement
             if (Physics.Raycast(
                     transform.position + new Vector3(0f, 2f, _raycastOffset),
                     Vector3.down,
-                    out RaycastHit hit,
+                    out var hit,
                     Mathf.Infinity,
                     LayerMask.GetMask(NodeLayerName)))
             {
                 var raycastable = hit.collider.GetComponent<IRaycastable>();
-                
+
                 return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
             }
 

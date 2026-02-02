@@ -155,17 +155,15 @@ namespace Code.GridPathfinding
         /// </summary>
         public bool Accept(AnimalFacade animal)
         {
-            if (animal == null || _gridManager == null)
+            if (Y > 1)
                 return false;
 
-            AnimalMovement movement = animal.Movement;
-            if (movement == null)
-                return false;
+            var movement = animal.Movement;
 
             var unitSize = movement.UnitSize;
             var direction = movement.Direction;
 
-            // Try this cell and neighbors
+            // Try this cell and neighbors, but only if they result in anchor point in deployment zone
             Vector2Int[] possiblePositions =
             {
                 new Vector2Int(X, Y),
@@ -173,20 +171,45 @@ namespace Code.GridPathfinding
                 new Vector2Int(X - 1, Y)
             };
 
-            foreach (Vector2Int pos in possiblePositions)
+            foreach (var pos in possiblePositions)
             {
+                // CRITICAL: Anchor point must be in deployment zone (Y <= 1)
+                if (pos.y > 1)
+                    continue;
+
+                // CRITICAL: Check bounds BEFORE calling GetOccupiedCells (which auto-adjusts position)
+                // Calculate what cells the unit WOULD occupy without auto-adjustment
+                var gridWidth = _gridManager.Width;
+                var gridHeight = _gridManager.Height;
+
+                // Calculate theoretical bounds based on unit size and direction
+                var (minX, maxX, minY, maxY) = Utilities.CalculateUnitBounds(pos, unitSize, direction);
+
+                // Check if unit would extend outside grid
+                if (minX < 0 || maxX >= gridWidth || minY < 0 || maxY >= gridHeight)
+                    continue;
+
+                // Check that ALL cells would be in deployment zone (Y <= 1)
+                if (maxY > 1)
+                    continue;
+
                 if (_gridManager.CanPlaceUnit(pos, unitSize, direction))
                 {
+                    var occupiedCells = _gridManager.GetOccupiedCells(pos, unitSize, direction)
+                        .Where(cell => cell != null)
+                        .Cast<GridCell>()
+                        .ToList();
+
                     var targetCell = _gridManager.GetCell(pos) as GridCell;
-                    if (targetCell != null && targetCell.IsWalkable &&
-                        (pos.y == 0 || pos.y == 1)) // Can only place in bottom rows
+                    if (targetCell != null && targetCell.IsWalkable)
                     {
+                        Debug.Log($"[GridCell.Accept] SUCCESS! Placing at ({pos.x},{pos.y}), occupies: {string.Join(", ", occupiedCells.Select(c => $"({c.X},{c.Y})"))}");
                         movement.Place(targetCell.WorldPosition);
 
                         //todo fix
                         movement.SetCurrentNode(targetCell);
 
-                        var occupiedCells = _gridManager.GetOccupiedCells(pos, unitSize, direction).Cast<GridCell>().ToList();
+                        // occupiedCells already calculated above, no need to recalculate
                         _gridManager.SetOccupied(pos, unitSize, direction, movement);
 
                         if (occupiedCells.Count > 0)

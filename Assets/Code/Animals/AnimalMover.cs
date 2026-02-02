@@ -39,13 +39,19 @@ namespace Code.Animals
             {
                 if (_current == null) return;
 
+                var unitOccupancy = _current.GetComponent<UnitOccupancy>();
+
                 if (_current.TryPlace() == false)
                 {
+                    // Placement failed - restore original position and grid occupancy
                     _current.transform.position = _originalPosition;
+                    unitOccupancy?.RestoreState();
                     _current = null;
                 }
                 else
                 {
+                    // Placement succeeded - clear saved state
+                    unitOccupancy?.ClearSavedState();
                     _current = null;
                 }
             }
@@ -53,7 +59,7 @@ namespace Code.Animals
 
         private void TryPickAnimal()
         {
-            RaycastHit hit = CastRay();
+            var hit = CastRay();
 
             if (hit.collider != null)
             {
@@ -62,6 +68,11 @@ namespace Code.Animals
                 {
                     _originalPosition = _current.transform.position;
                     _offset = _current.transform.position - GetMouseAsWorldPoint();
+
+                    // Save grid state before clearing
+                    var unitOccupancy = _current.GetComponent<UnitOccupancy>();
+                    unitOccupancy?.SaveState();
+
                     _current.ClearNodes();
                 }
             }
@@ -95,14 +106,14 @@ namespace Code.Animals
 
         private RaycastHit CastRay()
         {
-            Vector3 screenMousePosFar = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
+            var screenMousePosFar = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
                 _camera.farClipPlane);
-            Vector3 screenMousePosNear = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
+            var screenMousePosNear = new Vector3(_inputService.MousePosition.x, _inputService.MousePosition.y,
                 _camera.nearClipPlane);
-            Vector3 worldMousePosFar = _camera.ScreenToWorldPoint(screenMousePosFar);
-            Vector3 worldMousePosNear = _camera.ScreenToWorldPoint(screenMousePosNear);
+            var worldMousePosFar = _camera.ScreenToWorldPoint(screenMousePosFar);
+            var worldMousePosNear = _camera.ScreenToWorldPoint(screenMousePosNear);
 
-            Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out RaycastHit hit);
+            Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out var hit);
 
             return hit;
         }
