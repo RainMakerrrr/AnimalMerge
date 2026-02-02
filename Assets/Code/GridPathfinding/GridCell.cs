@@ -155,75 +155,110 @@ namespace Code.GridPathfinding
         /// </summary>
         public bool Accept(AnimalFacade animal)
         {
-            if (Y > 1)
+            if (!IsInDeploymentZone())
                 return false;
 
             var movement = animal.Movement;
-
             var unitSize = movement.UnitSize;
             var direction = movement.Direction;
 
-            // Try this cell and neighbors, but only if they result in anchor point in deployment zone
-            Vector2Int[] possiblePositions =
+            var possiblePositions = GetPossiblePlacementPositions();
+
+            foreach (var pos in possiblePositions)
+            {
+                if (IsPositionValidForPlacement(pos, unitSize, direction) &&
+                    TryPlaceAnimalAtPosition(pos, unitSize, direction, movement))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if this cell is in the deployment zone (Y <= 1)
+        /// </summary>
+        private bool IsInDeploymentZone()
+        {
+            return Y <= 1;
+        }
+
+        /// <summary>
+        /// Gets possible placement positions: this cell and its neighbors
+        /// </summary>
+        private Vector2Int[] GetPossiblePlacementPositions()
+        {
+            return new[]
             {
                 new Vector2Int(X, Y),
                 new Vector2Int(X, Y - 1),
                 new Vector2Int(X - 1, Y)
             };
+        }
 
-            foreach (var pos in possiblePositions)
+        /// <summary>
+        /// Checks if a position is valid for unit placement:
+        /// - Anchor must be in deployment zone (Y <= 1)
+        /// - Unit must fit within grid bounds
+        /// - All occupied cells must be in deployment zone
+        /// </summary>
+        private bool IsPositionValidForPlacement(Vector2Int position, UnitSize unitSize, Direction direction)
+        {
+            // Anchor point must be in deployment zone
+            if (position.y > 1)
+                return false;
+
+            // Calculate theoretical bounds
+            var (minX, maxX, minY, maxY) = Utilities.CalculateUnitBounds(position, unitSize, direction);
+
+            // Check if unit would extend outside grid bounds
+            if (minX < 0 || maxX >= _gridManager.Width || minY < 0 || maxY >= _gridManager.Height)
+                return false;
+
+            // All cells must be in deployment zone
+            if (maxY > 1)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to place the animal at the specified position.
+        /// Returns true if successful, false otherwise.
+        /// </summary>
+        private bool TryPlaceAnimalAtPosition(Vector2Int position, UnitSize unitSize, Direction direction, AnimalMovement movement)
+        {
+            if (!_gridManager.CanPlaceUnit(position, unitSize, direction))
+                return false;
+
+            var targetCell = _gridManager.GetCell(position) as GridCell;
+            if (targetCell == null || !targetCell.IsWalkable)
+                return false;
+
+            var occupiedCells = _gridManager.GetOccupiedCells(position, unitSize, direction)
+                .Where(cell => cell != null)
+                .Cast<GridCell>()
+                .ToList();
+
+            PlaceAnimal(position, targetCell, occupiedCells, unitSize, direction, movement);
+            return true;
+        }
+
+        /// <summary>
+        /// Places the animal at the target position and marks cells as occupied
+        /// </summary>
+        private void PlaceAnimal(Vector2Int position, GridCell targetCell, List<GridCell> occupiedCells,
+            UnitSize unitSize, Direction direction, AnimalMovement movement)
+        {
+            movement.Place(targetCell.WorldPosition);
+            movement.SetCurrentNode(targetCell);
+            _gridManager.SetOccupied(position, unitSize, direction, movement);
+
+            if (occupiedCells.Count > 0)
             {
-                // CRITICAL: Anchor point must be in deployment zone (Y <= 1)
-                if (pos.y > 1)
-                    continue;
-
-                // CRITICAL: Check bounds BEFORE calling GetOccupiedCells (which auto-adjusts position)
-                // Calculate what cells the unit WOULD occupy without auto-adjustment
-                var gridWidth = _gridManager.Width;
-                var gridHeight = _gridManager.Height;
-
-                // Calculate theoretical bounds based on unit size and direction
-                var (minX, maxX, minY, maxY) = Utilities.CalculateUnitBounds(pos, unitSize, direction);
-
-                // Check if unit would extend outside grid
-                if (minX < 0 || maxX >= gridWidth || minY < 0 || maxY >= gridHeight)
-                    continue;
-
-                // Check that ALL cells would be in deployment zone (Y <= 1)
-                if (maxY > 1)
-                    continue;
-
-                if (_gridManager.CanPlaceUnit(pos, unitSize, direction))
-                {
-                    var occupiedCells = _gridManager.GetOccupiedCells(pos, unitSize, direction)
-                        .Where(cell => cell != null)
-                        .Cast<GridCell>()
-                        .ToList();
-
-                    var targetCell = _gridManager.GetCell(pos) as GridCell;
-                    if (targetCell != null && targetCell.IsWalkable)
-                    {
-                        Debug.Log($"[GridCell.Accept] SUCCESS! Placing at ({pos.x},{pos.y}), occupies: {string.Join(", ", occupiedCells.Select(c => $"({c.X},{c.Y})"))}");
-                        movement.Place(targetCell.WorldPosition);
-
-                        //todo fix
-                        movement.SetCurrentNode(targetCell);
-
-                        // occupiedCells already calculated above, no need to recalculate
-                        _gridManager.SetOccupied(pos, unitSize, direction, movement);
-
-                        if (occupiedCells.Count > 0)
-                        {
-                            //todo fix
-                            movement.FillNodes(occupiedCells);
-                        }
-
-                        return true;
-                    }
-                }
+                movement.FillNodes(occupiedCells);
             }
-
-            return false;
         }
 
         public override string ToString()
