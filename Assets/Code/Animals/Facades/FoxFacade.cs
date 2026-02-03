@@ -8,7 +8,7 @@ namespace Code.Animals.Facades
     {
         public override void InitBehaviours()
         {
-            Ability = new Dodge(_movement, Colliders, 20);
+            Ability = new Dodge(_movement, Colliders, isOwner: true);
             MergeSkill = new FoxMergeSkill();
             
             //MergeSkills.Add(MergeSkill);

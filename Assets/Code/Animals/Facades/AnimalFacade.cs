@@ -66,5 +66,15 @@ namespace Code.Animals.Facades
         public async Task Move() => await _movement.Move(_target.Transformable.Position);
 
         public async Task Attack() => await _attack.Attack();
+
+        // Getters for same-type merge calculations
+        public float GetMaxHealth() => _health.Max;
+        public float GetCurrentHealth() => _health.Current;
+        public float GetDamage() => _attack.Damage;
+
+        // Setters for same-type merge
+        public void SetHealth(float newMaxHealth) => _health.SetMaxHealth(newMaxHealth);
+
+        public void SetDamage(float newDamage) => _attack.SetDamage(newDamage);
     }
 }

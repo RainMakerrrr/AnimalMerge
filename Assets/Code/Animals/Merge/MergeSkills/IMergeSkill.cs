@@ -103,7 +103,7 @@ namespace Code.Animals.Merge.MergeSkills
 
             animal.MergeSkills.ForEach(Debug.Log);
 
-            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, 0, animal.AttackInstance));
+            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, isOwner: false));
         }
 
         public void Merge(AnimalFacade animal, AnimalFacade other)
@@ -111,7 +111,7 @@ namespace Code.Animals.Merge.MergeSkills
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);
 
-            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, 0, animal.AttackInstance));
+            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, isOwner: false));
 
             foreach (IMergeSkill mergeSkill in other.MergeSkills)
             {
@@ -124,11 +124,9 @@ namespace Code.Animals.Merge.MergeSkills
     {
         public AnimalType AnimalType => AnimalType.Fox;
 
-        private const int Probability = 50;
-
         public void Merge(AnimalFacade animal)
         {
-            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, Probability));
+            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, isOwner: false));
 
             Debug.Log(animal.gameObject.name);
             animal.MergeSkills.ForEach(Debug.Log);
@@ -142,7 +140,7 @@ namespace Code.Animals.Merge.MergeSkills
             if (animal == null)
                 return;
 
-            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, Probability));
+            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, isOwner: false));
 
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);

@@ -17,6 +17,7 @@ namespace Code.Animals.Movement
     public class AnimalMovement : MonoBehaviour, ITransformable
     {
         private const string NodeLayerName = "PathNode";
+        private const string AnimalLayerName = "Animal";
         private const string GameGridId = "Game Grid";
 
         [SerializeField] private float _yPos;
@@ -158,19 +159,30 @@ namespace Code.Animals.Movement
 
         public bool TryPlace()
         {
-            if (Physics.Raycast(
-                    transform.position + new Vector3(0f, 2f, _raycastOffset),
-                    Vector3.down,
-                    out var hit,
-                    Mathf.Infinity,
-                    LayerMask.GetMask(NodeLayerName)))
-            {
-                var raycastable = hit.collider.GetComponent<IRaycastable>();
+            var hits = Physics.RaycastAll(
+                transform.position + new Vector3(0f, 20f, _raycastOffset),
+                Vector3.down,
+                Mathf.Infinity,
+                LayerMask.GetMask(NodeLayerName, AnimalLayerName));
 
-                return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
+            // Sort by distance (closest first) and filter out self
+            var validHits = hits
+                .Where(h => h.collider.transform != transform && !h.collider.transform.IsChildOf(transform))
+                .OrderBy(h => h.distance)
+                .ToList();
+
+            if (validHits.Count == 0)
+                return false;
+
+            var hit = validHits.FirstOrDefault();
+            var raycastable = hit.collider.GetComponent<IRaycastable>();
+
+            if (raycastable != null)
+            {
+                Debug.Log($"[Merge] try place on {raycastable}");
             }
 
-            return false;
+            return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
         }
 
         public void SetNewNode(GridCell gridCell)
@@ -188,7 +200,7 @@ namespace Code.Animals.Movement
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawRay(transform.position + new Vector3(0f, 0f, _raycastOffset), Vector3.down);
+            Gizmos.DrawRay(transform.position + new Vector3(0f, 2f, _raycastOffset), Vector3.down);
 
             if (_debugDrawPath && _debugPathPoints != null && _debugPathPoints.Length > 1)
             {

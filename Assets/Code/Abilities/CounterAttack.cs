@@ -9,18 +9,29 @@ namespace Code.Abilities
         private readonly AnimalHealth _health;
         private readonly AnimalAnimator _animator;
         private readonly AnimalAttack _attack;
-        private readonly int _probability;
+        private readonly bool _isOwner;
 
         public bool IsBlockingDamage => false;
         public int Priority => 0;
-        public bool CanUse => Random.Range(0, 2) > _probability;
 
-        public CounterAttack(AnimalHealth health, AnimalAnimator animator, int probability, AnimalAttack attack)
+        public bool CanUse
+        {
+            get
+            {
+                // Owner: always 100%
+                if (_isOwner) return true;
+
+                // Inherited: 50%
+                return Random.Range(0, 100) < 50;
+            }
+        }
+
+        public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, bool isOwner)
         {
             _health = health;
             _animator = animator;
-            _probability = probability;
             _attack = attack;
+            _isOwner = isOwner;
         }
 
         public void Apply()

@@ -23,6 +23,11 @@ namespace Code.Animals
 
         public void Upgrade(float multiplier) => _damage *= multiplier;
 
+        public void SetDamage(float newDamage)
+        {
+            _damage = newDamage;
+        }
+
         public async Task Attack()
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;

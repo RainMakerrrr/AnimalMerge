@@ -40,6 +40,13 @@ namespace Code.Animals.Health
             Current = _max;
         }
 
+        public void SetMaxHealth(float newMaxHealth)
+        {
+            Max = newMaxHealth;
+            _max = newMaxHealth;
+            Current = Max; // Full heal when setting new maximum
+        }
+
         public void SetAbility(IAbility ability) => Ability = ability;
 
         public void AddAbility(IAbility ability)
