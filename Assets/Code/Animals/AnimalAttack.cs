@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Code.Animals.Health;
@@ -63,6 +64,9 @@ namespace Code.Animals
                 if (count <= 0) return;
             }
 
+            // FIX: Используем HashSet для дедупликации IDamageable экземпляров
+            var damagedTargets = new HashSet<IDamageable>();
+
             for (int i = 0; i < count; i++)
             {
                 Collider col = _colliders[i];
@@ -71,6 +75,16 @@ namespace Code.Animals
                 var health = col.GetComponentInParent<IDamageable>();
                 if (health == null) continue;
 
+                Debug.Log($"[Attack] Found collider: {col.name}, IDamageable: {health}");
+                damagedTargets.Add(health);  // HashSet автоматически игнорирует дубликаты
+            }
+
+            Debug.Log($"[Attack] Total colliders found: {count}, Unique targets: {damagedTargets.Count}");
+
+            // Применяем урон только к уникальным целям
+            foreach (var health in damagedTargets)
+            {
+                Debug.Log($"[Attack] Applying damage to: {health}");
                 health.TakeDamage(this);
             }
         }
