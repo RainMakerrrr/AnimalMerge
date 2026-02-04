@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Abilities
@@ -32,15 +33,15 @@ namespace Code.Abilities
             _isOwner = isOwner;
         }
 
-        public void Apply()
+        public async Task Apply()
         {
             foreach (Collider collider in _colliders)
             {
                 collider.enabled = false;
             }
-            
+
             _counter++;
-            _transformable.Shift();
+            await _transformable.Shift();
         }
     }
 }

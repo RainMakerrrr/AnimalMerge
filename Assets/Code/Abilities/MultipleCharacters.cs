@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Movement;
@@ -35,17 +36,26 @@ namespace Code.Abilities
             _additionalCharacters = new AnimalFacade[_additionalCharactersCount];
         }
 
-        public void Apply()
+        public async Task Apply()
         {
             GridCell currentCell = _movement.CurrentPathNode;
-            if (currentCell == null) return;
+            if (currentCell == null)
+            {
+                await Task.CompletedTask;
+                return;
+            }
 
             List<Vector2Int[]> possibleNodesPositions = GetPossibleNodesPositions(currentCell);
 
             List<GridCell> freeCells = FindFreeCells(possibleNodesPositions);
-            if (freeCells == null || freeCells.Count < _additionalCharactersCount) return;
+            if (freeCells == null || freeCells.Count < _additionalCharactersCount)
+            {
+                await Task.CompletedTask;
+                return;
+            }
 
             CreateAdditionalCharacters(freeCells);
+            await Task.CompletedTask;
         }
 
         private void CreateAdditionalCharacters(IReadOnlyList<GridCell> freeCells)

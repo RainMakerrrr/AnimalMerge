@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
 using UnityEngine;
@@ -34,11 +35,13 @@ namespace Code.Abilities
             _isOwner = isOwner;
         }
 
-        public void Apply()
+        public async Task Apply()
         {
             _animator.CounterAttackAnimation();
 
             _health.LastAttack.GetComponent<IDamageable>().TakeDamage(_attack);
+
+            await Task.CompletedTask;
         }
     }
 }

@@ -26,8 +26,7 @@ namespace Code.Animals.Health
             {
                 if (ability.CanUse)
                 {
-                    ability.Apply();
-                    await Task.Delay(TimeSpan.FromSeconds(0.3f));
+                    await ability.Apply();
                 }
             }
 

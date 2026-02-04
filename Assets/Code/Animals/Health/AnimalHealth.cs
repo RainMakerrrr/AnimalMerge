@@ -52,6 +52,7 @@ namespace Code.Animals.Health
         public void AddAbility(IAbility ability)
         {
             MergedAbilities.Add(ability);
+            Debug.Log($"[AnimaHealth] add ability: {ability.GetType().Name}, {name}, abilities count - {MergedAbilities.Count}, my ability  {Ability?.GetType().Name}");
         }
 
 
@@ -63,15 +64,20 @@ namespace Code.Animals.Health
 
         public virtual async void TakeDamage(AnimalAttack attacker)
         {
+            Debug.Log($"[TakeDamage] {name} took {attacker.Damage} damage from {attacker.name}");
+
             LastAttack = attacker;
 
             bool isBlockedDamage = await ApplyAbilities();
 
             if (isBlockedDamage)
             {
+                Debug.Log($"[AnimaHealth] {name} Damage blocked, return");
                 EnableColliders();
                 return;
             }
+            
+            Debug.Log($"[AnimaHealth] {name} Damage taken");
             
             Current -= attacker.Damage;
             TakenDamage?.Invoke();
@@ -98,18 +104,23 @@ namespace Code.Animals.Health
             abilities = abilities.Where(a => a != null).ToList();
 
             bool isBlockedDamage = false;
-            
+
             foreach (IAbility ability in abilities.OrderBy(a => a.Priority))
             {
+                Debug.Log($"[AnimaHealth] {name} apply ability - {ability.GetType().Name}");
+                
                 if (ability.CanUse)
                 {
+                    Debug.Log($"[AnimaHealth]{name}  apply ability can use");
+                    
                     if (ability.IsBlockingDamage)
                     {
+                        Debug.Log($"[AnimaHealth]{name} apply ability blocked damage");
+
                         isBlockedDamage = true;
                     }
-                    
-                    ability.Apply();
-                    await Task.Delay(TimeSpan.FromSeconds(1.3f));
+
+                    await ability.Apply();
                 }
             }
 

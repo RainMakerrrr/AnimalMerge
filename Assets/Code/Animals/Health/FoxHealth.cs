@@ -27,15 +27,14 @@ namespace Code.Animals.Health
                     if (ability.CanUse)
                     {
                         //_animator.PlayAttackAnimation();
-                        ability.Apply();
-                        await Task.Delay(TimeSpan.FromSeconds(0.5f));
+                        await ability.Apply();
                     }
                 }
             }
 
             if (Ability.CanUse)
             {
-                Ability.Apply();
+                await Ability.Apply();
                 return true;
             }
 
