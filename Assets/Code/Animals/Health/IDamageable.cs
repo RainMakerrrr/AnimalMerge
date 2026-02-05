@@ -1,11 +1,13 @@
-﻿namespace Code.Animals.Health
+﻿using System.Threading.Tasks;
+
+namespace Code.Animals.Health
 {
     public interface IDamageable
     {
         float Current { get; }
         float Max { get; }
         bool IsDead { get; }
-        void TakeDamage(AnimalAttack attacker);
+        Task TakeDamageAsync(AnimalAttack attacker);
     }
 
     public interface IAttacker

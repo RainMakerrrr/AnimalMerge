@@ -44,7 +44,14 @@ namespace Code.Animals
             Gizmos.DrawWireSphere(center, _radius);
         }
 
-        public void AttackAnimationHandler()
+        // Public method for Animation Events (must be void)
+        public async void AttackAnimationHandler()
+        {
+            await AttackAnimationHandlerAsync();
+        }
+
+        // Internal async method for testing (returns Task)
+        public async Task AttackAnimationHandlerAsync()
         {
             var animal = GetComponent<Animal>();
             if (animal != null && animal.Type == AnimalType.Hedgehog) return;
@@ -85,7 +92,7 @@ namespace Code.Animals
             foreach (var health in damagedTargets)
             {
                 Debug.Log($"[Attack] Applying damage to: {health}");
-                health.TakeDamage(this);
+                await health.TakeDamageAsync(this);
             }
         }
 

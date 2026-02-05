@@ -32,7 +32,13 @@
       "mcp__context7__query-docs",
       "Bash(timeout 3 sleep:*)",
       "mcp__ai-game-developer__tests-run",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(find:*)",
+      "Bash(while read dir)",
+      "Bash(do if [ ! -f \"$dir.meta\" ])",
+      "Bash(then echo \"Missing meta for: $dir\")",
+      "Bash(fi)",
+      "Bash(done)"
     ]
   }
 }

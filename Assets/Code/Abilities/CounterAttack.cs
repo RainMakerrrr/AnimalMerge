@@ -39,9 +39,26 @@ namespace Code.Abilities
         {
             _animator.CounterAttackAnimation();
 
-            _health.LastAttack.GetComponent<IDamageable>().TakeDamage(_attack);
+            if (_health.LastAttack == null)
+            {
+                Debug.LogWarning("[CounterAttack] LastAttack is null, cannot counter-attack");
+                return;
+            }
 
-            await Task.CompletedTask;
+            // Try to find IDamageable on attacker (same GameObject, children, or parent)
+            var attackerHealth = _health.LastAttack.GetComponent<IDamageable>();
+            if (attackerHealth == null)
+                attackerHealth = _health.LastAttack.GetComponentInChildren<IDamageable>();
+            if (attackerHealth == null)
+                attackerHealth = _health.LastAttack.GetComponentInParent<IDamageable>();
+
+            if (attackerHealth == null)
+            {
+                Debug.LogWarning("[CounterAttack] Attacker has no IDamageable component");
+                return;
+            }
+
+            await attackerHealth.TakeDamageAsync(_attack);
         }
     }
 }

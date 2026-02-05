@@ -26,6 +26,18 @@ All technical specifications are located in `Documentation/Specifications/`:
   - Unit, Integration и Performance тесты
   - Регрессионные тесты для проверки исправлений
 
+- **[03_Merge_And_Skills_System_Specification.md](../Documentation/Specifications/03_Merge_And_Skills_System_Specification.md)** - Система мерджа и навыков
+  - Механики объединения животных
+  - Система наследования способностей
+  - Upgrade система
+
+- **[04_Attack_And_Damage_System_Specification.md](../Documentation/Specifications/04_Attack_And_Damage_System_Specification.md)** - Система атаки и получения урона
+  - Physics-based detection целей (OverlapCapsule/OverlapSphere)
+  - Применение урона с дедупликацией (HashSet fix)
+  - Интеграция с Ability System (Dodge, CounterAttack)
+  - Специальные реализации (FoxHealth, HedgehogHealth)
+  - Исправление бага множественного урона (2026-02-04)
+
 **ВАЖНО:** При работе с любой системой, для которой есть спецификация, ВСЕГДА сначала читай спецификацию, чтобы понять:
 - Текущую архитектуру
 - Принятые решения

@@ -23,16 +23,40 @@ namespace Code.Animals
             await Task.Delay(TimeSpan.FromSeconds(_attackClip.length));
         }
 
-        public void UpdateMovementAnimation(float moveSpeed) => _animator.SetFloat(MoveSpeed, moveSpeed);
+        public void UpdateMovementAnimation(float moveSpeed)
+        {
+            if (_animator != null)
+                _animator.SetFloat(MoveSpeed, moveSpeed);
+        }
 
-        public void PlayAttackAnimation() => _animator.SetTrigger(Attack);
+        public void PlayAttackAnimation()
+        {
+            if (_animator != null)
+                _animator.SetTrigger(Attack);
+        }
 
-        public void TakeDamageAnimation() => _animator.SetTrigger(TakeDamage);
+        public void TakeDamageAnimation()
+        {
+            if (_animator != null)
+                _animator.SetTrigger(TakeDamage);
+        }
 
-        public void DeathAnimation() => _animator.SetBool(IsDead, true);
+        public void DeathAnimation()
+        {
+            if (_animator != null)
+                _animator.SetBool(IsDead, true);
+        }
 
-        public void JumpAnimation() => _animator.SetTrigger(Jump);
+        public void JumpAnimation()
+        {
+            if (_animator != null)
+                _animator.SetTrigger(Jump);
+        }
 
-        public void CounterAttackAnimation() => _animator.SetTrigger(CounterAttack);
+        public void CounterAttackAnimation()
+        {
+            if (_animator != null)
+                _animator.SetTrigger(CounterAttack);
+        }
     }
 }

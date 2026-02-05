@@ -20,14 +20,14 @@ namespace Code.Animals.Health
 
         protected List<IAbility> MergedAbilities = new List<IAbility>();
 
-        public float Current { get; private set; }
-        public float Max { get; private set; }
+        public float Current { get; protected set; }
+        public float Max { get; protected set; }
 
         public bool IsDead => Current <= 0;
 
         private Collider[] _colliders;
 
-        public AnimalAttack LastAttack { get; protected set; }
+        public AnimalAttack LastAttack { get; set; }
 
         public void Construct(Collider[] colliders)
         {
@@ -37,7 +37,8 @@ namespace Code.Animals.Health
         public void Upgrade(float multiplier)
         {
             _max *= multiplier;
-            Current = _max;
+            Max = _max;      // Update public property
+            Current = _max;  // Fully heal to new max
         }
 
         public void SetMaxHealth(float newMaxHealth)
@@ -62,7 +63,7 @@ namespace Code.Animals.Health
             Current = Max;
         }
 
-        public virtual async void TakeDamage(AnimalAttack attacker)
+        public virtual async Task TakeDamageAsync(AnimalAttack attacker)
         {
             Debug.Log($"[TakeDamage] {name} took {attacker.Damage} damage from {attacker.name}");
 
@@ -98,14 +99,14 @@ namespace Code.Animals.Health
             }
         }
 
-        private async Task<bool> ApplyAbilities()
+        protected virtual async Task<bool> ApplyAbilities()
         {
             List<IAbility> abilities = new List<IAbility>(MergedAbilities) {Ability};
             abilities = abilities.Where(a => a != null).ToList();
 
             bool isBlockedDamage = false;
 
-            foreach (IAbility ability in abilities.OrderBy(a => a.Priority))
+            foreach (IAbility ability in abilities.OrderByDescending(a => a.Priority))
             {
                 Debug.Log($"[AnimaHealth] {name} apply ability - {ability.GetType().Name}");
                 

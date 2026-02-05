@@ -7,6 +7,9 @@
 Каждая спецификация пронумерована и описывает отдельную подсистему игры:
 
 - `01_Pathfinding_System_Specification.md` - Система поиска пути и передвижения юнитов
+- `02_Pathfinding_Test_Cases.md` - Тест-кейсы для системы поиска пути
+- `03_Merge_And_Skills_System_Specification.md` - Система мерджа животных и навыков
+- `04_Attack_And_Damage_System_Specification.md` - Система атаки и получения урона
 
 ## Цель спецификаций
 
@@ -104,13 +107,11 @@ Claude:
 
 ## Планируемые спецификации
 
-- [ ] `02_Battle_System_Specification.md` - Боевая система
-- [ ] `03_Merge_System_Specification.md` - Система мерджа животных
-- [ ] `04_Unit_System_Specification.md` - Система юнитов и их характеристик
-- [ ] `05_Skill_System_Specification.md` - Система навыков (скиллов)
-- [ ] `06_Grid_System_Specification.md` - Система игровой сетки
-- [ ] `07_Animation_System_Specification.md` - Система анимации боя
-- [ ] `08_UI_System_Specification.md` - Система пользовательского интерфейса
+- [ ] `05_Battle_System_Specification.md` - Боевая система (очередность ходов, логика боя)
+- [ ] `06_Unit_System_Specification.md` - Система юнитов и их характеристик
+- [ ] `07_Grid_System_Specification.md` - Система игровой сетки
+- [ ] `08_Animation_System_Specification.md` - Система анимации боя
+- [ ] `09_UI_System_Specification.md` - Система пользовательского интерфейса
 
 ## Принципы разработки
 

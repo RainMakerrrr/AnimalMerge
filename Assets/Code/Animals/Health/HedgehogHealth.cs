@@ -10,19 +10,16 @@ namespace Code.Animals.Health
     public class HedgehogHealth : AnimalHealth
     {
         
-        public override async void TakeDamage(AnimalAttack attacker)
+        protected override async Task<bool> ApplyAbilities()
         {
-            LastAttack = attacker;
-            await ApplyAbilities();
+            // Apply own ability first (owner, 100% chance)
+            if (Ability != null && Ability.CanUse)
+            {
+                await Ability.Apply();
+            }
 
-            base.TakeDamage(attacker);
-        }
-
-        private async Task ApplyAbilities()
-        {
-            List<IAbility> abilities = new List<IAbility>(MergedAbilities);
-
-            foreach (IAbility ability in abilities.OrderBy(a => a.Priority))
+            // Then apply merged abilities
+            foreach (var ability in MergedAbilities.Where(a => a != null))
             {
                 if (ability.CanUse)
                 {
@@ -30,26 +27,8 @@ namespace Code.Animals.Health
                 }
             }
 
-            // if (Ability.CanUse)
-            // {
-            //     _animator.PlayAttackAnimation();
-            //     Ability.Apply();
-            //     await Task.Delay(TimeSpan.FromSeconds(0.5f));
-            // }
-            //
-            // if (MergedAbilities.Count > 0)
-            // {
-            //     foreach (IAbility ability in MergedAbilities)
-            //     {
-            //         if (ability.CanUse)
-            //         {
-            //             ability.Apply();
-            //             return true;
-            //         }
-            //     }
-            // }
-            //
-            // return false;
+            // CounterAttack never blocks damage
+            return false;
         }
     }
 }
