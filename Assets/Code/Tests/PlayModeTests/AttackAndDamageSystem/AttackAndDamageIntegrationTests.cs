@@ -209,6 +209,11 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
         {
             var go = new GameObject("MockDamageable");
             var mockDamageable = go.AddComponent<MockDamageable>();
+
+            // Add collider so Physics can detect this target
+            var collider = go.AddComponent<BoxCollider>();
+            collider.size = Vector3.one * 0.5f;
+
             mockDamageable.Initialize(maxHealth);
             return mockDamageable;
         }

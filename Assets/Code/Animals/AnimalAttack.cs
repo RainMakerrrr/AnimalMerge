@@ -16,9 +16,11 @@ namespace Code.Animals
         [SerializeField] private float _damage;
         [SerializeField] private int _maxTargets;
         [SerializeField] private LayerMask _mask;
+        [SerializeField] private bool _isAoE;
 
         private Collider[] _colliders;
         public float Damage => _damage;
+        public bool IsAoE => _isAoE;
 
         private void Start() => _colliders = new Collider[_maxTargets];
 
@@ -27,6 +29,11 @@ namespace Code.Animals
         public void SetDamage(float newDamage)
         {
             _damage = newDamage;
+        }
+
+        public void SetIsAoE(bool isAoE)
+        {
+            _isAoE = isAoE;
         }
 
         public async Task Attack()
@@ -88,7 +95,25 @@ namespace Code.Animals
 
             Debug.Log($"[Attack] Total colliders found: {count}, Unique targets: {damagedTargets.Count}");
 
-            // Применяем урон только к уникальным целям
+            // Если не AoE - атакуем только ближайшую цель
+            if (!_isAoE && damagedTargets.Count > 0)
+            {
+                var closestTarget = damagedTargets
+                    .OrderBy(target =>
+                    {
+                        var targetMono = target as MonoBehaviour;
+                        if (targetMono == null) return float.MaxValue;
+                        return Vector3.Distance(transform.position, targetMono.transform.position);
+                    })
+                    .First();
+
+                Debug.Log($"[Attack] Single-target: Attacking closest target {closestTarget}");
+                await closestTarget.TakeDamageAsync(this);
+                return;
+            }
+
+            // Если AoE - атакуем всех найденных целей
+            Debug.Log($"[Attack] AoE: Attacking {damagedTargets.Count} targets");
             foreach (var health in damagedTargets)
             {
                 Debug.Log($"[Attack] Applying damage to: {health}");

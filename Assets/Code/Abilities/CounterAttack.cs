@@ -15,16 +15,20 @@ namespace Code.Abilities
         public bool IsBlockingDamage => false;
         public int Priority => 0;
 
-        public bool CanUse
+        public bool CanUse(AnimalAttack attacker)
         {
-            get
+            // CounterAttack does NOT work against AoE attacks
+            if (attacker != null && attacker.IsAoE)
             {
-                // Owner: always 100%
-                if (_isOwner) return true;
-
-                // Inherited: 50%
-                return Random.Range(0, 100) < 50;
+                Debug.Log("[CounterAttack] Cannot counter-attack AoE attack");
+                return false;
             }
+
+            // Owner: always 100%
+            if (_isOwner) return true;
+
+            // Inherited: 50%
+            return Random.Range(0, 100) < 50;
         }
 
         public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, bool isOwner)
@@ -37,7 +41,10 @@ namespace Code.Abilities
 
         public async Task Apply()
         {
-            _animator.CounterAttackAnimation();
+            if (_animator != null)
+            {
+                _animator.CounterAttackAnimation();
+            }
 
             if (_health.LastAttack == null)
             {

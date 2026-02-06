@@ -115,16 +115,19 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         public int Counter => _counter;
         public int ApplyCallCount { get; private set; }
 
-        public bool CanUse
+        public bool CanUse(AnimalAttack attacker)
         {
-            get
+            // MockDodge does NOT work against AoE attacks
+            if (attacker != null && attacker.IsAoE)
             {
-                if (_counter == 0) return true;
-
-                int successThreshold = _isOwner ? 80 : 50;
-                int randomValue = _randomValueProvider?.Invoke() ?? UnityEngine.Random.Range(0, 100);
-                return randomValue < successThreshold;
+                return false;
             }
+
+            if (_counter == 0) return true;
+
+            int successThreshold = _isOwner ? 80 : 50;
+            int randomValue = _randomValueProvider?.Invoke() ?? UnityEngine.Random.Range(0, 100);
+            return randomValue < successThreshold;
         }
 
         public MockDodge(
@@ -172,15 +175,18 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
         public int ApplyCallCount { get; private set; }
 
-        public bool CanUse
+        public bool CanUse(AnimalAttack attacker)
         {
-            get
+            // MockCounterAttack does NOT work against AoE attacks
+            if (attacker != null && attacker.IsAoE)
             {
-                if (_isOwner) return true;
-
-                int randomValue = _randomValueProvider?.Invoke() ?? UnityEngine.Random.Range(0, 100);
-                return randomValue < 50;
+                return false;
             }
+
+            if (_isOwner) return true;
+
+            int randomValue = _randomValueProvider?.Invoke() ?? UnityEngine.Random.Range(0, 100);
+            return randomValue < 50;
         }
 
         public MockCounterAttack(
@@ -201,9 +207,12 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             ApplyCallCount++;
 
-            _animator.CounterAttackAnimation();
+            if (_animator != null)
+            {
+                _animator.CounterAttackAnimation();
+            }
 
-            if (_health.LastAttack != null)
+            if (_health != null && _health.LastAttack != null)
             {
                 var attackerHealth = _health.LastAttack.GetComponent<IDamageable>();
                 if (attackerHealth != null)

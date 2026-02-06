@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Code.Animals;
 using UnityEngine;
 
 namespace Code.Abilities
@@ -13,17 +14,21 @@ namespace Code.Abilities
         public bool IsBlockingDamage => true;
         public int Priority => 1;
 
-        public bool CanUse
+        public bool CanUse(AnimalAttack attacker)
         {
-            get
+            // Dodge does NOT work against AoE attacks
+            if (attacker != null && attacker.IsAoE)
             {
-                // First use: always 100%
-                if (_counter == 0) return true;
-
-                // Subsequent uses: 80% for owner, 50% for inherited
-                int successThreshold = _isOwner ? 80 : 50;
-                return Random.Range(0, 100) < successThreshold;
+                Debug.Log("[Dodge] Cannot dodge AoE attack");
+                return false;
             }
+
+            // First use: always 100%
+            if (_counter == 0) return true;
+
+            // Subsequent uses: 80% for owner, 50% for inherited
+            int successThreshold = _isOwner ? 80 : 50;
+            return Random.Range(0, 100) < successThreshold;
         }
 
         public Dodge(ITransformable transformable, Collider[] colliders, bool isOwner)

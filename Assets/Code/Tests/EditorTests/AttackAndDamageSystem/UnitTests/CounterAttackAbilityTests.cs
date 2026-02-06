@@ -25,7 +25,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act & Assert - test multiple times to ensure always true
             for (int i = 0; i < 10; i++)
             {
-                counterAttack.CanUse.Should().BeTrue(
+                counterAttack.CanUse(null).Should().BeTrue(
                     "owner counter-attack should always be 100%");
             }
         }
@@ -53,8 +53,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
                 randomValueProvider: () => 50);
 
             // Assert
-            counterSuccess.CanUse.Should().BeTrue("49 < 50, should succeed");
-            counterFail.CanUse.Should().BeFalse("50 >= 50, should fail");
+            counterSuccess.CanUse(null).Should().BeTrue("49 < 50, should succeed");
+            counterFail.CanUse(null).Should().BeFalse("50 >= 50, should fail");
         }
 
         /// <summary>

@@ -69,7 +69,7 @@ namespace Code.Animals.Health
 
             LastAttack = attacker;
 
-            bool isBlockedDamage = await ApplyAbilities();
+            bool isBlockedDamage = await ApplyAbilities(attacker);
 
             if (isBlockedDamage)
             {
@@ -99,7 +99,7 @@ namespace Code.Animals.Health
             }
         }
 
-        protected virtual async Task<bool> ApplyAbilities()
+        protected virtual async Task<bool> ApplyAbilities(AnimalAttack attacker)
         {
             List<IAbility> abilities = new List<IAbility>(MergedAbilities) {Ability};
             abilities = abilities.Where(a => a != null).ToList();
@@ -109,11 +109,11 @@ namespace Code.Animals.Health
             foreach (IAbility ability in abilities.OrderByDescending(a => a.Priority))
             {
                 Debug.Log($"[AnimaHealth] {name} apply ability - {ability.GetType().Name}");
-                
-                if (ability.CanUse)
+
+                if (ability.CanUse(attacker))
                 {
                     Debug.Log($"[AnimaHealth]{name}  apply ability can use");
-                    
+
                     if (ability.IsBlockingDamage)
                     {
                         Debug.Log($"[AnimaHealth]{name} apply ability blocked damage");

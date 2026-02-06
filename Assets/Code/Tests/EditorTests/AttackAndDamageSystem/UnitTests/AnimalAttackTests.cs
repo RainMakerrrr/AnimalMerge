@@ -50,6 +50,10 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             SetPrivateField("_mask", mask);
 
             _attack.SetDamage(10f);
+
+            // These tests expect multi-target behavior (attack all found targets)
+            // Set IsAoE = true to maintain that behavior
+            _attack.SetIsAoE(true);
         }
 
         [TearDown]

@@ -24,7 +24,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act & Assert - test multiple times to ensure it's always true
             for (int i = 0; i < 10; i++)
             {
-                dodge.CanUse.Should().BeTrue(
+                dodge.CanUse(null).Should().BeTrue(
                     "first dodge use should always be 100% regardless of RNG or owner status");
             }
         }
@@ -53,8 +53,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
                 randomValueProvider: () => 80);
 
             // Assert
-            dodgeSuccess.CanUse.Should().BeTrue("79 < 80, should succeed");
-            dodgeFail.CanUse.Should().BeFalse("80 >= 80, should fail");
+            dodgeSuccess.CanUse(null).Should().BeTrue("79 < 80, should succeed");
+            dodgeFail.CanUse(null).Should().BeFalse("80 >= 80, should fail");
         }
 
         /// <summary>
@@ -77,8 +77,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
                 randomValueProvider: () => 50);
 
             // Assert
-            dodgeSuccess.CanUse.Should().BeTrue("49 < 50, should succeed");
-            dodgeFail.CanUse.Should().BeFalse("50 >= 50, should fail");
+            dodgeSuccess.CanUse(null).Should().BeTrue("49 < 50, should succeed");
+            dodgeFail.CanUse(null).Should().BeFalse("50 >= 50, should fail");
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
 
             // Verify counter incremented (check by testing CanUse behavior change)
             // After first Apply, counter = 1, so CanUse should depend on RNG now
-            var canUseAfterApply = dodge.CanUse;
+            var canUseAfterApply = dodge.CanUse(null);
             // We can't predict the exact value due to RNG, but it should no longer be always true
 
             // Cleanup

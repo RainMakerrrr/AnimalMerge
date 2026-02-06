@@ -68,7 +68,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             var ability = Substitute.For<IAbility>();
 
-            ability.CanUse.Returns(canUse);
+            ability.CanUse(Arg.Any<AnimalAttack>()).Returns(canUse);
             ability.IsBlockingDamage.Returns(isBlocking);
             ability.Priority.Returns(priority);
 

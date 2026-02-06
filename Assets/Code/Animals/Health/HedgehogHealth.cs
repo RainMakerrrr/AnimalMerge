@@ -10,10 +10,10 @@ namespace Code.Animals.Health
     public class HedgehogHealth : AnimalHealth
     {
         
-        protected override async Task<bool> ApplyAbilities()
+        protected override async Task<bool> ApplyAbilities(AnimalAttack attacker)
         {
             // Apply own ability first (owner, 100% chance)
-            if (Ability != null && Ability.CanUse)
+            if (Ability != null && Ability.CanUse(attacker))
             {
                 await Ability.Apply();
             }
@@ -21,7 +21,7 @@ namespace Code.Animals.Health
             // Then apply merged abilities
             foreach (var ability in MergedAbilities.Where(a => a != null))
             {
-                if (ability.CanUse)
+                if (ability.CanUse(attacker))
                 {
                     await ability.Apply();
                 }

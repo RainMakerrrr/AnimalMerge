@@ -38,7 +38,12 @@
       "Bash(do if [ ! -f \"$dir.meta\" ])",
       "Bash(then echo \"Missing meta for: $dir\")",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "mcp__ai-game-developer__reflection-method-find",
+      "Bash(\"C:\\\\Program Files\\\\Unity\\\\Hub\\\\Editor\\\\2022.3.62f3\\\\Editor\\\\Unity.exe\" -runTests -batchmode -projectPath . -testResults TestResults.xml -testPlatform EditMode -logFile -)",
+      "Bash(Select-String -Pattern \"Test|Pass|Fail|Error\")",
+      "Bash(Select-Object -First 50)",
+      "Bash(pdftotext:*)"
     ]
   }
 }
