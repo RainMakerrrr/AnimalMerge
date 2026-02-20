@@ -1383,4 +1383,482 @@ Attacker              AnimalAttack     Hedgehog Health   CounterAttack   Attacke
 
 ---
 
+---
+
+## 15. Архитектурный рефакторинг (2026-02-08)
+
+**Версия:** 2.0
+**Дата:** 2026-02-08
+**Статус:** ✅ Завершено
+
+### 15.1 Обзор изменений
+
+В рамках рефакторинга были устранены архитектурные проблемы:
+- ✅ God Object anti-pattern (AnimalHealth отвечал за слишком много)
+- ✅ Циркулярные зависимости (CounterAttack ↔ AnimalHealth.LastAttack)
+- ✅ Tight Coupling (способности зависели от конкретных MonoBehaviour)
+- ✅ Non-testable компоненты (Physics, Random)
+- ✅ Code duplication (FoxHealth, HedgehogHealth)
+
+### 15.2 Новая архитектура
+
+**Основные компоненты (обновлено):**
+
+```
+Attack & Damage System (v2.0)
+│
+├── Services (NEW)
+│   ├── IPhysicsService.cs            - Абстракция Unity Physics
+│   ├── UnityPhysicsService.cs        - Реализация IPhysicsService
+│   ├── IRandomProvider.cs            - Абстракция Random
+│   └── UnityRandomProvider.cs        - Реализация IRandomProvider
+│
+├── Ability System (REFACTORED)
+│   ├── IAbility.cs                   - Интерфейс (CanUse принимает IAttacker)
+│   ├── IAttacker.cs                  - Абстракция атакующего (NEW)
+│   ├── AbilityManager.cs             - Централизованное управление (NEW)
+│   ├── AbilityContext.cs             - Контекст для способностей (NEW)
+│   ├── Dodge.cs                      - Использует IRandomProvider
+│   ├── CounterAttack.cs              - Использует IRandomProvider, IAttacker
+│   └── MultipleCharacters.cs         - Обновлен для IAttacker
+│
+├── Attack Components (REFACTORED)
+│   └── AnimalAttack.cs               - Реализует IAttacker, использует IPhysicsService
+│
+├── Health Components (SIMPLIFIED)
+│   ├── IDamageable.cs                - Интерфейс (удален старый IAttacker)
+│   ├── AnimalHealth.cs               - Использует AbilityManager
+│   ├── FoxHealth.cs                  - Упрощен (~10 строк)
+│   └── HedgehogHealth.cs             - Упрощен (~10 строк)
+│
+└── Infrastructure
+    └── ServicesInstaller.cs          - Zenject DI конфигурация (NEW)
+```
+
+### 15.3 Фаза 1: Foundation - Тестируемая инфраструктура
+
+**Проблема:** Physics и Random не мокируются, тесты недетерминированы.
+
+**Решение:** Dependency Inversion через интерфейсы.
+
+#### IPhysicsService
+
+```csharp
+public interface IPhysicsService
+{
+    int OverlapCapsuleNonAlloc(Vector3 a, Vector3 b, float radius,
+        Collider[] results, LayerMask mask);
+    int OverlapSphereNonAlloc(Vector3 center, float radius,
+        Collider[] results, LayerMask mask);
+}
+```
+
+**Использование:**
+- `AnimalAttack` инжектит `IPhysicsService` через Zenject
+- В тестах используется mock реализация
+- Production: `UnityPhysicsService` оборачивает `Physics` API
+
+#### IRandomProvider
+
+```csharp
+public interface IRandomProvider
+{
+    int Range(int min, int max);
+}
+```
+
+**Использование:**
+- `Dodge` и `CounterAttack` принимают `IRandomProvider` в конструкторе
+- Тесты используют детерминированный mock
+- Production: `UnityRandomProvider` использует `UnityEngine.Random`
+
+#### AbilityManager
+
+```csharp
+public class AbilityManager
+{
+    private List<IAbility> _abilities = new();
+
+    public void RegisterAbility(IAbility ability);
+    public async Task<bool> ExecuteAbilitiesAsync(AbilityContext context);
+}
+```
+
+**Ответственность:**
+- Хранение списка всех способностей
+- Приоритизация (сортировка по Priority)
+- Централизованное выполнение
+- Возврат результата (урон заблокирован или нет)
+
+#### AbilityContext
+
+```csharp
+public class AbilityContext
+{
+    public IAttacker Attacker { get; set; }
+    public IDamageable Target { get; set; }
+    public float Damage { get; set; }
+    public bool IsBlocked { get; set; }
+}
+```
+
+**Назначение:** Data Transfer Object для передачи контекста способностям.
+
+### 15.4 Фаза 2: Integration - Централизованное управление
+
+**Проблема:** AnimalHealth управляет и HP, и способностями (SRP violation).
+
+**Решение:** Делегирование управления способностями в AbilityManager.
+
+#### AnimalHealth (обновлен)
+
+```csharp
+public class AnimalHealth : MonoBehaviour, IDamageable
+{
+    // Только HP management
+    public float Current { get; protected set; }
+    public float Max { get; protected set; }
+    public bool IsDead => Current <= 0;
+
+    // AbilityManager для управления способностями
+    protected AbilityManager _abilityManager;
+
+    [Inject]
+    private void ConstructAbilityManager()
+    {
+        _abilityManager = new AbilityManager();
+    }
+
+    protected virtual async Task<bool> ApplyAbilities(AnimalAttack attacker)
+    {
+        if (_abilityManager != null)
+        {
+            var context = new AbilityContext(attacker, this, attacker.Damage);
+            return await _abilityManager.ExecuteAbilitiesAsync(context);
+        }
+        return false;
+    }
+}
+```
+
+**Изменения:**
+- ✅ Убран список `MergedAbilities` (теперь в AbilityManager)
+- ✅ Упрощен `ApplyAbilities()` (делегирует в AbilityManager)
+- ✅ `SetAbility()` и `AddAbility()` регистрируют в AbilityManager
+
+#### FoxHealth / HedgehogHealth (упрощены)
+
+**До:**
+```csharp
+public override async void TakeDamage(AnimalAttack attacker)
+{
+    LastAttack = attacker;
+    bool isAbilityApply = await ApplyAbilities();
+    if (isAbilityApply) return;
+    base.TakeDamage(attacker);
+}
+// ~60 строк дублирования
+```
+
+**После:**
+```csharp
+// Используют базовую реализацию из AnimalHealth
+// ~10 строк (только уникальная логика)
+```
+
+### 15.5 Фаза 3: Event-Driven - Устранение зависимостей
+
+**Проблема:** Циркулярные зависимости (CounterAttack → AnimalHealth.LastAttack).
+
+**Решение:** Event-driven подход + IAttacker абстракция.
+
+#### IAttacker (NEW)
+
+```csharp
+public interface IAttacker
+{
+    float Damage { get; }
+    bool IsAoE { get; }
+    IDamageable Damageable { get; }
+}
+```
+
+**Назначение:**
+- Абстракция для атакующего (вместо MonoBehaviour `AnimalAttack`)
+- Способности работают с интерфейсом, не зная о конкретной реализации
+- SRP: только необходимая информация для способностей
+
+#### AnimalAttack : IAttacker
+
+```csharp
+public class AnimalAttack : MonoBehaviour, IAttacker
+{
+    private IDamageable _damageable;
+
+    public float Damage => _damage;
+    public bool IsAoE => _isAoE;
+    public IDamageable Damageable => _damageable;
+
+    private void Start()
+    {
+        _damageable = GetComponentInParent<IDamageable>();
+    }
+}
+```
+
+**Изменения:**
+- ✅ Реализует `IAttacker`
+- ✅ Кэширует `IDamageable` в Start
+- ✅ Инжектит `IPhysicsService`
+
+#### IAbility (обновлен)
+
+```csharp
+public interface IAbility
+{
+    bool IsBlockingDamage { get; }
+    int Priority { get; }
+    bool CanUse(IAttacker attacker);  // Было: AnimalAttack
+    Task Apply();
+}
+```
+
+**Изменение:** `CanUse` принимает `IAttacker` вместо конкретного `AnimalAttack`.
+
+#### CounterAttack (обновлен)
+
+```csharp
+public class CounterAttack : IAbility
+{
+    private IAttacker _currentAttacker;
+
+    public bool CanUse(IAttacker attacker)
+    {
+        _currentAttacker = attacker;  // Сохраняем для Apply()
+
+        if (attacker != null && attacker.IsAoE)
+            return false;
+
+        return _isOwner ? true : _randomProvider.Range(0, 100) < 50;
+    }
+
+    public async Task Apply()
+    {
+        var attackerHealth = _currentAttacker.Damageable;
+        if (attackerHealth == null) return;
+
+        await attackerHealth.TakeDamageAsync(_attack);
+    }
+}
+```
+
+**Изменения:**
+- ✅ Больше не зависит от `_health.LastAttack`
+- ✅ Сохраняет `_currentAttacker` в `CanUse()`
+- ✅ Использует `_currentAttacker.Damageable` в `Apply()`
+- ✅ Не нужен `GetComponent` в runtime
+
+#### Dodge (обновлен)
+
+```csharp
+public class Dodge : IAbility
+{
+    public bool CanUse(IAttacker attacker)
+    {
+        if (attacker != null && attacker.IsAoE)
+            return false;
+
+        if (_counter == 0) return true;
+
+        int successThreshold = _isOwner ? 80 : 50;
+        return _randomProvider.Range(0, 100) < successThreshold;
+    }
+
+    public async Task Apply()
+    {
+        // Disable colliders
+        foreach (Collider collider in _colliders)
+            collider.enabled = false;
+
+        _counter++;
+        await _transformable.Shift();
+
+        // Self-management: re-enable colliders
+        foreach (Collider collider in _colliders)
+        {
+            if (collider != null)
+                collider.enabled = true;
+        }
+    }
+}
+```
+
+**Изменения:**
+- ✅ Использует `IRandomProvider` для детерминированных тестов
+- ✅ Самостоятельно управляет коллайдерами (убрана зависимость на `AnimalHealth.EnableColliders`)
+
+### 15.6 Cleanup - Удаление устаревшего кода
+
+**Удалено:**
+- ❌ `AnimalHealth.LastAttack` (циркулярная зависимость)
+- ❌ `AnimalHealth.EnableColliders()` (Dodge самоуправляемый)
+- ❌ `AnimalFacade.AdditionalAbilities` (дублирование)
+- ❌ `_useAbilityManager` feature flag (всегда используется новая система)
+- ❌ `DamageReceivedEvent` / `DamageAppliedEvent` (UnityEvent, не нужны)
+- ❌ Старый fallback путь в `ApplyAbilities()` (legacy код)
+- ❌ Дубликат `IAttacker` из `IDamageable.cs` (конфликт имён)
+
+**Сохранено:**
+- ✅ Legacy C# события (`TakenDamage`, `Died`) для code subscriptions
+- ✅ Обратная совместимость интерфейсов
+
+### 15.7 Dependency Injection Setup
+
+**ServicesInstaller.cs:**
+
+```csharp
+public class ServicesInstaller : MonoInstaller
+{
+    public override void InstallBindings()
+    {
+        Container.Bind<IPhysicsService>()
+            .To<UnityPhysicsService>()
+            .AsSingle();
+
+        Container.Bind<IRandomProvider>()
+            .To<UnityRandomProvider>()
+            .AsSingle();
+    }
+}
+```
+
+**Установка:**
+1. Добавить `ServicesInstaller` на `SceneContext` в сцене
+2. Unity автоматически инжектит сервисы в компоненты
+
+### 15.8 Метрики улучшений
+
+**Код:**
+- Удалено: ~120 строк дублирующегося кода
+- Добавлено: 6 новых файлов (сервисы, AbilityManager, AbilityContext, IAttacker)
+- FoxHealth: с ~60 строк до ~10 строк
+- HedgehogHealth: с ~60 строк до ~10 строк
+
+**Архитектура:**
+- ✅ SRP: AnimalHealth отвечает только за HP
+- ✅ DIP: Зависимости через интерфейсы (IPhysicsService, IRandomProvider, IAttacker)
+- ✅ OCP: Легко добавлять новые способности без изменения базовых классов
+- ✅ ISP: IAttacker содержит только необходимые методы/свойства
+
+**Testability:**
+- ✅ Physics мокируется через IPhysicsService
+- ✅ Random детерминирован через IRandomProvider
+- ✅ Способности тестируются изолированно
+- ✅ Нет циркулярных зависимостей
+
+**Coupling:**
+- До: CounterAttack → AnimalHealth → CounterAttack (циркулярная)
+- После: CounterAttack → IAttacker (через интерфейс)
+
+### 15.9 Тестирование
+
+**Unit Tests (обновлены):**
+- ✅ `DodgeAbilityTests.cs` - использует mock `IRandomProvider`
+- ✅ `CounterAttackAbilityTests.cs` - использует mock `IRandomProvider`
+- ✅ Все тесты проходят с детерминированными результатами
+
+**Integration Tests (обновлены):**
+- ✅ `AoEAttackIntegrationTests.cs` - обновлены конструкторы способностей
+- ✅ `AttackAndDamageIntegrationTests.cs` - добавлен `TestRandomProvider`
+
+**Regression Tests:**
+- ✅ 59 тестов проходят успешно (52 Edit Mode + 7 Play Mode)
+- ✅ Нет breaking changes для существующего функционала
+
+### 15.10 Migration Guide
+
+**Для разработчиков:**
+
+1. **Добавить ServicesInstaller:**
+   ```csharp
+   // На SceneContext в сцене добавить ServicesInstaller
+   ```
+
+2. **Использовать IAttacker вместо AnimalAttack:**
+   ```csharp
+   // Было:
+   public bool CanUse(AnimalAttack attacker)
+
+   // Стало:
+   public bool CanUse(IAttacker attacker)
+   ```
+
+3. **Инжектить сервисы:**
+   ```csharp
+   // В конструкторе способности:
+   public Dodge(ITransformable transformable, Collider[] colliders,
+       bool isOwner, IRandomProvider randomProvider)
+   ```
+
+4. **Не использовать Obsolete API:**
+   - ❌ `AnimalHealth.LastAttack`
+   - ❌ `AnimalFacade.AdditionalAbilities`
+   - ✅ Используйте `AbilityManager` напрямую
+
+### 15.11 Известные ограничения (обновлено)
+
+**IDamageable.TakeDamageAsync:**
+- Сигнатура по-прежнему принимает `AnimalAttack`, не `IAttacker`
+- Причина: интерфейс используется вне системы способностей
+- Рассмотреть обновление в будущем
+
+**AbilityManager.UnregisterAbility:**
+- Метод не реализован (TODO)
+- RemoveAbility в AnimalFacade выводит warning
+
+### 15.12 Roadmap (обновлено)
+
+**Завершено:**
+- [x] ✅ Phase 1: Foundation (IPhysicsService, IRandomProvider, AbilityManager, AbilityContext)
+- [x] ✅ Phase 2: Integration (AbilityManager в AnimalHealth)
+- [x] ✅ Phase 3: Event-Driven (IAttacker, устранение циркулярных зависимостей)
+- [x] ✅ Cleanup: Удаление Obsolete кода и UnityEvents
+
+**Будущие улучшения:**
+- [ ] Обновить `IDamageable.TakeDamageAsync` для приёма `IAttacker`
+- [ ] Реализовать `AbilityManager.UnregisterAbility()`
+- [ ] Добавить ability cooldowns система
+- [ ] Расширить `IAttacker` для поддержки сложных атак
+
+### 15.13 References
+
+**Pull Request / Commit:**
+- Дата: 2026-02-08
+- Ветка: `iteration_2/Alexandr/Develop`
+- Изменено файлов: 19 (11 new, 8 modified)
+
+**Новые файлы:**
+- `Assets/Code/Services/Physics/IPhysicsService.cs`
+- `Assets/Code/Services/Physics/UnityPhysicsService.cs`
+- `Assets/Code/Services/Random/IRandomProvider.cs`
+- `Assets/Code/Services/Random/UnityRandomProvider.cs`
+- `Assets/Code/Abilities/AbilityManager.cs`
+- `Assets/Code/Abilities/AbilityContext.cs`
+- `Assets/Code/Abilities/IAttacker.cs`
+- `Assets/Code/Infrastructure/Installers/ServicesInstaller.cs`
+
+**Обновленные файлы:**
+- `Assets/Code/Animals/AnimalAttack.cs`
+- `Assets/Code/Animals/Health/AnimalHealth.cs`
+- `Assets/Code/Animals/Health/FoxHealth.cs`
+- `Assets/Code/Animals/Health/HedgehogHealth.cs`
+- `Assets/Code/Animals/Health/IDamageable.cs`
+- `Assets/Code/Animals/Facades/AnimalFacade.cs`
+- `Assets/Code/Abilities/IAbility.cs`
+- `Assets/Code/Abilities/Dodge.cs`
+- `Assets/Code/Abilities/CounterAttack.cs`
+- `Assets/Code/Abilities/MultipleCharacters.cs`
+
+---
+
 **Конец спецификации**

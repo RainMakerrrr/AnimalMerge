@@ -21,6 +21,23 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         [SetUp]
         public void SetUp()
         {
+            // Clean scene before each test to ensure test isolation
+            var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                try
+                {
+                    if (obj == null) continue;
+                    if (obj.scene.name == null || obj.scene.name == "DontDestroyOnLoad") continue;
+
+                    UnityEngine.Object.DestroyImmediate(obj);
+                }
+                catch (System.Exception)
+                {
+                    // Object was already destroyed or is invalid, skip
+                }
+            }
+
             // Create attack GameObject with all required components
             _attackGO = new GameObject("TestAttack");
             _attack = _attackGO.AddComponent<AnimalAttack>();

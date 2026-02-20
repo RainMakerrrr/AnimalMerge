@@ -6,7 +6,9 @@ using Code.Animals.Health;
 using Code.Animals.Merge.MergeSkills;
 using Code.Animals.Movement;
 using Code.Animals.Upgrade;
+using Code.Services.Random;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Animals.Facades
 {
@@ -20,6 +22,8 @@ namespace Code.Animals.Facades
         [SerializeField] protected AnimalHealth _health;
         [SerializeField] protected AnimalMovement _movement;
 
+        protected IRandomProvider _randomProvider;
+
         public IDamageable Damageable => _health;
         public ITransformable Transformable => _movement;
         public AnimalType Type => _type;
@@ -30,11 +34,17 @@ namespace Code.Animals.Facades
         public Collider[] Colliders => _colliders;
         public AnimalAnimator Animator => _animator;
 
+        public IRandomProvider RandomProvider => _randomProvider;
+        
+        [Inject]
+        private void Construct(IRandomProvider randomProvider)
+        {
+            _randomProvider = randomProvider;
+        }
+
 
         protected IAbility Ability;
         public IMergeSkill MergeSkill { get; protected set; }
-
-        public List<IAbility> AdditionalAbilities = new List<IAbility>();
 
         public List<IMergeSkill> MergeSkills = new List<IMergeSkill>();
 
@@ -52,13 +62,22 @@ namespace Code.Animals.Facades
         public void UpgradeDamage(float multiplier) => _upgrade.UpgradeDamage(multiplier);
         public void UpgradeSpeed(int multiplier) => _upgrade.UpgradeSpeed(multiplier);
 
+        /// <summary>
+        /// Adds an ability to this animal. The ability will be registered in AnimalHealth's AbilityManager.
+        /// </summary>
         public void AddAbility(IAbility ability)
         {
-            AdditionalAbilities.Add(ability);
-            _health.AddAbility(ability);
+            _health.AddAbility(ability); // Registers in AbilityManager
         }
 
-        public void RemoveAbility(IAbility ability) => AdditionalAbilities.Remove(ability);
+        /// <summary>
+        /// Removes an ability from the AbilityManager.
+        /// </summary>
+        public void RemoveAbility(IAbility ability)
+        {
+            // TODO: Implement AbilityManager.UnregisterAbility() if needed in the future
+            Debug.LogWarning("[AnimalFacade] RemoveAbility not yet implemented in AbilityManager");
+        }
         
 
         public void ClearNodes() => _movement.ClearNodes();

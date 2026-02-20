@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
 using FluentAssertions;
 using NUnit.Framework;
@@ -80,21 +81,23 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             animatorField?.SetValue(hedgehogHealth, hedgehogAnimator);
 
             var attackerGO = new GameObject("Attacker");
-            var attackerHealth = AttackTestHelper.CreateMockDamageable(100f);
-            attackerHealth.transform.SetParent(attackerGO.transform);
+            var attackerHealth = attackerGO.AddComponent<MockDamageable>();
+            attackerHealth.Initialize(100f);
             var attackerAttack = attackerGO.AddComponent<AnimalAttack>();
             attackerAttack.SetDamage(20f);
 
-            // Set LastAttack on hedgehog health
-            hedgehogHealth.LastAttack = attackerAttack;
 
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             // Act
+            // Must call CanUse() first to set the attacker
+            counterAttack.CanUse(attackerAttack);
             counterAttack.Apply().GetAwaiter().GetResult();
 
             // Assert
@@ -164,13 +167,14 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var attackerGO = new GameObject("AttackerWithoutHealth");
             var attackerAttack = attackerGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.LastAttack = attackerAttack;
 
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             // Act
             System.Action act = () => counterAttack.Apply().GetAwaiter().GetResult();

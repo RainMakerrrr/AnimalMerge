@@ -15,6 +15,30 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
     public class AnimalHealthTests
     {
         /// <summary>
+        /// SetUp: Clean scene before each test to ensure test isolation
+        /// </summary>
+        [SetUp]
+        public void SetUp()
+        {
+            // Find and destroy all GameObjects in the scene
+            var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                try
+                {
+                    if (obj == null) continue;
+                    if (obj.scene.name == null || obj.scene.name == "DontDestroyOnLoad") continue;
+
+                    UnityEngine.Object.DestroyImmediate(obj);
+                }
+                catch (System.Exception)
+                {
+                    // Object was already destroyed or is invalid, skip
+                }
+            }
+        }
+
+        /// <summary>
         /// UT-HP-001: NoAbilities_BasicDamage
         /// Verifies basic damage application without any abilities
         /// </summary>

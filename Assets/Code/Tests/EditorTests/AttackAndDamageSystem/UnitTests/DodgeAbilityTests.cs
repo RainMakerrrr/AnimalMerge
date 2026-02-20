@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Code.Abilities;
+using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
 using FluentAssertions;
 using NSubstitute;
@@ -83,7 +84,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
 
         /// <summary>
         /// UT-DODGE-004: Apply_DisablesCollidersAndShifts
-        /// Verifies that Apply() disables colliders, increments counter, and calls Shift()
+        /// Verifies that Apply() temporarily disables colliders, calls Shift(), and re-enables colliders after
+        /// UPDATED: Event-Driven architecture - Dodge self-manages colliders
         /// </summary>
         [Test]
         public void Apply_DisablesCollidersAndShifts_BehaviorCorrect()
@@ -105,14 +107,17 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             collider1.enabled = true;
             collider2.enabled = true;
 
-            var dodge = new Dodge(transformable, colliders, isOwner: true);
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
+            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
 
             // Act
             dodge.Apply().GetAwaiter().GetResult();
 
             // Assert
-            collider1.enabled.Should().BeFalse("collider 1 should be disabled");
-            collider2.enabled.Should().BeFalse("collider 2 should be disabled");
+            // NEW BEHAVIOR: Dodge self-manages colliders (Event-Driven architecture)
+            // Colliders are temporarily disabled during shift, then re-enabled after
+            collider1.enabled.Should().BeTrue("collider 1 should be re-enabled after shift (self-management)");
+            collider2.enabled.Should().BeTrue("collider 2 should be re-enabled after shift (self-management)");
             shiftCalled.Should().BeTrue("Shift() should be called");
 
             // Verify counter incremented (check by testing CanUse behavior change)

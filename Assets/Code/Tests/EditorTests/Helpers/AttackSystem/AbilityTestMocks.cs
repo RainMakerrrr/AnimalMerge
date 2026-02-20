@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Services.Random;
 using NSubstitute;
 using UnityEngine;
 
@@ -11,9 +12,47 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
     public static class AbilityTestMocks
     {
         /// <summary>
+        /// Creates a mock IRandomProvider for testing with deterministic behavior
+        /// </summary>
+        public static IRandomProvider CreateMockRandomProvider(int fixedValue = 0)
+        {
+            var randomProvider = Substitute.For<IRandomProvider>();
+            randomProvider.Range(Arg.Any<int>(), Arg.Any<int>()).Returns(fixedValue);
+            randomProvider.Range(Arg.Any<float>(), Arg.Any<float>()).Returns((float)fixedValue);
+            return randomProvider;
+        }
+
+        /// <summary>
+        /// Creates a mock IRandomProvider with custom logic
+        /// </summary>
+        public static IRandomProvider CreateMockRandomProviderWithFunc(Func<int, int, int> intFunc = null, Func<float, float, float> floatFunc = null)
+        {
+            var randomProvider = Substitute.For<IRandomProvider>();
+
+            if (intFunc != null)
+            {
+                randomProvider.Range(Arg.Any<int>(), Arg.Any<int>()).Returns(args => intFunc((int)args[0], (int)args[1]));
+            }
+            else
+            {
+                randomProvider.Range(Arg.Any<int>(), Arg.Any<int>()).Returns(0);
+            }
+
+            if (floatFunc != null)
+            {
+                randomProvider.Range(Arg.Any<float>(), Arg.Any<float>()).Returns(args => floatFunc((float)args[0], (float)args[1]));
+            }
+            else
+            {
+                randomProvider.Range(Arg.Any<float>(), Arg.Any<float>()).Returns(0f);
+            }
+
+            return randomProvider;
+        }
+        /// <summary>
         /// Creates a real Dodge ability with mocked dependencies
         /// </summary>
-        public static Dodge CreateDodge(bool isOwner, int initialCounter = 0)
+        public static Dodge CreateDodge(bool isOwner, int initialCounter = 0, IRandomProvider randomProvider = null)
         {
             var transformable = Substitute.For<ITransformable>();
             transformable.Shift().Returns(Task.CompletedTask);
@@ -22,7 +61,9 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             var collider = go.AddComponent<BoxCollider>();
             var colliders = new Collider[] { collider };
 
-            var dodge = new Dodge(transformable, colliders, isOwner);
+            randomProvider ??= CreateMockRandomProvider(0);
+
+            var dodge = new Dodge(transformable, colliders, isOwner, randomProvider);
 
             // Set counter via reflection if needed
             if (initialCounter > 0)
@@ -62,15 +103,17 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             AnimalHealth health,
             AnimalAnimator animator,
             AnimalAttack attack,
-            bool isOwner)
+            bool isOwner,
+            IRandomProvider randomProvider = null)
         {
-            return new CounterAttack(health, animator, attack, isOwner);
+            randomProvider ??= CreateMockRandomProvider(0);
+            return new CounterAttack(health, animator, attack, isOwner, randomProvider);
         }
 
         /// <summary>
         /// Creates a CounterAttack with mock dependencies for easier testing
         /// </summary>
-        public static CounterAttack CreateMockCounterAttack(bool isOwner)
+        public static CounterAttack CreateMockCounterAttack(bool isOwner, IRandomProvider randomProvider = null)
         {
             var healthGO = new GameObject("MockHealth");
             var health = healthGO.AddComponent<AnimalHealth>();
@@ -81,7 +124,9 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             var attackGO = new GameObject("MockAttack");
             var attack = attackGO.AddComponent<AnimalAttack>();
 
-            return new CounterAttack(health, animator, attack, isOwner);
+            randomProvider ??= CreateMockRandomProvider(0);
+
+            return new CounterAttack(health, animator, attack, isOwner, randomProvider);
         }
 
         /// <summary>
@@ -115,7 +160,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         public int Counter => _counter;
         public int ApplyCallCount { get; private set; }
 
-        public bool CanUse(AnimalAttack attacker)
+        public bool CanUse(IAttacker attacker)
         {
             // MockDodge does NOT work against AoE attacks
             if (attacker != null && attacker.IsAoE)
@@ -169,14 +214,18 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         private readonly AnimalAttack _attack;
         private readonly bool _isOwner;
         private readonly Func<int> _randomValueProvider;
+        private IAttacker _currentAttacker;
 
         public bool IsBlockingDamage => false;
         public int Priority => 0;
 
         public int ApplyCallCount { get; private set; }
 
-        public bool CanUse(AnimalAttack attacker)
+        public bool CanUse(IAttacker attacker)
         {
+            // Store attacker for later use in Apply()
+            _currentAttacker = attacker;
+
             // MockCounterAttack does NOT work against AoE attacks
             if (attacker != null && attacker.IsAoE)
             {
@@ -212,9 +261,10 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
                 _animator.CounterAttackAnimation();
             }
 
-            if (_health != null && _health.LastAttack != null)
+            // Use _currentAttacker stored in CanUse()
+            if (_currentAttacker != null)
             {
-                var attackerHealth = _health.LastAttack.GetComponent<IDamageable>();
+                var attackerHealth = _currentAttacker.Damageable;
                 if (attackerHealth != null)
                 {
                     await attackerHealth.TakeDamageAsync(_attack);

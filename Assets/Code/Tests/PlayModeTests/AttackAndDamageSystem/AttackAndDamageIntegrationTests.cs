@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
 using Code.GridPathfinding;
 using Code.Pathfinding;
+using Code.Services.Random;
 using FluentAssertions;
 using NUnit.Framework;
 using UnityEngine;
@@ -96,7 +98,8 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
         }
 
         /// <summary>
-        /// Integration test: Dodge ability disables colliders and shifts
+        /// Integration test: Dodge ability disables colliders during shift and re-enables them after
+        /// UPDATED: Event-Driven architecture - Dodge self-manages colliders
         /// </summary>
         [UnityTest]
         public IEnumerator Dodge_Apply_DisablesCollidersAndShifts()
@@ -111,7 +114,8 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             collider2.enabled = true;
 
             var transformableMock = new TestTransformable();
-            var dodge = new Code.Abilities.Dodge(transformableMock, colliders, isOwner: true);
+            var randomProvider = new TestRandomProvider(0);
+            var dodge = new Code.Abilities.Dodge(transformableMock, colliders, isOwner: true, randomProvider);
 
             // Act
             Task applyTask = dodge.Apply();
@@ -122,8 +126,10 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             }
 
             // Assert
-            collider1.enabled.Should().BeFalse("collider 1 should be disabled");
-            collider2.enabled.Should().BeFalse("collider 2 should be disabled");
+            // NEW BEHAVIOR: Dodge self-manages colliders (Event-Driven architecture)
+            // Colliders are temporarily disabled during shift, then re-enabled after
+            collider1.enabled.Should().BeTrue("collider 1 should be re-enabled after shift (self-management)");
+            collider2.enabled.Should().BeTrue("collider 2 should be re-enabled after shift (self-management)");
             transformableMock.ShiftCalled.Should().BeTrue("Shift() should be called");
 
             // Cleanup
@@ -270,7 +276,8 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             var transformable = new TestTransformable();
             var go = new GameObject("DodgeMock");
             var collider = go.AddComponent<BoxCollider>();
-            var dodge = new Code.Abilities.Dodge(transformable, new[] { collider }, isOwner: true);
+            var randomProvider = new TestRandomProvider(0);
+            var dodge = new Code.Abilities.Dodge(transformable, new[] { collider }, isOwner: true, randomProvider);
             return dodge;
         }
 
@@ -309,5 +316,28 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Test implementation of IRandomProvider for deterministic testing
+    /// </summary>
+    public class TestRandomProvider : IRandomProvider
+    {
+        private readonly int _fixedValue;
+
+        public TestRandomProvider(int fixedValue = 0)
+        {
+            _fixedValue = fixedValue;
+        }
+
+        public int Range(int min, int max)
+        {
+            return _fixedValue;
+        }
+
+        public float Range(float min, float max)
+        {
+            return _fixedValue;
+        }
     }
 }

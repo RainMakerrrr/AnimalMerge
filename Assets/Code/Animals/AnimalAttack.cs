@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Code.Abilities;
 using Code.Animals.Health;
+using Code.Services.Physics;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Animals
 {
-    public class AnimalAttack : MonoBehaviour
+    public class AnimalAttack : MonoBehaviour, IAttacker
     {
         [SerializeField] private AnimalAnimator _animator;
         [SerializeField] private Transform _attackPoint;
@@ -19,10 +22,60 @@ namespace Code.Animals
         [SerializeField] private bool _isAoE;
 
         private Collider[] _colliders;
+        private IPhysicsService _physicsService;
+        private IDamageable _damageable;
+        private ITarget _targetOverride; // Specific target set via Attack(ITarget)
+
         public float Damage => _damage;
         public bool IsAoE => _isAoE;
+        public IDamageable Damageable
+        {
+            get
+            {
+                // Lazy initialization for tests where Start() might not be called
+                if (_damageable == null)
+                {
+                    // Search in this order: self -> parent -> children
+                    _damageable = GetComponent<IDamageable>();
+                    if (_damageable == null)
+                    {
+                        _damageable = GetComponentInParent<IDamageable>();
+                    }
+                    if (_damageable == null)
+                    {
+                        _damageable = GetComponentInChildren<IDamageable>();
+                    }
+                }
+                return _damageable;
+            }
+        }
 
-        private void Start() => _colliders = new Collider[_maxTargets];
+        [Inject]
+        private void Construct(IPhysicsService physicsService)
+        {
+            _physicsService = physicsService;
+        }
+
+        private void Start()
+        {
+            _colliders = new Collider[_maxTargets];
+
+            // Search in this order: self -> parent -> children
+            _damageable = GetComponent<IDamageable>();
+            if (_damageable == null)
+            {
+                _damageable = GetComponentInParent<IDamageable>();
+            }
+            if (_damageable == null)
+            {
+                _damageable = GetComponentInChildren<IDamageable>();
+            }
+
+            if (_damageable == null)
+            {
+                Debug.LogWarning($"[AnimalAttack] {name} has no IDamageable component in hierarchy. CounterAttack will not work against this attacker.");
+            }
+        }
 
         public void Upgrade(float multiplier) => _damage *= multiplier;
 
@@ -40,7 +93,23 @@ namespace Code.Animals
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
 
+            // Clear target override for generic attack
+            _targetOverride = null;
             await _animator.WaitForAttackAnimation();
+        }
+
+        /// <summary>
+        /// Attacks a specific target. This avoids physics search and directly attacks the provided target.
+        /// Used by AutoFight to ensure we attack the same target we're moving towards.
+        /// </summary>
+        public async Task Attack(ITarget target)
+        {
+            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+
+            // Set target override for AttackAnimationHandlerAsync
+            _targetOverride = target;
+            await _animator.WaitForAttackAnimation();
+            _targetOverride = null; // Clear after attack
         }
 
         private void OnDrawGizmos()
@@ -64,17 +133,33 @@ namespace Code.Animals
             if (animal != null && animal.Type == AnimalType.Hedgehog) return;
             if (_attackPoint == null) return;
 
+            // If specific target was set via Attack(ITarget), attack it directly
+            if (_targetOverride != null)
+            {
+                Debug.Log($"[Attack] Using target override: {_targetOverride.Damageable}");
+                await _targetOverride.Damageable.TakeDamageAsync(this);
+                return;
+            }
+
+            // Otherwise, perform physics-based target detection
             if (_colliders == null || _colliders.Length != _maxTargets)
                 _colliders = new Collider[_maxTargets];
 
             Vector3 a = _attackPoint.position;
             Vector3 b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
-            int count = Physics.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask);
+
+            // Fallback to direct Physics if service not injected (backward compatibility for tests)
+            int count = _physicsService != null
+                ? _physicsService.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask)
+                : Physics.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask);
+
             if (count <= 0)
             {
                 // Fallback to a simple sphere centered slightly forward
                 Vector3 center = _attackPoint.position + transform.forward * _forwardReach;
-                count = Physics.OverlapSphereNonAlloc(center, _radius, _colliders, _mask);
+                count = _physicsService != null
+                    ? _physicsService.OverlapSphereNonAlloc(center, _radius, _colliders, _mask)
+                    : Physics.OverlapSphereNonAlloc(center, _radius, _colliders, _mask);
                 if (count <= 0) return;
             }
 

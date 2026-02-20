@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
 using FluentAssertions;
 using NSubstitute;
@@ -19,6 +20,32 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.RegressionTests
     [TestFixture]
     public class AttackAndDamageRegressionTests
     {
+        /// <summary>
+        /// SetUp: Clean scene before each test to ensure test isolation
+        /// Prevents test interference from previous tests that didn't clean up properly
+        /// </summary>
+        [SetUp]
+        public void SetUp()
+        {
+            // Find and destroy all GameObjects in the scene (except DontDestroyOnLoad)
+            var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                try
+                {
+                    // Unity overloads == operator for checking destroyed objects
+                    if (obj == null) continue;
+                    if (obj.scene.name == null || obj.scene.name == "DontDestroyOnLoad") continue;
+
+                    UnityEngine.Object.DestroyImmediate(obj);
+                }
+                catch (System.Exception)
+                {
+                    // Object was already destroyed or is invalid, skip
+                }
+            }
+        }
+
         /// <summary>
         /// REG-001: HashSetDeduplication_Fix
         /// REGRESSION TEST for bug fixed on 2026-02-04
@@ -215,15 +242,16 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.RegressionTests
             attackerAttack.SetDamage(20f);
 
             // Set own CounterAttack ability (owner=true, 100% chance)
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             hedgehogHealth.SetAbility(counterAttack);
 
-            hedgehogHealth.LastAttack = attackerAttack;
 
             // Act
             hedgehogHealth.TakeDamageAsync(attackerAttack).GetAwaiter().GetResult();

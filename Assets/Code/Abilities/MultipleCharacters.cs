@@ -23,7 +23,7 @@ namespace Code.Abilities
 
         public bool IsBlockingDamage => false;
         public int Priority => 2;
-        public bool CanUse(AnimalAttack attacker) => true; // MultipleCharacters always works
+        public bool CanUse(IAttacker attacker) => true; // MultipleCharacters always works
 
         public MultipleCharacters(AnimalMovement movement, IGridManager gridManager, IAnimalFactory animalFactory,
             AnimalType animalType, int additionalCharactersCount)

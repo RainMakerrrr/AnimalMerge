@@ -9,14 +9,14 @@ namespace Code.Animals.Facades
     {
         public override void InitBehaviours()
         {
-            Ability = new CounterAttack(_health, Animator, AttackInstance, isOwner: true);
+            Ability = new CounterAttack(_health, Animator, AttackInstance, isOwner: true, _randomProvider);
             MergeSkill = new HedgehogMergeSkill();
-            
+
             //MergeSkills.Add(MergeSkill);
 
             Debug.Log($"ME - {gameObject.name}, my merge skills - {MergeSkills.Count}");
             MergeSkills.ForEach(Debug.Log);
-            
+
             _health.SetAbility(Ability);
         }
     }

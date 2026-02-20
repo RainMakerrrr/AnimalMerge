@@ -3,6 +3,7 @@ using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
 using Code.Animals.Movement;
+using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
 using FluentAssertions;
 using NUnit.Framework;
@@ -13,6 +14,31 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
     [TestFixture]
     public class AoEAttackIntegrationTests
     {
+        /// <summary>
+        /// SetUp: Clean scene before each test to ensure test isolation
+        /// </summary>
+        [SetUp]
+        public void SetUp()
+        {
+            // Find and destroy all GameObjects in the scene
+            var allObjects = UnityEngine.Object.FindObjectsOfType<GameObject>();
+            foreach (var obj in allObjects)
+            {
+                try
+                {
+                    // Unity overloads == operator, so check with == instead of != null
+                    if (obj == null) continue;
+                    if (obj.scene.name == null || obj.scene.name == "DontDestroyOnLoad") continue;
+
+                    UnityEngine.Object.DestroyImmediate(obj);
+                }
+                catch (System.Exception)
+                {
+                    // Object was already destroyed or is invalid, skip
+                }
+            }
+        }
+
         /// <summary>
         /// INT-AOE-001: AoE_Attack_BypassesDodge_DamageApplied
         /// Verifies that AoE attacks bypass Dodge ability and damage is applied
@@ -69,11 +95,13 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             animatorField?.SetValue(hedgehogHealth, hedgehogAnimator);
 
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             hedgehogHealth.SetAbility(counterAttack);
 
@@ -85,7 +113,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             aoeAttack.SetDamage(20f);
             aoeAttack.SetIsAoE(true);
 
-            hedgehogHealth.LastAttack = aoeAttack;
 
             // Act
             hedgehogHealth.TakeDamageAsync(aoeAttack).GetAwaiter().GetResult();
@@ -161,11 +188,13 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             animatorField?.SetValue(hedgehogHealth, hedgehogAnimator);
 
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             hedgehogHealth.SetAbility(counterAttack);
 
@@ -177,7 +206,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             normalAttack.SetDamage(20f);
             normalAttack.SetIsAoE(false); // Explicitly non-AoE
 
-            hedgehogHealth.LastAttack = normalAttack;
 
             // Act
             hedgehogHealth.TakeDamageAsync(normalAttack).GetAwaiter().GetResult();
@@ -217,7 +245,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             animatorField?.SetValue(foxHealth, foxAnimator);
 
             var transformable = new GameObject("Transformable").AddComponent<AnimalMovement>();
-            var dodge = new Dodge(transformable, new Collider[0], isOwner: true);
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
+            var dodge = new Dodge(transformable, new Collider[0], isOwner: true, randomProvider);
             foxHealth.SetAbility(dodge);
 
             // Arrange - AoE attacker
@@ -260,11 +289,13 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             animatorField?.SetValue(hedgehogHealth, hedgehogAnimator);
 
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
             var counterAttack = new CounterAttack(
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true);
+                isOwner: true,
+                randomProvider);
 
             hedgehogHealth.SetAbility(counterAttack);
 
@@ -276,7 +307,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             aoeAttack.SetDamage(20f);
             aoeAttack.SetIsAoE(true);
 
-            hedgehogHealth.LastAttack = aoeAttack;
 
             // Act
             hedgehogHealth.TakeDamageAsync(aoeAttack).GetAwaiter().GetResult();
@@ -316,7 +346,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             aoeAttack.SetDamage(40f);
             aoeAttack.SetIsAoE(true);
 
-            unitHealth.LastAttack = aoeAttack;
 
             // Act
             unitHealth.TakeDamageAsync(aoeAttack).GetAwaiter().GetResult();

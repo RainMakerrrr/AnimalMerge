@@ -5,11 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Code.Abilities;
 using UnityEngine;
+using UnityEngine.Events;
+using Zenject;
 
 namespace Code.Animals.Health
 {
     public class AnimalHealth : MonoBehaviour, IDamageable
     {
+        // Events for code subscriptions (UI, VFX, sound effects)
         public event Action TakenDamage;
         public event Action Died;
 
@@ -20,14 +23,15 @@ namespace Code.Animals.Health
 
         protected List<IAbility> MergedAbilities = new List<IAbility>();
 
+        // AbilityManager for centralized ability management
+        protected AbilityManager _abilityManager;
+
         public float Current { get; protected set; }
         public float Max { get; protected set; }
 
         public bool IsDead => Current <= 0;
 
         private Collider[] _colliders;
-
-        public AnimalAttack LastAttack { get; set; }
 
         public void Construct(Collider[] colliders)
         {
@@ -48,11 +52,35 @@ namespace Code.Animals.Health
             Current = Max; // Full heal when setting new maximum
         }
 
-        public void SetAbility(IAbility ability) => Ability = ability;
+        public void SetAbility(IAbility ability)
+        {
+            Ability = ability;
+
+            // Ensure AbilityManager exists (for tests where Start() might not be called)
+            _abilityManager ??= new AbilityManager();
+
+            // Register in AbilityManager
+            if (ability != null)
+            {
+                _abilityManager.RegisterAbility(ability);
+                Debug.Log($"[AnimalHealth] Registered primary ability in AbilityManager: {ability.GetType().Name}");
+            }
+        }
 
         public void AddAbility(IAbility ability)
         {
             MergedAbilities.Add(ability);
+
+            // Ensure AbilityManager exists (for tests where Start() might not be called)
+            _abilityManager ??= new AbilityManager();
+
+            // Register in AbilityManager
+            if (ability != null)
+            {
+                _abilityManager.RegisterAbility(ability);
+                Debug.Log($"[AnimalHealth] Registered merged ability in AbilityManager: {ability.GetType().Name}");
+            }
+
             Debug.Log($"[AnimaHealth] add ability: {ability.GetType().Name}, {name}, abilities count - {MergedAbilities.Count}, my ability  {Ability?.GetType().Name}");
         }
 
@@ -61,26 +89,27 @@ namespace Code.Animals.Health
         {
             Max = _max;
             Current = Max;
+            
+            _abilityManager ??= new AbilityManager();
         }
 
         public virtual async Task TakeDamageAsync(AnimalAttack attacker)
         {
             Debug.Log($"[TakeDamage] {name} took {attacker.Damage} damage from {attacker.name}");
 
-            LastAttack = attacker;
-
             bool isBlockedDamage = await ApplyAbilities(attacker);
 
             if (isBlockedDamage)
             {
                 Debug.Log($"[AnimaHealth] {name} Damage blocked, return");
-                EnableColliders();
                 return;
             }
-            
+
             Debug.Log($"[AnimaHealth] {name} Damage taken");
-            
+
             Current -= attacker.Damage;
+
+            // Fire event when damage is actually applied
             TakenDamage?.Invoke();
 
             _animator.TakeDamageAnimation();
@@ -91,41 +120,15 @@ namespace Code.Animals.Health
             }
         }
 
-        private void EnableColliders()
-        {
-            foreach (Collider col in _colliders)
-            {
-                col.enabled = true;
-            }
-        }
-
         protected virtual async Task<bool> ApplyAbilities(AnimalAttack attacker)
         {
-            List<IAbility> abilities = new List<IAbility>(MergedAbilities) {Ability};
-            abilities = abilities.Where(a => a != null).ToList();
+            // Ensure AbilityManager exists (lazy initialization for edge cases)
+            _abilityManager ??= new AbilityManager();
 
-            bool isBlockedDamage = false;
-
-            foreach (IAbility ability in abilities.OrderByDescending(a => a.Priority))
-            {
-                Debug.Log($"[AnimaHealth] {name} apply ability - {ability.GetType().Name}");
-
-                if (ability.CanUse(attacker))
-                {
-                    Debug.Log($"[AnimaHealth]{name}  apply ability can use");
-
-                    if (ability.IsBlockingDamage)
-                    {
-                        Debug.Log($"[AnimaHealth]{name} apply ability blocked damage");
-
-                        isBlockedDamage = true;
-                    }
-
-                    await ability.Apply();
-                }
-            }
-
-            return isBlockedDamage;
+            // Use AbilityManager for centralized ability execution
+            var context = new AbilityContext(attacker, this, attacker.Damage);
+            bool isBlocked = await _abilityManager.ExecuteAbilitiesAsync(context);
+            return isBlocked;
         }
 
         private void Die()

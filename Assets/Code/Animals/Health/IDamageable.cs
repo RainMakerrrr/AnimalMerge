@@ -9,9 +9,4 @@ namespace Code.Animals.Health
         bool IsDead { get; }
         Task TakeDamageAsync(AnimalAttack attacker);
     }
-
-    public interface IAttacker
-    {
-        IDamageable Target { get; }
-    }
 }

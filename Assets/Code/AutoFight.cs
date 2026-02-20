@@ -138,17 +138,38 @@ namespace Code
                 if (targetCell != null && animalMovement.IsCloseToTarget(targetCell.WorldPosition))
                 {
                     Debug.Log($"[PathFindDebug] is close to target, can attack {animal.name}");
+
+                    // Update target right before attack to ensure we attack the closest enemy
+                    animalMovement.CurrentTarget = _targetFinder.FindClosestTarget(animal.transform.position, layerMask);
+
+                    if (animalMovement.CurrentTarget == null || animalMovement.CurrentTarget.Damageable.IsDead)
+                    {
+                        Debug.Log($"[PathFindDebug] {animal.name} target became invalid before attack, skipping");
+                        continue;
+                    }
+
                     animalMovement.RotateToTarget(animalMovement.CurrentTarget.Transformable.Position -
                                                   animal.transform.position);
-                    await animal.AttackInstance.Attack();
+
+                    // Pass the specific target to attack
+                    await animal.AttackInstance.Attack(animalMovement.CurrentTarget);
                 }
                 else
                 {
                     Debug.Log($"[PathFindDebug] move to target {animal.name}, target cell - {targetCell}");
 
+                    // Update target before movement
+                    animalMovement.CurrentTarget = _targetFinder.FindClosestTarget(animal.transform.position, layerMask);
+
+                    if (animalMovement.CurrentTarget == null || animalMovement.CurrentTarget.Damageable.IsDead)
+                    {
+                        Debug.Log($"[PathFindDebug] {animal.name} target became invalid before move, skipping");
+                        continue;
+                    }
+
                     await animalMovement.Move(
                         (targetCell ?? animalMovement.CurrentTarget.Transformable.CurrentPathNode).WorldPosition,
-                        animal.AttackInstance.Attack);
+                        () => animal.AttackInstance.Attack(animalMovement.CurrentTarget));
                 }
             }
         }

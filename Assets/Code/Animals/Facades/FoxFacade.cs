@@ -8,12 +8,12 @@ namespace Code.Animals.Facades
     {
         public override void InitBehaviours()
         {
-            Ability = new Dodge(_movement, Colliders, isOwner: true);
+            Ability = new Dodge(_movement, Colliders, isOwner: true, _randomProvider);
             MergeSkill = new FoxMergeSkill();
-            
+
             //MergeSkills.Add(MergeSkill);
             _health.SetAbility(Ability);
-            
+
             Debug.Log($"ME - {gameObject.name}, my merge skills - {MergeSkills.Count}");
             MergeSkills.ForEach(Debug.Log);
         }

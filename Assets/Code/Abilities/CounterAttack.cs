@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Services.Random;
 using UnityEngine;
 
 namespace Code.Abilities
@@ -11,12 +12,19 @@ namespace Code.Abilities
         private readonly AnimalAnimator _animator;
         private readonly AnimalAttack _attack;
         private readonly bool _isOwner;
+        private readonly IRandomProvider _randomProvider;
+
+        // Store attacker from CanUse to use in Apply
+        private IAttacker _currentAttacker;
 
         public bool IsBlockingDamage => false;
         public int Priority => 0;
 
-        public bool CanUse(AnimalAttack attacker)
+        public bool CanUse(IAttacker attacker)
         {
+            // Store attacker for later use in Apply()
+            _currentAttacker = attacker;
+
             // CounterAttack does NOT work against AoE attacks
             if (attacker != null && attacker.IsAoE)
             {
@@ -28,15 +36,16 @@ namespace Code.Abilities
             if (_isOwner) return true;
 
             // Inherited: 50%
-            return Random.Range(0, 100) < 50;
+            return _randomProvider.Range(0, 100) < 50;
         }
 
-        public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, bool isOwner)
+        public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, bool isOwner, IRandomProvider randomProvider)
         {
             _health = health;
             _animator = animator;
             _attack = attack;
             _isOwner = isOwner;
+            _randomProvider = randomProvider;
         }
 
         public async Task Apply()
@@ -46,19 +55,15 @@ namespace Code.Abilities
                 _animator.CounterAttackAnimation();
             }
 
-            if (_health.LastAttack == null)
+            // Use _currentAttacker stored in CanUse()
+            if (_currentAttacker == null)
             {
-                Debug.LogWarning("[CounterAttack] LastAttack is null, cannot counter-attack");
+                Debug.LogWarning("[CounterAttack] CurrentAttacker is null, cannot counter-attack");
                 return;
             }
 
-            // Try to find IDamageable on attacker (same GameObject, children, or parent)
-            var attackerHealth = _health.LastAttack.GetComponent<IDamageable>();
-            if (attackerHealth == null)
-                attackerHealth = _health.LastAttack.GetComponentInChildren<IDamageable>();
-            if (attackerHealth == null)
-                attackerHealth = _health.LastAttack.GetComponentInParent<IDamageable>();
-
+            // Get IDamageable from IAttacker interface
+            var attackerHealth = _currentAttacker.Damageable;
             if (attackerHealth == null)
             {
                 Debug.LogWarning("[CounterAttack] Attacker has no IDamageable component");
