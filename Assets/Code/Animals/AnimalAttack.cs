@@ -12,22 +12,37 @@ namespace Code.Animals
 {
     public class AnimalAttack : MonoBehaviour, IAttacker
     {
-        [SerializeField] private AnimalAnimator _animator;
-        [SerializeField] private Transform _attackPoint;
-        [SerializeField] private float _radius;
-        [SerializeField] private float _forwardReach = 0.25f;
-        [SerializeField] private float _damage;
-        [SerializeField] private int _maxTargets;
-        [SerializeField] private LayerMask _mask;
-        [SerializeField] private bool _isAoE;
+        [SerializeField] protected AnimalAnimator _animator;
+        [SerializeField] protected Transform _attackPoint;
+        [SerializeField] protected float _radius;
+        [SerializeField] protected float _forwardReach = 0.25f;
+        [SerializeField] protected float _damage;
+        [SerializeField] protected int _maxTargets;
+        [SerializeField] protected LayerMask _mask;
+        [SerializeField] protected bool _isAoE;
 
-        private Collider[] _colliders;
-        private IPhysicsService _physicsService;
-        private IDamageable _damageable;
-        private ITarget _targetOverride; // Specific target set via Attack(ITarget)
+        protected Collider[] _colliders;
+        protected IPhysicsService _physicsService;
+        protected IDamageable _damageable;
+        protected ITarget _targetOverride; // Specific target set via Attack(ITarget)
 
         public float Damage => _damage;
         public bool IsAoE => _isAoE;
+
+        // Protected properties for derived classes
+        protected AnimalAnimator Animator => _animator;
+        protected Transform AttackPoint => _attackPoint;
+        protected float Radius => _radius;
+        protected float ForwardReach => _forwardReach;
+        protected int MaxTargets => _maxTargets;
+        protected LayerMask AttackMask => _mask;
+        protected IPhysicsService PhysicsService => _physicsService;
+        protected ITarget TargetOverride
+        {
+            get => _targetOverride;
+            set => _targetOverride = value;
+        }
+
         public IDamageable Damageable
         {
             get
@@ -89,7 +104,7 @@ namespace Code.Animals
             _isAoE = isAoE;
         }
 
-        public async Task Attack()
+        public virtual async Task Attack()
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
 
@@ -102,7 +117,7 @@ namespace Code.Animals
         /// Attacks a specific target. This avoids physics search and directly attacks the provided target.
         /// Used by AutoFight to ensure we attack the same target we're moving towards.
         /// </summary>
-        public async Task Attack(ITarget target)
+        public virtual async Task Attack(ITarget target)
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
 
@@ -127,7 +142,8 @@ namespace Code.Animals
         }
 
         // Internal async method for testing (returns Task)
-        public async Task AttackAnimationHandlerAsync()
+        // Virtual to allow derived classes to override attack behavior
+        public virtual async Task AttackAnimationHandlerAsync()
         {
             var animal = GetComponent<Animal>();
             if (animal != null && animal.Type == AnimalType.Hedgehog) return;

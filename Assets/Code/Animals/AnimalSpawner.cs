@@ -58,7 +58,9 @@ namespace Code.Animals
 
                     if (animalType == AnimalType.Chicken)
                     {
-                        _factory.SpawnAdditionalChickens(animal as ChickenFacade);
+                        var additionalChickens = _factory.SpawnAdditionalChickens(animal as ChickenFacade);
+                        _animals.AddRange(additionalChickens);
+                        Debug.Log($"[AnimalSpawner] Added {additionalChickens.Count} additional chickens to tracked animals list");
                     }
                 }
             }

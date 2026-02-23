@@ -12,6 +12,7 @@ namespace Code.Animals
         private static readonly int IsDead = Animator.StringToHash("IsDead");
         private static readonly int Jump = Animator.StringToHash("Jump");
         private static readonly int CounterAttack = Animator.StringToHash("CounterAttack");
+        private static readonly int IsFlapping = Animator.StringToHash("IsFlapping");
 
         [SerializeField] private Animator _animator;
         [SerializeField] private AnimationClip _attackClip;
@@ -57,6 +58,12 @@ namespace Code.Animals
         {
             if (_animator != null)
                 _animator.SetTrigger(CounterAttack);
+        }
+
+        public void SetEnableFlappingAnimation(bool enable)
+        {
+            if(_animator != null)
+                _animator.SetBool(IsFlapping, enable);
         }
     }
 }

@@ -3229,7 +3229,7 @@ GameObject:
   - component: {fileID: 2625316185218295111}
   - component: {fileID: 327604789470708961}
   - component: {fileID: 2268602994252335252}
-  - component: {fileID: 6001984786781424374}
+  - component: {fileID: 7262354583359878077}
   m_Layer: 20
   m_Name: Chicken
   m_TagString: Untagged
@@ -3304,7 +3304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 2959273021189481600}
-  _attackClip: {fileID: 0}
+  _attackClip: {fileID: 7400000, guid: 9327532b240a447a8b4c59dda9ba1b3f, type: 2}
 --- !u!114 &7601560266156037780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3347,7 +3347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _type: 5
   _animator: {fileID: 7601560266156037777}
-  _attack: {fileID: 6001984786781424374}
+  _attack: {fileID: 7262354583359878077}
   _upgrade: {fileID: 327604789470708961}
   _colliders:
   - {fileID: 5246058216442431492}
@@ -3366,7 +3366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _health: {fileID: 7601560266156037780}
-  _attack: {fileID: 6001984786781424374}
+  _attack: {fileID: 7262354583359878077}
   _movement: {fileID: 2268602994252335252}
 --- !u!114 &2268602994252335252
 MonoBehaviour:
@@ -3393,7 +3393,7 @@ MonoBehaviour:
   _direction: 0
   _debugDrawPath: 1
   _currentPathNode: {fileID: 0}
---- !u!114 &6001984786781424374
+--- !u!114 &7262354583359878077
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3402,7 +3402,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7601560266156037781}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 12352e990d744bdb830278f96809b158, type: 3}
+  m_Script: {fileID: 11500000, guid: 5cc23006dfd709547bd6ad2a5e00b17d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 7601560266156037777}
@@ -3410,11 +3410,16 @@ MonoBehaviour:
   _radius: 0.5
   _forwardReach: 0.25
   _damage: 50
-  _maxTargets: 5
+  _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 8388608
   _isAoE: 0
+  _dashDuration: 0.3
+  _returnDuration: 0.2
+  _dashEase: 6
+  _returnEase: 5
+  _dashDistance: 2
 --- !u!1 &7896776257376972902
 GameObject:
   m_ObjectHideFlags: 0

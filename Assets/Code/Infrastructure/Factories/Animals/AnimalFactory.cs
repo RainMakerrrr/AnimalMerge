@@ -49,13 +49,16 @@ namespace Code.Infrastructure.Factories.Animals
         /// <summary>
         /// CHICKEN FEATURE: Spawns 3 additional chickens near the main chicken
         /// and registers them as neighbors for future "remove all" functionality.
+        /// Returns list of created chickens (without the main chicken).
         /// </summary>
-        public void SpawnAdditionalChickens(ChickenFacade mainChicken)
+        public List<ChickenFacade> SpawnAdditionalChickens(ChickenFacade mainChicken)
         {
+            var additionalChickens = new List<ChickenFacade>();
+
             if (mainChicken == null)
             {
                 Debug.LogWarning("[AnimalFactory] SpawnAdditionalChickens called with null mainChicken");
-                return;
+                return additionalChickens;
             }
 
             // Find 3 free neighboring cells
@@ -63,20 +66,19 @@ namespace Code.Infrastructure.Factories.Animals
             if (mainCell == null)
             {
                 Debug.LogWarning("[AnimalFactory] Main chicken has no CurrentPathNode - cannot spawn neighbors");
-                return;
+                return additionalChickens;
             }
 
             var freeCells = FindFreeNeighborCells(mainCell, 3);
             if (freeCells.Count == 0)
             {
                 Debug.LogWarning("[AnimalFactory] No free cells found for additional chickens");
-                return;
+                return additionalChickens;
             }
 
             Debug.Log($"[AnimalFactory] Spawning {freeCells.Count} additional chickens near {mainChicken.name}");
 
             // Create additional chickens at the free cells
-            var additionalChickens = new List<ChickenFacade>();
             foreach (var cell in freeCells)
             {
                 var chicken = CreateChickenAtCell(cell);
@@ -89,7 +91,7 @@ namespace Code.Infrastructure.Factories.Animals
             if (additionalChickens.Count == 0)
             {
                 Debug.LogWarning("[AnimalFactory] Failed to create any additional chickens");
-                return;
+                return additionalChickens;
             }
 
             // Register neighbors: all 4 chickens know about each other
@@ -105,6 +107,7 @@ namespace Code.Infrastructure.Factories.Animals
             }
 
             Debug.Log($"[AnimalFactory] Successfully created {additionalChickens.Count} additional chickens with neighbor tracking");
+            return additionalChickens;
         }
 
         /// <summary>

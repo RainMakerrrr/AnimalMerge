@@ -1,4 +1,5 @@
-﻿using Code.Animals;
+﻿using System.Collections.Generic;
+using Code.Animals;
 using Code.Animals.Facades;
 using Code.GridPathfinding;
 
@@ -12,8 +13,9 @@ namespace Code.Infrastructure.Factories.Animals
         /// <summary>
         /// CHICKEN FEATURE: Spawns 3 additional chickens near the main chicken
         /// and registers them as neighbors for future "remove all" functionality.
+        /// Returns list of created chickens (without the main chicken).
         /// </summary>
-        void SpawnAdditionalChickens(ChickenFacade mainChicken);
+        List<ChickenFacade> SpawnAdditionalChickens(ChickenFacade mainChicken);
 
         void SetMergeGrid(IGridManager mergeGrid);
     }
