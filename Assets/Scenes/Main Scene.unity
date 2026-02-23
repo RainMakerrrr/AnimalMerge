@@ -1844,6 +1844,7 @@ GameObject:
   - component: {fileID: 2088146935}
   - component: {fileID: 2088146936}
   - component: {fileID: 2088146937}
+  - component: {fileID: 2088146938}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1868,6 +1869,7 @@ MonoBehaviour:
   - {fileID: 2088146935}
   - {fileID: 2088146936}
   - {fileID: 2088146937}
+  - {fileID: 2088146938}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1940,7 +1942,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5039dfd670f04d94ea22289e2e232521, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gridManager: {fileID: 1536527367}
+  _mergeGridManager: {fileID: 12922331}
+  _gameGridManager: {fileID: 1536527367}
+--- !u!114 &2088146938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088146932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e69381d10de974da31464c47ac79a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2102332266
 GameObject:
   m_ObjectHideFlags: 0
@@ -1988,7 +2003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mergeGrid: {fileID: 12922331}
   _gameGrid: {fileID: 1536527367}
-  _animalTypes: 010000000300000000000000
+  _animalTypes: 05000000010000000300000000000000
 --- !u!114 &2102332269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2829,6 +2844,7 @@ MonoBehaviour:
   _mask:
     serializedVersion: 2
     m_Bits: 1048576
+  _isAoE: 0
 --- !u!114 &57357053369636905
 MonoBehaviour:
   m_ObjectHideFlags: 0

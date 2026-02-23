@@ -45,8 +45,8 @@ namespace Code.Animals.Merge
             if (animal.Type == _facade.Type)
             {
                 // Same-type merge: apply formula (HP1 + HP2) × 0.75
-                float combinedHP = (animal.GetMaxHealth() + _facade.GetMaxHealth()) * 0.75f;
-                float combinedDamage = (animal.GetDamage() + _facade.GetDamage()) * 0.75f;
+                var combinedHP = (animal.GetMaxHealth() + _facade.GetMaxHealth()) * 0.75f;
+                var combinedDamage = (animal.GetDamage() + _facade.GetDamage()) * 0.75f;
 
                 _facade.SetHealth(combinedHP);
                 _facade.SetDamage(combinedDamage);
@@ -56,10 +56,14 @@ namespace Code.Animals.Merge
             else
             {
                 // Different-type merge: apply skills as usual
-                animal.MergeSkill.Merge(_facade, animal);
+                if (!animal.MergeSkill.Merge(_facade, animal))
+                {
+                    Debug.LogWarning($"[MergeTarget] Merge failed for {animal.Type} into {_facade.Type}. Animal not consumed.");
+                    return false;
+                }
             }
 
-            // Visual effects are invoked in any case
+            // Visual effects are invoked only if merge succeeded
             Merge?.Invoke(types);
 
             // Deactivate merged animal

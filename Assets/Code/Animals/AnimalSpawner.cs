@@ -30,6 +30,7 @@ namespace Code.Animals
         private void Start()
         {
             _factory.Load();
+            _factory.SetMergeGrid(_mergeGrid);
         }
 
         private int _counter;
@@ -54,6 +55,11 @@ namespace Code.Animals
                     _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
 
                     _counter++;
+
+                    if (animalType == AnimalType.Chicken)
+                    {
+                        _factory.SpawnAdditionalChickens(animal as ChickenFacade);
+                    }
                 }
             }
         }

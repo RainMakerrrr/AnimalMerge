@@ -101,7 +101,7 @@ namespace Code.Animals.Movement
         [Inject]
         private void Construct(
             IPathfindingService pathfinder,
-            IGridManager gridManager,
+            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager,
             IAnimalFactory animalFactory,
             ITargetDetector targetDetector)
         {
@@ -120,7 +120,6 @@ namespace Code.Animals.Movement
         private void Start()
         {
             RotateToTarget(DirectionToVector3(_direction));
-            _ability = new MultipleCharacters(this, _gridManager, _animalFactory, AnimalType.Chicken, 3);
         }
 
         public void Place(Vector3 position)

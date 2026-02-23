@@ -19,7 +19,7 @@ namespace Code
         public IReadOnlyList<AnimalFacade> AnimalInstances => _animalsInstances;
 
         [Inject]
-        private void Construct(IGridManager gridManager)
+        private void Construct([Inject(Id = GridIdentifier.GameGrid)]IGridManager gridManager)
         {
             _gridManager = gridManager;
         }

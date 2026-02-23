@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Code.GridPathfinding;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Animals.Movement
 {
@@ -13,7 +14,7 @@ namespace Code.Animals.Movement
     {
         private readonly IGridManager _gridManager;
 
-        public TargetPositionCalculator(IGridManager gridManager)
+        public TargetPositionCalculator([Inject(Id = GridIdentifier.GameGrid)]IGridManager gridManager)
         {
             _gridManager = gridManager;
         }

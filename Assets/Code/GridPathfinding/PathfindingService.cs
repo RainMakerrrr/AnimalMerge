@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Code.GridPathfinding
 {
@@ -16,7 +17,7 @@ namespace Code.GridPathfinding
         private readonly HashSet<IGridCell> _closedSet = new HashSet<IGridCell>();
         private readonly List<IGridCell> _neighbors = new List<IGridCell>(4);
 
-        public PathfindingService(IGridManager gridManager)
+        public PathfindingService([Inject(Id = GridIdentifier.GameGrid)]IGridManager gridManager)
         {
             _gridManager = gridManager;
         }

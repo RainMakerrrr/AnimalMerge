@@ -528,11 +528,11 @@ namespace Code.GridPathfinding
             UnitSize unitSize = animalType switch
             {
                 AnimalType.Elephant => new UnitSize(2, 2),  // 2x2 (Big) - 4 cells
+                AnimalType.Chicken => new UnitSize(1, 1),   // 1x1 (Small) - Each chicken is 1x1 (4 chickens = ChickenGroup)
                 AnimalType.Cheetah => new UnitSize(1, 2),   // 1x2 (Medium) - 2 adjacent cells
                 AnimalType.Deer => new UnitSize(1, 2),      // 1x2 (Medium) - 2 adjacent cells
                 AnimalType.Fox => new UnitSize(1, 2),       // 1x2 (Medium) - 2 adjacent cells
                 AnimalType.Hedgehog => new UnitSize(1, 2),  // 1x2 (Medium) - 2 adjacent cells
-                AnimalType.Chicken => new UnitSize(1, 1),   // 1x1 (Small) - 1 cell
                 _ => new UnitSize(1, 1)  // Default fallback
             };
 
