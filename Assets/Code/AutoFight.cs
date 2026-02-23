@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Facades;
@@ -104,7 +105,23 @@ namespace Code
 
         private async Task MoveUnits(IEnumerable<AnimalFacade> animals, string layerMask)
         {
-            foreach (AnimalFacade animal in animals)
+            // Sort units by turn priority using grid positions: rows first, then columns
+            // Reading order: complete each row from left to right before moving to next row
+            var sortedAnimals = animals
+                .Where(a => a != null && a.gameObject != null)
+                .OrderBy(a => a.Movement?.CurrentPathNode?.GridPosition.x ?? 0)  // Top to bottom (rows) - higher Y first
+                .ThenByDescending(a => a.Movement?.CurrentPathNode?.GridPosition.y ?? 0)            // Left to right (columns in each row)
+                .ToList();
+
+            Debug.Log($"[AutoFight] Turn order for {sortedAnimals.Count} units:");
+            for (int i = 0; i < sortedAnimals.Count; i++)
+            {
+                var animal = sortedAnimals[i];
+                var gridPos = animal.Movement?.CurrentPathNode?.GridPosition;
+                Debug.Log($"  {i + 1}. {animal.name} at Grid({gridPos?.x ?? -1}, {gridPos?.y ?? -1}) World(X={animal.transform.position.x:F2}, Z={animal.transform.position.z:F2})");
+            }
+
+            foreach (AnimalFacade animal in sortedAnimals)
             {
                 if (animal.GetComponent<IDamageable>().IsDead) continue;
 
