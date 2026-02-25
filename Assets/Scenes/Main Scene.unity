@@ -2003,7 +2003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mergeGrid: {fileID: 12922331}
   _gameGrid: {fileID: 1536527367}
-  _animalTypes: 05000000010000000300000000000000
+  _animalTypes: 01000000050000000300000000000000
 --- !u!114 &2102332269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3003,6 +3003,7 @@ MonoBehaviour:
   _sizeEffectY: 2
   _direction: 2
   _debugDrawPath: 1
+  _rotationSpeed: 10
   _currentPathNode: {fileID: 0}
 --- !u!4 &57357053394173876
 Transform:

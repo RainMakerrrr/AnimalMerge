@@ -20,5 +20,11 @@ namespace Code.Animals.Movement
         /// Проиграть анимацию прыжка (для уклонения)
         /// </summary>
         void PlayJumpAnimation();
+
+        /// <summary>
+        /// Обновить направление поворота для плавного Blend Tree
+        /// </summary>
+        /// <param name="direction">Направление поворота (-1 = влево, 0 = прямо, 1 = вправо)</param>
+        void UpdateTurnDirection(float direction);
     }
 }

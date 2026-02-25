@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,8 +31,19 @@ namespace Code.Animals.Movement
         [SerializeField] private int _sizeEffectY;
         [SerializeField] private Direction _direction = Direction.North;
         [SerializeField] private bool _debugDrawPath = true;
+        [SerializeField] private float _rotationSpeed = 10f;
+        [SerializeField] private float _turnAnimationDuration = 0.5f;
+        [SerializeField] private float _turnDirectionSmoothSpeed = 4f;
+        [SerializeField] private float _turnAmplification = 1.3f;
+        [SerializeField] private float _turnAngleThreshold = 10f;
 
         private Vector3[] _debugPathPoints;
+        private Quaternion _targetRotation;
+        private bool _isMoving;
+        private Vector3 _previousMoveDirection;
+        private float _turnAnimationTimer;
+        private float _currentTurnDirection;
+        private float _targetTurnDirection;
 
         public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
@@ -119,7 +131,13 @@ namespace Code.Animals.Movement
 
         private void Start()
         {
+            _targetRotation = transform.rotation;
             RotateToTarget(DirectionToVector3(_direction));
+        }
+
+        private void Update()
+        {
+            UpdateTurnDirectionAnimation();
         }
 
         public void Place(Vector3 position)
@@ -281,12 +299,90 @@ namespace Code.Animals.Movement
 
 
 
+        private void UpdateTurnDirectionAnimation()
+        {
+            if (Mathf.Abs(_currentTurnDirection - _targetTurnDirection) > 0.01f)
+            {
+                _currentTurnDirection = Mathf.Lerp(
+                    _currentTurnDirection,
+                    _targetTurnDirection,
+                    Time.deltaTime * _turnDirectionSmoothSpeed
+                );
+
+                _movementAnimator.UpdateTurnDirection(_currentTurnDirection);
+            }
+        }
+
+        private void CalculateTurnDirection(Vector3 currentWaypoint, Vector3 nextWaypoint)
+        {
+            var direction = (nextWaypoint - currentWaypoint).normalized;
+
+            if (direction.sqrMagnitude < 0.01f) return;
+
+            var baseDirection = DirectionToVector3(_direction);
+            var angle = Vector3.SignedAngle(baseDirection, direction, Vector3.up);
+
+            if (Mathf.Abs(angle) > _turnAngleThreshold)
+            {
+                _targetTurnDirection = Mathf.Clamp((angle / 90f) * _turnAmplification, -1f, 1f);
+                _turnAnimationTimer = _turnAnimationDuration;
+            }
+            else
+            {
+                _targetTurnDirection = 0f;
+            }
+
+            _previousMoveDirection = direction;
+            _targetRotation = Quaternion.LookRotation(direction);
+        }
+
+        private void UpdateTurnTimer()
+        {
+            if (_turnAnimationTimer > 0f)
+            {
+                _turnAnimationTimer -= Time.deltaTime;
+
+                if (_turnAnimationTimer <= 0f)
+                {
+                    _targetTurnDirection = 0f;
+                }
+            }
+        }
+
+        private void ApplyRotation()
+        {
+            if (Quaternion.Angle(transform.rotation, _targetRotation) > 0.1f)
+            {
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    _targetRotation,
+                    Time.deltaTime * _rotationSpeed
+                );
+            }
+        }
 
         public void RotateToTarget(Vector3 target)
         {
-            if (target != Vector3.zero)
+            if (target == Vector3.zero) return;
+
+            transform.rotation = Quaternion.LookRotation(target);
+        }
+
+        private IEnumerator RotateToTargetAsync(Vector3 target)
+        {
+            if (target == Vector3.zero) yield break;
+
+            var targetRotation = Quaternion.LookRotation(target);
+
+            while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
             {
-                transform.rotation = Quaternion.LookRotation(target);
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    targetRotation,
+                    Time.deltaTime * _rotationSpeed
+                );
+
+                yield return null;
             }
         }
 
@@ -341,23 +437,35 @@ namespace Code.Animals.Movement
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
             _unitOccupancy.ClearOccupancy();
+            _isMoving = true;
+            _previousMoveDirection = Vector3.zero;
+            _currentTurnDirection = 0f;
+            _targetTurnDirection = 0f;
 
             var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
                 {
-                    if (i >= pathPositions.Length) return;
-                    var direction = (transform.position - pathPositions[i]);
-                    RotateToTarget(direction);
+                    var nextIndex = i + 1;
+                    if (nextIndex >= pathPositions.Length) return;
+
+                    CalculateTurnDirection(pathPositions[i], pathPositions[nextIndex]);
                 })
-                .OnUpdate(() => _movementAnimator.PlayMovementAnimation(1f))
+                .OnUpdate(() =>
+                {
+                    ApplyRotation();
+                    UpdateTurnTimer();
+                    _movementAnimator.PlayMovementAnimation(1f);
+                })
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
-                    RotateToTarget(DirectionToVector3(_direction));
+                    _isMoving = false;
+                    StartCoroutine(RotateToTargetAsync(DirectionToVector3(_direction)));
                     _movementAnimator.StopMovementAnimation();
+                    _targetTurnDirection = 0f;
                     _debugPathPoints = null;
                 });
-            
+
             await tween.AsyncWaitForCompletion();
         }
 
@@ -390,6 +498,8 @@ namespace Code.Animals.Movement
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
+            _isMoving = true;
+
             var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
                 .OnWaypointChange(i =>
                 {
@@ -399,6 +509,7 @@ namespace Code.Animals.Movement
                 })
                 .OnComplete(() =>
                 {
+                    _isMoving = false;
                     RotateToTarget(Vector3.forward);
                     _debugPathPoints = null;
                 });

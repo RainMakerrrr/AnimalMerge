@@ -13,9 +13,16 @@ namespace Code.Animals
         private static readonly int Jump = Animator.StringToHash("Jump");
         private static readonly int CounterAttack = Animator.StringToHash("CounterAttack");
         private static readonly int IsFlapping = Animator.StringToHash("IsFlapping");
+        private static readonly int TurnDirection = Animator.StringToHash("TurnDirection");
 
         [SerializeField] private Animator _animator;
         [SerializeField] private AnimationClip _attackClip;
+
+        private void Awake()
+        {
+            if (_animator != null)
+                _animator.SetFloat(TurnDirection, 0f);
+        }
 
         public async Task WaitForAttackAnimation()
         {
@@ -64,6 +71,16 @@ namespace Code.Animals
         {
             if(_animator != null)
                 _animator.SetBool(IsFlapping, enable);
+        }
+
+        public void UpdateTurnDirection(float direction)
+        {
+            if (_animator == null) return;
+
+            // Clamp to [-1, 1]
+            Debug.Log($"[TurnAnimation] name - {name}, direction - {direction}");
+            var clampedDirection = Mathf.Clamp(direction, -1f, 1f);
+            _animator.SetFloat(TurnDirection, clampedDirection);
         }
     }
 }

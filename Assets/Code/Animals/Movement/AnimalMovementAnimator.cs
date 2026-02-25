@@ -29,5 +29,10 @@ namespace Code.Animals.Movement
         {
             _animator.JumpAnimation();
         }
+
+        public void UpdateTurnDirection(float direction)
+        {
+            _animator.UpdateTurnDirection(direction);
+        }
     }
 }
