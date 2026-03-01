@@ -1,3 +1,4 @@
+using Code.Infrastructure.States;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.Services.Analytics;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
@@ -54,9 +55,9 @@ namespace Framework.Code.Infrastructure.States
 
             if (currentLevel != null)
                 analyticsService.LevelStarted(currentLevel.Id, progressService.Progress.Level);
-            
+
             windowPool.DisableWindows(WindowType.Tutorial);
-            stateMachine.Enter<GameLoopState>();
+            stateMachine.Enter<BattleLoopState>();
         }
 
         void UpdateUI()

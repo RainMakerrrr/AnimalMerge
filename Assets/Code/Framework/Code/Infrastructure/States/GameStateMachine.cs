@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Code.Battle;
+using Code.Infrastructure.States;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.Services.Analytics;
 using Framework.Code.Infrastructure.Services.Assets;
@@ -21,7 +23,8 @@ namespace Framework.Code.Infrastructure.States
 
         public GameStateMachine(ISaveLoadService saveLoad, IPersistentProgressService progressService,
             ILevelFactory levelFactory, WindowPool windowPool,
-            UIRoot uiRoot, IAnalyticsService analyticsService, IAssetProvider assetProvider, SignalBus signalBus)
+            UIRoot uiRoot, IAnalyticsService analyticsService, IAssetProvider assetProvider, SignalBus signalBus,
+            BattleFlowController battleFlowController)
         {
             this.signalBus = signalBus;
             states = new Dictionary<Type, IBaseState>
@@ -33,7 +36,7 @@ namespace Framework.Code.Infrastructure.States
                         analyticsService)
                 },
                 {typeof(LoadProgressState), new LoadProgressState(this, progressService, saveLoad)},
-                {typeof(GameLoopState), new GameLoopState()},
+                {typeof(BattleLoopState), new BattleLoopState(battleFlowController, levelFactory)},
                 {
                     typeof(WinState),
                     new WinState(this, windowPool, progressService, saveLoad, analyticsService, levelFactory,
