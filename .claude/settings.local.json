@@ -70,7 +70,10 @@
       "Bash(ls:*)",
       "Bash(powershell -Command \"Get-ChildItem -Filter ''*.FBX'' | Where-Object {$_Name -like ''*Walk*''} | Select-Object -ExpandProperty Name\")",
       "Bash(powershell -Command:*)",
-      "mcp__ai-game-developer__assets-find-built-in"
+      "mcp__ai-game-developer__assets-find-built-in",
+      "Bash(grep:*)",
+      "Bash(del \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Battle\\\\BattleInitializer.cs\")",
+      "Bash(git log:*)"
     ]
   }
 }

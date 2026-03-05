@@ -13,4 +13,7 @@ MonoBehaviour:
   m_Name: LevelDatabase
   m_EditorClassIdentifier: 
   tutorialLevels: []
-  levels: []
+  levels:
+  - Level_1
+  - Level_2
+  - Level_3
