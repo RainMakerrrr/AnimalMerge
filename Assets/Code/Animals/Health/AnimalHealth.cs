@@ -147,5 +147,11 @@ namespace Code.Animals.Health
             
             Destroy(gameObject);
         }
+
+        public void Restore(float amount)
+        {
+            Current = Mathf.Min(Current + amount, Max);
+            Debug.Log($"[AnimalHealth] {name} restored {amount} health, now at {Current}/{Max}");
+        }
     }
 }

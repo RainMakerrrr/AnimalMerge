@@ -16,8 +16,7 @@ namespace Code.Animals
         [SerializeField] private AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
         private IAnimalFactory _factory;
-
-
+        
         private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
         public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal != null && animal.gameObject != null && animal.gameObject.activeInHierarchy).ToList();
 
@@ -27,41 +26,79 @@ namespace Code.Animals
             _factory = factory;
         }
 
-        private void Start()
+        private void SpawnInitialAnimals()
+        {
+            Debug.Log($"[AnimalSpawner] Spawning {_animalTypes.Length} initial animals");
+
+            foreach (var animalType in _animalTypes)
+            {
+                SpawnAnimal(animalType);
+            }
+
+            Debug.Log($"[AnimalSpawner] Spawned {_animals.Count} animals total");
+        }
+
+        private void SpawnAnimal(AnimalType animalType)
+        {
+            if (!_mergeGrid.HasCellFor(animalType))
+            {
+                Debug.LogWarning($"[AnimalSpawner] No free cell for {animalType}, skipping");
+                return;
+            }
+
+            var animal = _factory.Create(animalType);
+            _animals.Add(animal);
+
+            // Subscribe to removal event to clean up list when animal is merged/destroyed
+            animal.OnRemoved += OnAnimalRemoved;
+
+            _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
+
+            Debug.Log($"[AnimalSpawner] Spawned {animalType} at {animal.Movement.CurrentPathNode.GridPosition}");
+
+            // Handle special case for Chicken (spawns additional units)
+            if (animalType == AnimalType.Chicken)
+            {
+                var additionalChickens = _factory.SpawnAdditionalChickens(animal as ChickenFacade);
+                foreach (var chicken in additionalChickens)
+                {
+                    chicken.OnRemoved += OnAnimalRemoved;
+                }
+                _animals.AddRange(additionalChickens);
+                Debug.Log($"[AnimalSpawner] Spawned {additionalChickens.Count} additional chickens");
+            }
+        }
+
+        public void SpawnAnimals()
         {
             _factory.Load();
             _factory.SetMergeGrid(_mergeGrid);
+            SpawnInitialAnimals();
         }
 
-        private int _counter;
-
-        private void Update()
+        private void OnAnimalRemoved(AnimalFacade animal)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (_animals.Remove(animal))
             {
-                if (_counter >= _animalTypes.Length)
+                Debug.Log($"[AnimalSpawner] Removed {animal.name} from spawner list. Remaining: {_animals.Count}");
+            }
+            else
+            {
+                Debug.LogWarning($"[AnimalSpawner] Tried to remove {animal.name} but it wasn't in the list");
+            }
+
+            // Unsubscribe to prevent memory leaks
+            animal.OnRemoved -= OnAnimalRemoved;
+        }
+
+        private void OnDestroy()
+        {
+            // Unsubscribe from all animals to prevent memory leaks
+            foreach (var animal in _animals)
+            {
+                if (animal != null)
                 {
-                    _counter = 0;
-                }
-
-                AnimalType animalType = _animalTypes[_counter];
-
-                if (_mergeGrid.HasCellFor(animalType))
-                {
-                    AnimalFacade animal = _factory.Create(animalType);
-                    _animals.Add(animal);
-                    //animal.transform.position = _spawnPoint;
-
-                    _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
-
-                    _counter++;
-
-                    if (animalType == AnimalType.Chicken)
-                    {
-                        var additionalChickens = _factory.SpawnAdditionalChickens(animal as ChickenFacade);
-                        _animals.AddRange(additionalChickens);
-                        Debug.Log($"[AnimalSpawner] Added {additionalChickens.Count} additional chickens to tracked animals list");
-                    }
+                    animal.OnRemoved -= OnAnimalRemoved;
                 }
             }
         }

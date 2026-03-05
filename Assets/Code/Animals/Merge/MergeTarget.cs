@@ -66,6 +66,9 @@ namespace Code.Animals.Merge
             // Visual effects are invoked only if merge succeeded
             Merge?.Invoke(types);
 
+            // Notify that animal is being removed (before deactivation)
+            animal.NotifyRemoved();
+
             // Deactivate merged animal
             animal.gameObject.SetActive(false);
 

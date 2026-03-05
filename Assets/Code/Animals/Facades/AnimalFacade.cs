@@ -24,6 +24,11 @@ namespace Code.Animals.Facades
 
         protected IRandomProvider _randomProvider;
 
+        /// <summary>
+        /// Event fired when this animal is about to be removed (merged or destroyed)
+        /// </summary>
+        public event Action<AnimalFacade> OnRemoved;
+
         public IDamageable Damageable => _health;
         public ITransformable Transformable => _movement;
         public AnimalType Type => _type;
@@ -35,6 +40,7 @@ namespace Code.Animals.Facades
         public AnimalAnimator Animator => _animator;
 
         public IRandomProvider RandomProvider => _randomProvider;
+        public bool IsBoss { get; set; }
         
         [Inject]
         private void Construct(IRandomProvider randomProvider)
@@ -54,6 +60,12 @@ namespace Code.Animals.Facades
         {
             InitBehaviours();
             _health.Construct(_colliders);
+            _health.Died += NotifyRemoved;
+        }
+
+        private void OnDestroy()
+        {
+            _health.Died -= NotifyRemoved;
         }
 
         public abstract void InitBehaviours();
@@ -95,5 +107,14 @@ namespace Code.Animals.Facades
         public void SetHealth(float newMaxHealth) => _health.SetMaxHealth(newMaxHealth);
 
         public void SetDamage(float newDamage) => _attack.SetDamage(newDamage);
+
+        /// <summary>
+        /// Notifies subscribers that this animal is about to be removed (merged or destroyed)
+        /// Call this before deactivating/destroying the GameObject
+        /// </summary>
+        public void NotifyRemoved()
+        {
+            OnRemoved?.Invoke(this);
+        }
     }
 }
