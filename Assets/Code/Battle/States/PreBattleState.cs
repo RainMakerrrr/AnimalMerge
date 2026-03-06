@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Code.Animals;
@@ -47,23 +48,50 @@ namespace Code.Battle.States
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            // Spawn player units only if they don't exist yet (first stage)
-            var existingPlayerUnits = _unitTracker.GetAlivePlayerUnits();
-            if (existingPlayerUnits.Count == 0)
+            // Handle unit spawning based on whether this is first stage of level
+            if (_flowController.IsFirstStageOfLevel)
             {
-                _animalSpawner.SpawnAnimals();
+                // This is the first stage of a level
+                bool hasExistingUnits = _animalSpawner.Animals.Count > 0;
 
-                // Register spawned player units with tracker
-                foreach (var playerUnit in _animalSpawner.Animals)
+                if (!hasExistingUnits)
                 {
-                    _unitTracker.RegisterPlayerUnit(playerUnit);
+                    // Very first level - spawn initial units
+                    _animalSpawner.SpawnAnimals();
+
+                    // Register spawned player units with tracker
+                    foreach (var playerUnit in _animalSpawner.Animals)
+                    {
+                        _unitTracker.RegisterPlayerUnit(playerUnit);
+                    }
+
+                    Debug.Log($"[PreBattleState] First Level - Spawned and registered {_animalSpawner.Animals.Count} initial player units");
+                }
+                else
+                {
+                    // Subsequent level - spawn 1 random reinforcement
+                    Debug.Log($"[PreBattleState] New Level - {_animalSpawner.Animals.Count} existing units, spawning 1 random reinforcement");
+
+                    var beforeCount = _animalSpawner.Animals.Count;
+                    _animalSpawner.SpawnRandomAnimal();
+
+                    // Register newly spawned unit with tracker
+                    var newUnits = _animalSpawner.Animals.Skip(beforeCount).ToList();
+                    foreach (var newUnit in newUnits)
+                    {
+                        _unitTracker.RegisterPlayerUnit(newUnit);
+                    }
+
+                    Debug.Log($"[PreBattleState] Spawned {newUnits.Count} reinforcement unit(s)");
                 }
 
-                Debug.Log($"[PreBattleState] Spawned and registered {_animalSpawner.Animals.Count} player units");
+                // Mark that we've processed the first stage of this level
+                _flowController.MarkFirstStageProcessed();
             }
             else
             {
-                Debug.Log($"[PreBattleState] {existingPlayerUnits.Count} player units already exist - skipping spawn");
+                // Subsequent stages within the same level - no new spawns
+                Debug.Log($"[PreBattleState] Stage {_flowController.CurrentStageIndex + 1} of current level - no new spawns, using existing units");
             }
 
             // Get current stage configuration

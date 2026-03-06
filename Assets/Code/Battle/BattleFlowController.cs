@@ -16,9 +16,11 @@ namespace Code.Battle
 
         private ExtendedLevel _currentLevel;
         private int _currentStageIndex;
+        private bool _isFirstStageOfLevel;
 
         public ExtendedLevel CurrentLevel => _currentLevel;
         public int CurrentStageIndex => _currentStageIndex;
+        public bool IsFirstStageOfLevel => _isFirstStageOfLevel;
 
         public BattleFlowController(
             IUnitTracker unitTracker,
@@ -43,6 +45,7 @@ namespace Code.Battle
 
             _currentLevel = level;
             _currentStageIndex = 0;
+            _isFirstStageOfLevel = true;
 
             Debug.Log($"[BattleFlowController] Starting battle for level {level.Id} with {level.Stages?.Length ?? 0} stages");
 
@@ -76,7 +79,13 @@ namespace Code.Battle
         public void AdvanceToNextStage()
         {
             _currentStageIndex++;
+            _isFirstStageOfLevel = false;
             Debug.Log($"[BattleFlowController] Advanced to stage {_currentStageIndex}");
+        }
+
+        public void MarkFirstStageProcessed()
+        {
+            _isFirstStageOfLevel = false;
         }
 
         public bool HasMoreStages()
@@ -94,6 +103,7 @@ namespace Code.Battle
             _enemySpawnService.ClearEnemies();
             _currentLevel = null;
             _currentStageIndex = 0;
+            _isFirstStageOfLevel = false;
         }
 
         public async Task CleanupAsync()

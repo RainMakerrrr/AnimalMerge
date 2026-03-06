@@ -76,6 +76,24 @@ namespace Code.Animals
             SpawnInitialAnimals();
         }
 
+        /// <summary>
+        /// Spawns one random animal from available types
+        /// </summary>
+        public void SpawnRandomAnimal()
+        {
+            if (_animalTypes.Length == 0)
+            {
+                Debug.LogWarning("[AnimalSpawner] No animal types configured");
+                return;
+            }
+
+            var randomIndex = Random.Range(0, _animalTypes.Length);
+            var randomType = _animalTypes[randomIndex];
+
+            Debug.Log($"[AnimalSpawner] Spawning random animal: {randomType}");
+            SpawnAnimal(randomType);
+        }
+
         private void OnAnimalRemoved(AnimalFacade animal)
         {
             if (_animals.Remove(animal))
