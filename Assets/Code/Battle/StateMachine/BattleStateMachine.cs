@@ -28,6 +28,7 @@ namespace Code.Battle.StateMachine
             ITurnExecutor turnExecutor,
             IVictoryConditionChecker victoryChecker,
             IHealthRestorationService healthRestoration,
+            IUnitRepositioningService unitRepositioning,
             Framework.Code.Infrastructure.States.GameStateMachine gameStateMachine,
             AnimalSpawner animalSpawner,
             StartBattleService startBattleService)
@@ -43,7 +44,7 @@ namespace Code.Battle.StateMachine
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },
                 { typeof(CheckVictoryState), new CheckVictoryState(this, victoryChecker, flowController) },
-                { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker) },
+                { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker, unitRepositioning) },
                 { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker) }
             };
 

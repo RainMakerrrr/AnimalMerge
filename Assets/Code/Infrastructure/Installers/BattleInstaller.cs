@@ -31,6 +31,7 @@ namespace Code.Infrastructure.Installers
             Container.Bind<ITurnExecutor>().To<TurnExecutor>().AsSingle();
             Container.Bind<IVictoryConditionChecker>().To<VictoryConditionChecker>().AsSingle();
             Container.Bind<IHealthRestorationService>().To<HealthRestorationService>().AsSingle();
+            Container.Bind<IUnitRepositioningService>().To<UnitRepositioningService>().AsSingle();
 
             // Battle start input system
             Container.Bind<StartBattleService>().AsSingle();

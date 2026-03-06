@@ -114,6 +114,13 @@ namespace Code.Animals.Facades
         /// </summary>
         public void NotifyRemoved()
         {
+            // Clear occupied grid cells before notifying about removal
+            if (_movement != null)
+            {
+                _movement.ClearNodes();
+                Debug.Log($"[AnimalFacade] Cleared grid cells for {name}");
+            }
+
             OnRemoved?.Invoke(this);
         }
     }
