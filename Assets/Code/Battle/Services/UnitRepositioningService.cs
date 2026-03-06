@@ -40,6 +40,9 @@ namespace Code.Battle.Services
                 // Clear current grid occupancy (on GameGrid)
                 unit.Movement.ClearNodes();
 
+                // Reset rotation to default
+                unit.transform.rotation = Quaternion.identity;
+
                 // Place on merge grid (automatically finds free position in bottom 2 rows)
                 var mergeGridManager = _mergeGrid as GridManager;
                 if (mergeGridManager != null)
