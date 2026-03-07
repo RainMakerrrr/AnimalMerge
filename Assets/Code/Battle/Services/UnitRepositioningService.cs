@@ -37,8 +37,11 @@ namespace Code.Battle.Services
                     continue;
                 }
 
+                Debug.Log($"[UnitRepositioningService] Processing {unit.name} - Active: {unit.gameObject.activeInHierarchy}, Dead: {unit.Health.IsDead}");
+
                 // Clear current grid occupancy (on GameGrid)
                 unit.Movement.ClearNodes();
+                Debug.Log($"[UnitRepositioningService] Cleared nodes for {unit.name}");
 
                 // Reset rotation to default
                 unit.transform.rotation = Quaternion.identity;
@@ -48,13 +51,15 @@ namespace Code.Battle.Services
                 if (mergeGridManager != null)
                 {
                     mergeGridManager.PlaceOnGrid(unit.Movement);
-                    Debug.Log($"[UnitRepositioningService] Repositioned {unit.name} to {unit.Movement.CurrentPathNode.GridPosition}");
+                    Debug.Log($"[UnitRepositioningService] Repositioned {unit.name} to {unit.Movement.CurrentPathNode.GridPosition} - Still active: {unit.gameObject.activeInHierarchy}");
                 }
                 else
                 {
                     Debug.LogError("[UnitRepositioningService] Failed to cast IGridManager to GridManager");
                 }
             }
+
+            Debug.Log($"[UnitRepositioningService] Repositioning complete. All units still exist and active.");
         }
     }
 }

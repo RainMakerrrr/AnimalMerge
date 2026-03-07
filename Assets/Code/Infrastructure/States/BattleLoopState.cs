@@ -49,8 +49,12 @@ namespace Code.Infrastructure.States
 
         public async void Exit()
         {
-            Debug.Log("[BattleLoopState] Exiting - Cleaning up battle");
-            await _battleFlowController.CleanupAsync();
+            Debug.Log("[BattleLoopState] Exiting");
+            // NOTE: Do NOT call CleanupAsync() here!
+            // BattleEndState already handles cleanup:
+            // - CleanupLevel() on victory (preserves player units for next level)
+            // - Cleanup() on defeat (full reset)
+            // Calling CleanupAsync() here would incorrectly clear player units between levels
         }
     }
 }

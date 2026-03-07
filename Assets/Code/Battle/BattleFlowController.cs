@@ -96,9 +96,25 @@ namespace Code.Battle
             return _currentStageIndex < _currentLevel.Stages.Length;
         }
 
+        /// <summary>
+        /// Partial cleanup - resets level state but keeps player units alive for next level
+        /// </summary>
+        public void CleanupLevel()
+        {
+            Debug.Log($"[BattleFlowController] Cleaning up current level (preserving {_unitTracker.AlivePlayerUnitsCount} player units)");
+            _enemySpawnService.ClearEnemies();
+            _currentLevel = null;
+            _currentStageIndex = 0;
+            _isFirstStageOfLevel = false;
+            Debug.Log($"[BattleFlowController] Level cleanup complete - {_unitTracker.AlivePlayerUnitsCount} player units still tracked");
+        }
+
+        /// <summary>
+        /// Full cleanup - resets everything including player units (used when exiting battle completely)
+        /// </summary>
         public void Cleanup()
         {
-            Debug.Log("[BattleFlowController] Cleaning up battle");
+            Debug.Log("[BattleFlowController] Full cleanup - resetting all battle state");
             _unitTracker.Reset();
             _enemySpawnService.ClearEnemies();
             _currentLevel = null;

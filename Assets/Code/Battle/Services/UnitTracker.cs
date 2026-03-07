@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals.Facades;
+using UnityEngine;
 
 namespace Code.Battle.Services
 {
@@ -78,6 +79,9 @@ namespace Code.Battle.Services
 
         public void Reset()
         {
+            Debug.LogWarning($"[UnitTracker] RESET called! Clearing {_playerUnits.Count} player units and {_enemyUnits.Count} enemy units");
+            Debug.LogWarning($"[UnitTracker] Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
+
             // Unsubscribe from all events
             foreach (var unit in _playerUnits.Where(u => u != null))
             {
@@ -93,6 +97,8 @@ namespace Code.Battle.Services
 
             _playerUnits.Clear();
             _enemyUnits.Clear();
+
+            Debug.LogWarning("[UnitTracker] Reset complete - all units cleared");
         }
 
         public void Dispose()

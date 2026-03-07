@@ -29,8 +29,9 @@ namespace Code.Battle.States
 
             var result = _victoryChecker.CheckBattleConditions();
 
-            // Cleanup battle resources
-            _flowController.Cleanup();
+            // Cleanup current level but preserve player units for next level
+            // Full cleanup will happen when player exits battle completely
+            _flowController.CleanupLevel();
 
             // Transition to appropriate game state
             if (result == BattleResult.Victory)

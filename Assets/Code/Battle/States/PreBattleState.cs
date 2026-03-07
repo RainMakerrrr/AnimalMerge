@@ -52,7 +52,10 @@ namespace Code.Battle.States
             if (_flowController.IsFirstStageOfLevel)
             {
                 // This is the first stage of a level
-                bool hasExistingUnits = _animalSpawner.Animals.Count > 0;
+                // IMPORTANT: Use UnitTracker instead of AnimalSpawner.Animals
+                // because AnimalSpawner.Animals filters by activeInHierarchy which is unreliable
+                bool hasExistingUnits = _unitTracker.AlivePlayerUnitsCount > 0;
+                Debug.Log($"[PreBattleState] First stage of level - AnimalSpawner.Animals.Count = {_animalSpawner.Animals.Count}, UnitTracker alive = {_unitTracker.AlivePlayerUnitsCount}");
 
                 if (!hasExistingUnits)
                 {
@@ -70,7 +73,8 @@ namespace Code.Battle.States
                 else
                 {
                     // Subsequent level - spawn 1 random reinforcement
-                    Debug.Log($"[PreBattleState] New Level - {_animalSpawner.Animals.Count} existing units, spawning 1 random reinforcement");
+                    Debug.Log($"[PreBattleState] New Level - {_animalSpawner.Animals.Count} existing units in AnimalSpawner, spawning 1 random reinforcement");
+                    Debug.Log($"[PreBattleState] Existing units in spawner: {string.Join(", ", _animalSpawner.Animals.Select(u => $"{u.name}(Active:{u.gameObject.activeInHierarchy})"))}");
 
                     var beforeCount = _animalSpawner.Animals.Count;
                     _animalSpawner.SpawnRandomAnimal();
@@ -83,6 +87,7 @@ namespace Code.Battle.States
                     }
 
                     Debug.Log($"[PreBattleState] Spawned {newUnits.Count} reinforcement unit(s)");
+                    Debug.Log($"[PreBattleState] Total units in tracker after registration: {_unitTracker.AlivePlayerUnitsCount}");
                 }
 
                 // Mark that we've processed the first stage of this level
@@ -92,6 +97,7 @@ namespace Code.Battle.States
             {
                 // Subsequent stages within the same level - no new spawns
                 Debug.Log($"[PreBattleState] Stage {_flowController.CurrentStageIndex + 1} of current level - no new spawns, using existing units");
+                Debug.Log($"[PreBattleState] Current units in tracker: {_unitTracker.AlivePlayerUnitsCount}");
             }
 
             // Get current stage configuration
