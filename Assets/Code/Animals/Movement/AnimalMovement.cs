@@ -55,6 +55,9 @@ namespace Code.Animals.Movement
 
         public GridCell _currentPathNode;
 
+        // Debug: target cell where unit is moving to
+        [SerializeField] private GridCell _debugTargetCell;
+
         public UnitSize UnitSize => _unitSize;
 
         public int SizeEffect => _sizeEffectY;
@@ -103,6 +106,14 @@ namespace Code.Animals.Movement
         private readonly List<AnimalMovement> _additionalAnimals = new List<AnimalMovement>();
 
         public void Upgrade(int multiplier) => _tilesPerMove *= multiplier;
+
+        /// <summary>
+        /// Sets the debug target cell for visualization
+        /// </summary>
+        public void SetDebugTargetCell(GridCell targetCell)
+        {
+            _debugTargetCell = targetCell;
+        }
 
         private void Awake()
         {
@@ -237,6 +248,22 @@ namespace Code.Animals.Movement
 
                 Gizmos.color = prev;
             }
+
+            // Draw debug target cell
+            if (_debugTargetCell != null)
+            {
+                var targetPos = _debugTargetCell.WorldPosition;
+                targetPos.y = _yPos + 0.5f; // Lift it up to be visible
+
+                // Draw a bright red wire cube
+                Gizmos.color = new Color(0f, 1f, 1f, 0.8f);
+                Gizmos.DrawWireCube(targetPos, Vector3.one);
+
+                // Draw a semi-transparent red cube
+                
+                Gizmos.color = new Color(0f, 1f, 1f, 0.3f);
+                Gizmos.DrawCube(targetPos, Vector3.one);
+            }
         }
 
         private List<GridCell> FindPath(Vector2Int[] points)
@@ -278,13 +305,21 @@ namespace Code.Animals.Movement
 
         public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
+            Debug.Log($"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
+
             var possiblePositions = _targetDetector.GetPossibleAttackPositions(
                 _currentPathNode, CurrentTarget, _unitSize, _direction);
+
+            Debug.Log($"[PathfindingDebug][Move] Possible positions: {string.Join(", ", possiblePositions.Select(p => $"({p.x},{p.y})"))}");
 
             var path = FindPath(possiblePositions);
             if (path == null || path.Count == 0) return;
 
+            Debug.Log($"[PathfindingDebug][Move] Path found: {string.Join(" -> ", path.Select(p => p.GridPosition))}");
+
             path = LimitPathBySpeed(path);
+
+            Debug.Log($"[PathfindingDebug][Move] Path after speed limit: {string.Join(" -> ", path.Select(p => p.GridPosition))}");
 
             await ExecuteMovement(path);
 
@@ -292,7 +327,7 @@ namespace Code.Animals.Movement
 
             if (_targetDetector.IsCloseToTarget(_currentPathNode, _nodes.Cast<IGridCell>().ToList(), CurrentTarget))
             {
-                RotateToTarget(target - transform.position);
+                RotateToTarget(CurrentTarget!.Transformable!.Position - transform.position);
                 await reachedTargetCallback?.Invoke()!;
             }
         }
@@ -460,7 +495,8 @@ namespace Code.Animals.Movement
                 .OnComplete(() =>
                 {
                     _isMoving = false;
-                    StartCoroutine(RotateToTargetAsync(DirectionToVector3(_direction)));
+                    RotateToTarget(DirectionToVector3(_direction));
+                    //StartCoroutine(RotateToTargetAsync(DirectionToVector3(_direction)));
                     _movementAnimator.StopMovementAnimation();
                     _targetTurnDirection = 0f;
                     _debugPathPoints = null;
@@ -490,7 +526,7 @@ namespace Code.Animals.Movement
                 new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
             };
         }
-
+        
         private async Task ExecuteDodgeMovement(List<GridCell> path)
         {
             _movementAnimator.PlayJumpAnimation();

@@ -1,3 +1,5 @@
+using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
@@ -296,5 +298,129 @@ namespace Code.Tests.EditorTests.GridPathfinding.TargetPositionCalculatorTests
                 }
             }
         }
+
+        #region Bug Fix 2026-03-10: Large Unit Position Prioritization
+
+        /// <summary>
+        /// Regression test for bug where Large units selected positions far from enemy
+        /// Bug: Elephant at (3,0) chose anchor (5,8) instead of (3,6) when attacking enemy at (3,8)-(4,9)
+        /// Root cause: Sorting only considered anchor point distance, not occupied cells distance
+        /// Fix: Changed sorting to use minimum distance from occupied cells to enemy
+        /// </summary>
+        [Test]
+        [Category("Regression")]
+        public void BugFix_20260310_LargeUnit_ChoosesClosestPosition()
+        {
+            // Arrange
+            var currentPos = new Vector2Int(3, 0);
+            var currentNode = _gridManager.GetCell(currentPos);
+
+            // Enemy 2×2 at (3,8)-(4,9)
+            var targetCells = new List<IGridCell>
+            {
+                _gridManager.GetCell(3, 8),
+                _gridManager.GetCell(4, 8),
+                _gridManager.GetCell(3, 9),
+                _gridManager.GetCell(4, 9)
+            };
+
+            var targetTransformable = Substitute.For<ITransformable>();
+            targetTransformable.GetOccupiedCells().Returns(targetCells);
+
+            var target = Substitute.For<ITarget>();
+            target.Transformable.Returns(targetTransformable);
+
+            GridTestHelper.SetupOccupiedCells(_gridManager, new Vector2Int(3, 8), new Vector2Int(4, 8),
+                new Vector2Int(3, 9), new Vector2Int(4, 9));
+
+            // Act
+            var positions = _calculator.GetPossibleAttackPositions(
+                currentNode,
+                target,
+                UnitSize.Large, // 2×2
+                Direction.North);
+
+            // Assert
+            positions.Should().NotBeEmpty("should find valid attack positions");
+
+            // Key assertion: (3, 6) should be first, NOT (5, 8)
+            // (3, 6) occupies (3,6), (4,6), (3,7), (4,7) → cell (3,7) is adjacent to enemy (3,8)
+            // (5, 8) occupies (5,8), (6,8), (5,9), (6,9) → cell (5,8) is adjacent to enemy (4,8)
+            // Both are distance 1 from enemy, but (3,6) is closer to current (3,0): distance 6 vs 10
+
+            var firstPosition = positions[0];
+            firstPosition.x.Should().Be(3, "first position should be (3, Y) - closest to current X");
+            new[] { 5, 6 }.Should().Contain(firstPosition.y, "first position should be (3, 5) or (3, 6)");
+
+            // Additional verification: (5, 8) should NOT be first
+            positions[0].Should().NotBe(new Vector2Int(5, 8),
+                "bug fix: (5, 8) should NOT be chosen over (3, 6)");
+
+            // Verify (3, 6) comes before (5, 8) if both exist
+            var pos36Index = Array.IndexOf(positions, new Vector2Int(3, 6));
+            var pos58Index = Array.IndexOf(positions, new Vector2Int(5, 8));
+
+            if (pos36Index >= 0 && pos58Index >= 0)
+            {
+                pos36Index.Should().BeLessThan(pos58Index,
+                    "bug fix: (3, 6) must come before (5, 8) - both adjacent but (3,6) closer to current");
+            }
+        }
+
+        /// <summary>
+        /// Regression test: Verify occupied cells distance calculation for Medium units
+        /// Bug: Medium units were not correctly calculating distance from both occupied cells
+        /// Fix: Use minimum distance from all occupied cells, not just anchor
+        /// </summary>
+        [Test]
+        [Category("Regression")]
+        public void BugFix_20260310_MediumUnit_UsesOccupiedCellsDistance()
+        {
+            // Arrange - Medium unit (1×2 Direction.North) at (3, 0)
+            var currentPos = new Vector2Int(3, 0);
+            var currentNode = _gridManager.GetCell(currentPos);
+
+            // Enemy 1×1 at (3, 7)
+            var targetCell = _gridManager.GetCell(3, 7);
+            var targetTransformable = Substitute.For<ITransformable>();
+            targetTransformable.GetOccupiedCells().Returns(new List<IGridCell> { targetCell });
+
+            var target = Substitute.For<ITarget>();
+            target.Transformable.Returns(targetTransformable);
+
+            GridTestHelper.SetupOccupiedCells(_gridManager, new Vector2Int(3, 7));
+
+            // Act
+            var positions = _calculator.GetPossibleAttackPositions(
+                currentNode,
+                target,
+                UnitSize.Medium, // 1×2
+                Direction.North);
+
+            // Assert
+            positions.Should().NotBeEmpty();
+
+            // Position (3, 6) for Medium/North occupies (3, 6) and (3, 7)
+            // Cell (3, 7) is distance 0 from enemy (3, 7) - OVERLAPS!
+            // This position should be filtered out as invalid
+
+            positions.Should().NotContain(new Vector2Int(3, 6),
+                "position (3, 6) would overlap with enemy at (3, 7)");
+
+            // Position (3, 5) for Medium/North occupies (3, 5) and (3, 6)
+            // Cell (3, 6) is distance 1 from enemy (3, 7) - VALID and ADJACENT
+            positions.Should().Contain(new Vector2Int(3, 5),
+                "position (3, 5) is valid and adjacent to enemy");
+
+            // Verify (3, 5) is prioritized (distance 1) over positions farther away
+            var firstPosition = positions[0];
+            var occupiedByFirst = _gridManager.GetOccupiedCells(firstPosition, UnitSize.Medium, Direction.North);
+            var minDistToEnemy = occupiedByFirst.Min(oc =>
+                Mathf.Abs(oc.X - targetCell.X) + Mathf.Abs(oc.Y - targetCell.Y));
+
+            minDistToEnemy.Should().Be(1, "first position should be adjacent to enemy (distance 1)");
+        }
+
+        #endregion
     }
 }

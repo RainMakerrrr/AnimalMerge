@@ -38,6 +38,8 @@ namespace Code.Animals.Movement
                 return System.Array.Empty<Vector2Int>();
             }
 
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Target cells: {string.Join(", ", targetCells.Select(c => $"({c.X},{c.Y})"))}");
+
             // 2. Построить зону атаки (все соседи клеток цели)
             var attackZone = new HashSet<Vector2Int>();
             foreach (var targetCell in targetCells)
@@ -52,6 +54,9 @@ namespace Code.Animals.Movement
                 }
             }
 
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone size: {attackZone.Count}");
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone cells: {string.Join(", ", attackZone.Select(az => $"({az.x},{az.y})"))}");
+
             // 3. Для каждой клетки зоны атаки найти возможные anchor points
             var candidateAnchors = new HashSet<Vector2Int>();
 
@@ -63,6 +68,8 @@ namespace Code.Animals.Movement
                     candidateAnchors.Add(anchor);
                 }
             }
+
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Candidate anchors: {string.Join(", ", candidateAnchors.Select(a => $"({a.x},{a.y})"))}");
 
             // 4. Фильтровать: проверить какие anchor points валидны
             var validPositions = new List<Vector2Int>();
@@ -93,20 +100,39 @@ namespace Code.Animals.Movement
                 }
             }
 
-            // 5. Сортировка по приоритету (ближе по X, потом по Y - предпочтение верхним позициям)
+            // 5. Сортировка по приоритету: ближе к врагу, потом ближе к текущей позиции
             var currentPos = new Vector2Int(currentNode.X, currentNode.Y);
+
             validPositions.Sort((a, b) =>
             {
-                var deltaXa = Mathf.Abs(a.x - currentPos.x);
-                var deltaXb = Mathf.Abs(b.x - currentPos.x);
+                // Primary: sort by minimum distance from occupied cells to enemy (closer = better)
+                // For Large/Medium units, we need to check distance from ALL occupied cells, not just anchor
+                var occupiedByA = _gridManager.GetOccupiedCells(a, unitSize, direction);
+                var occupiedByB = _gridManager.GetOccupiedCells(b, unitSize, direction);
 
-                var xComparison = deltaXa.CompareTo(deltaXb);
-                if (xComparison != 0) return xComparison;
+                var minDistToTargetA = occupiedByA.Min(oa =>
+                    targetCells.Min(tc => Mathf.Abs(oa.X - tc.X) + Mathf.Abs(oa.Y - tc.Y)));
+                var minDistToTargetB = occupiedByB.Min(ob =>
+                    targetCells.Min(tc => Mathf.Abs(ob.X - tc.X) + Mathf.Abs(ob.Y - tc.Y)));
 
-                var deltaYa = a.y - currentPos.y;
-                var deltaYb = b.y - currentPos.y;
-                return deltaYb.CompareTo(deltaYa);
+                var targetDistComparison = minDistToTargetA.CompareTo(minDistToTargetB);
+                if (targetDistComparison != 0) return targetDistComparison;
+
+                // Tie-breaker 1: sort by distance from anchor to current position (closer = better)
+                var distToCurrentA = Mathf.Abs(a.x - currentPos.x) + Mathf.Abs(a.y - currentPos.y);
+                var distToCurrentB = Mathf.Abs(b.x - currentPos.x) + Mathf.Abs(b.y - currentPos.y);
+
+                var currentDistComparison = distToCurrentA.CompareTo(distToCurrentB);
+                if (currentDistComparison != 0) return currentDistComparison;
+
+                // Tie-breaker 2: prefer positions with same X as current (straight path)
+                var deltaXA = Mathf.Abs(a.x - currentPos.x);
+                var deltaXB = Mathf.Abs(b.x - currentPos.x);
+
+                return deltaXA.CompareTo(deltaXB);
             });
+
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Valid positions (sorted): {string.Join(", ", validPositions.Select(v => $"({v.x},{v.y})"))}");
 
             return validPositions.ToArray();
         }
@@ -178,6 +204,7 @@ namespace Code.Animals.Movement
             if (unitSize == UnitSize.Small)
             {
                 anchors.Add(targetCell);
+                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Small unit, targetCell: ({targetCell.x},{targetCell.y}), anchor: ({targetCell.x},{targetCell.y})");
                 return anchors;
             }
 
@@ -208,6 +235,7 @@ namespace Code.Animals.Movement
                     anchors.Add(targetCell);
                     anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y));
                 }
+                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Medium unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
                 return anchors;
             }
 
@@ -238,6 +266,7 @@ namespace Code.Animals.Movement
                     anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));
                     anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y - 1));
                 }
+                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Large unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
                 return anchors;
             }
 

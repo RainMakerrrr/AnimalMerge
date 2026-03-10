@@ -116,6 +116,8 @@ namespace Code.Battle.Services
                 return;
             }
 
+            Debug.Log($"[PathfindingDebug][ExecuteSingleUnitTurnAsync] Unit at {movement.CurrentPathNode?.GridPosition}, Target cell from GetClosestEnemyCell: {targetCell.GridPosition}, Enemy at {target.Transformable.CurrentPathNode?.GridPosition}");
+
             // Check if close enough to attack
             if (movement.IsCloseToTarget(targetCell.WorldPosition))
             {
@@ -153,10 +155,10 @@ namespace Code.Battle.Services
         private ITarget FindValidTarget(AnimalFacade unit, AnimalMovement movement, string targetLayerMask)
         {
             // Use existing target if valid
-            if (movement.CurrentTarget != null && !movement.CurrentTarget.Damageable.IsDead)
-            {
-                return movement.CurrentTarget;
-            }
+            // if (movement.CurrentTarget != null && !movement.CurrentTarget.Damageable.IsDead)
+            // {
+            //     return movement.CurrentTarget;
+            // }
 
             // Find new target
             var newTarget = _targetFinder.FindClosestTarget(unit.transform.position, targetLayerMask);
@@ -188,6 +190,9 @@ namespace Code.Battle.Services
                 candidates.AddRange(enemyMovement.Nodes.Where(cell => cell != null));
             }
 
+            Debug.Log($"[PathfindingDebug] Start finding best cell for {mover.name}");
+            Debug.Log($"[PathfindingDebug][GetClosestEnemyCell] Enemy root: {rootCell.GridPosition}, candidates: {string.Join(", ", candidates.Select(c => c.GridPosition))}");
+
             // Find closest candidate by distance
             GridCell bestCell = null;
             var minDistance = float.MaxValue;
@@ -206,6 +211,8 @@ namespace Code.Battle.Services
                     bestCell = cell;
                 }
             }
+
+            Debug.Log($"[PathfindingDebug][GetClosestEnemyCell] Best cell: {bestCell?.GridPosition}");
 
             return bestCell ?? rootCell;
         }
