@@ -90,8 +90,8 @@ namespace Code.Tests.EditorTests.GridPathfinding.TargetPositionCalculatorTests
             // (5, 8) occupies (5,8), (6,8), (5,9), (6,9) → min distance 1 from (5,8) to (4,8)
             // Both distance 1, but (3,6) is closer to current (3,0): distance 6 vs 10
 
-            var pos36Index = System.Array.IndexOf(positions, new Vector2Int(3, 6));
-            var pos58Index = System.Array.IndexOf(positions, new Vector2Int(5, 8));
+            var pos36Index = Array.IndexOf(positions, new Vector2Int(3, 6));
+            var pos58Index = Array.IndexOf(positions, new Vector2Int(5, 8));
 
             if (pos36Index >= 0 && pos58Index >= 0)
             {

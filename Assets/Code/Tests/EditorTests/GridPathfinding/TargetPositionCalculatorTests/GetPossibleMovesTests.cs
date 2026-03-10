@@ -281,7 +281,9 @@ namespace Code.Tests.EditorTests.GridPathfinding.TargetPositionCalculatorTests
         }
 
         /// <summary>
-        /// Priority test: Positions sorted by deltaX ascending, then deltaY descending
+        /// Priority test: REMOVED - old logic (deltaY descending)
+        /// New priority tests are in PrioritizationTests.cs: TC-6.1-NEW through TC-6.5-NEW
+        /// Bug fix 2026-03-10: Changed to occupied cells distance priority
         /// </summary>
         [Test]
         public void GetPossibleAttackPositions_ReturnsSortedByPriority()
@@ -307,12 +309,19 @@ namespace Code.Tests.EditorTests.GridPathfinding.TargetPositionCalculatorTests
                 UnitSize.Small,
                 Direction.North);
 
-            // Assert
-            positions.Should().NotBeEmpty();
+            // Assert - verify positions are returned (detailed priority tests in PrioritizationTests.cs)
+            positions.Should().NotBeEmpty("should return valid attack positions");
 
-            // Verify sorting: deltaX ascending, then deltaY descending
-            positions.BeSortedByPriority(new Vector2Int(3, 2),
-                "positions should be sorted by deltaX ascending, then deltaY descending");
+            // Verify first position uses new logic: minimum distance from occupied cells to enemy
+            var firstPosition = positions[0];
+            var occupiedCells = _gridManager.GetOccupiedCells(firstPosition, UnitSize.Small, Direction.North);
+            var targetCells = targetUnit.OccupiedCells;
+
+            var minDistToEnemy = occupiedCells.Min(oc =>
+                targetCells.Min(tc => Mathf.Abs(oc.X - tc.x) + Mathf.Abs(oc.Y - tc.y)));
+
+            // First position should be adjacent to enemy (distance 1)
+            minDistToEnemy.Should().Be(1, "first position should be adjacent to enemy with new priority logic");
         }
 
         #region Helper Methods
