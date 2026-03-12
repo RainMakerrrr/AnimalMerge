@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Health;
@@ -104,7 +105,8 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
             var collider = go.AddComponent<BoxCollider>();
 
             // Setup health
-            health.Construct(new Collider[] { collider });
+            var abilityManager = new AbilityManager();
+            health.Construct(new Collider[] { collider }, abilityManager);
             SetPrivateField(health, "_max", 100f);
             SetPrivateField(health, "_animator", animator);
             health.SetMaxHealth(100f);

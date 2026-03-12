@@ -4,6 +4,8 @@ using Code.Animals.Merge.Services;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Code.Tests.EditorTests.MergeSystem
 {
@@ -103,6 +105,7 @@ namespace Code.Tests.EditorTests.MergeSystem
         {
             // Arrange
             _service.Enable();
+            LogAssert.Expect(LogType.Error, "[MergeUndoService] Cannot execute null command");
 
             // Act
             var result = _service.ExecuteMerge(null);
@@ -165,6 +168,7 @@ namespace Code.Tests.EditorTests.MergeSystem
             _service.Enable();
             _service.ExecuteMerge(_mockCommand);
             _mockCommand.Undo().Returns(false);
+            LogAssert.Expect(LogType.Error, "[MergeUndoService] Failed to undo command: Test Merge");
 
             // Act
             var result = _service.UndoLastMerge();

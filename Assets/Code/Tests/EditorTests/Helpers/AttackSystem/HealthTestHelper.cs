@@ -29,7 +29,8 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
             // Create mock collider
             var collider = go.AddComponent<BoxCollider>();
-            health.Construct(new Collider[] { collider });
+            var abilityManager = new AbilityManager();
+            health.Construct(new Collider[] { collider }, abilityManager);
 
             // Use reflection to set private _max field
             var maxField = typeof(AnimalHealth).GetField("_max",

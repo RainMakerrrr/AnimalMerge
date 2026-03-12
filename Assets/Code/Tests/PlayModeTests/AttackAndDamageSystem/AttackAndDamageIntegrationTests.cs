@@ -147,7 +147,8 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             var foxHealth = foxGO.AddComponent<FoxHealth>();
             var foxAnimator = foxGO.AddComponent<AnimalAnimator>();
 
-            foxHealth.Construct(new Collider[] { foxGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            foxHealth.Construct(new Collider[] { foxGO.AddComponent<BoxCollider>() }, abilityManager);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -232,7 +233,8 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             animatorGO.transform.SetParent(go.transform);
             var animator = animatorGO.AddComponent<AnimalAnimator>();
             var collider = go.AddComponent<BoxCollider>();
-            health.Construct(new UnityEngine.Collider[] { collider });
+            var abilityManager = new AbilityManager();
+            health.Construct(new UnityEngine.Collider[] { collider }, abilityManager);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

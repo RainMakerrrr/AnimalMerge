@@ -71,7 +71,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
             hedgehogHealth.SetMaxHealth(50f);
             hedgehogAttack.SetDamage(15f);
 
@@ -156,7 +157,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
             hedgehogHealth.SetMaxHealth(50f);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",

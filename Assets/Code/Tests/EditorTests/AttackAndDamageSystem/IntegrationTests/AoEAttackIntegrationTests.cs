@@ -87,7 +87,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
             hedgehogHealth.SetMaxHealth(50f);
             hedgehogAttack.SetDamage(15f);
 
@@ -180,7 +181,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
             hedgehogHealth.SetMaxHealth(50f);
             hedgehogAttack.SetDamage(15f);
 
@@ -237,7 +239,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             var foxHealth = foxGO.AddComponent<FoxHealth>();
             var foxAnimator = foxGO.AddComponent<AnimalAnimator>();
 
-            foxHealth.Construct(new Collider[] { foxGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            foxHealth.Construct(new Collider[] { foxGO.AddComponent<BoxCollider>() }, abilityManager);
             foxHealth.SetMaxHealth(100f);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",
@@ -281,7 +284,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
             hedgehogHealth.SetMaxHealth(50f);
             hedgehogAttack.SetDamage(15f);
 

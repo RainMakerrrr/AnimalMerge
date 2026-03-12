@@ -173,7 +173,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.RegressionTests
             var foxHealth = foxGO.AddComponent<FoxHealth>();
             var foxAnimator = foxGO.AddComponent<AnimalAnimator>();
 
-            foxHealth.Construct(new UnityEngine.Collider[] { foxGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            foxHealth.Construct(new UnityEngine.Collider[] { foxGO.AddComponent<BoxCollider>() }, abilityManager);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -225,7 +226,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.RegressionTests
             var hedgehogAnimator = hedgehogGO.AddComponent<AnimalAnimator>();
             var hedgehogAttack = hedgehogGO.AddComponent<AnimalAttack>();
 
-            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() });
+            var abilityManager = new AbilityManager();
+            hedgehogHealth.Construct(new UnityEngine.Collider[] { hedgehogGO.AddComponent<BoxCollider>() }, abilityManager);
 
             var animatorField = typeof(AnimalHealth).GetField("_animator",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Code.Abilities;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Battle.Services;
@@ -186,7 +187,8 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
 
             // Add Health component so UnitTracker can register the unit
             var health = invalidUnitGO.AddComponent<AnimalHealth>();
-            health.Construct(new[] { collider });
+            var abilityManager = new AbilityManager();
+            health.Construct(new[] { collider }, abilityManager);
             health.SetMaxHealth(100);
 
             // Set _health field via reflection so Health property works
