@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Code.Animals;
+using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
@@ -23,6 +24,7 @@ namespace Code.Battle.States
         private readonly IEnemySpawnService _enemySpawnService;
         private readonly IUnitTracker _unitTracker;
         private readonly StartBattleService _startBattleService;
+        private readonly IMergeUndoService _mergeUndoService;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -32,7 +34,8 @@ namespace Code.Battle.States
             AnimalSpawner animalSpawner,
             IEnemySpawnService enemySpawnService,
             IUnitTracker unitTracker,
-            StartBattleService startBattleService)
+            StartBattleService startBattleService,
+            IMergeUndoService mergeUndoService)
         {
             _stateMachine = stateMachine;
             _flowController = flowController;
@@ -40,6 +43,7 @@ namespace Code.Battle.States
             _enemySpawnService = enemySpawnService;
             _unitTracker = unitTracker;
             _startBattleService = startBattleService;
+            _mergeUndoService = mergeUndoService;
         }
 
         public async Task Enter()
@@ -47,6 +51,10 @@ namespace Code.Battle.States
             Debug.Log("[PreBattleState] Entering - spawning units and waiting for start confirmation");
 
             _cancellationTokenSource = new CancellationTokenSource();
+
+            // Enable merge undo tracking during pre-battle phase
+            _mergeUndoService.Enable();
+            Debug.Log("[PreBattleState] Merge undo tracking enabled");
 
             // Handle unit spawning based on whether this is first stage of level
             if (_flowController.IsFirstStageOfLevel)
@@ -136,6 +144,10 @@ namespace Code.Battle.States
         public Task Exit()
         {
             Debug.Log("[PreBattleState] Exiting");
+
+            // Disable merge undo tracking and clear stack when leaving pre-battle phase
+            _mergeUndoService.Disable();
+            Debug.Log("[PreBattleState] Merge undo tracking disabled and stack cleared");
 
             // Unsubscribe from event
             _startBattleService.StartBattleRequested -= OnStartBattleRequested;

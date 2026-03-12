@@ -49,6 +49,7 @@ namespace Code.Animals.Movement
 
         private IPathfindingService _pathfinder;
         private IGridManager _gridManager;
+        private IGridManager _mergeGrid;
         private ITargetDetector _targetDetector;
         private IUnitOccupancy _unitOccupancy;
         private IMovementAnimator _movementAnimator;
@@ -105,6 +106,19 @@ namespace Code.Animals.Movement
 
         private readonly List<AnimalMovement> _additionalAnimals = new List<AnimalMovement>();
 
+        /// <summary>
+        /// Gets the tiles per move value
+        /// </summary>
+        public int TilesPerMove => _tilesPerMove;
+
+        /// <summary>
+        /// Sets the tiles per move value
+        /// </summary>
+        public void SetTilesPerMove(int value)
+        {
+            _tilesPerMove = Mathf.Max(1, value);
+        }
+
         public void Upgrade(int multiplier) => _tilesPerMove *= multiplier;
 
         /// <summary>
@@ -125,11 +139,14 @@ namespace Code.Animals.Movement
         private void Construct(
             IPathfindingService pathfinder,
             [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager,
+            [Inject(Id = GridIdentifier.MergeGrid)]
+            IGridManager mergeGridManager,
             IAnimalFactory animalFactory,
             ITargetDetector targetDetector)
         {
             _pathfinder = pathfinder;
             _gridManager = gridManager;
+            _mergeGrid = mergeGridManager;
             _animalFactory = animalFactory;
             _targetDetector = targetDetector;
         }
@@ -213,12 +230,15 @@ namespace Code.Animals.Movement
             return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
         }
 
-        public void SetNewNode(GridCell gridCell)
+        public void SetNewNode(GridCell gridCell, bool isReset = false)
         {
             ClearNodes();
 
             Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _unitSize, _direction));
-            var neighbours = _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
+
+            var neighbours = isReset
+                ? _mergeGrid.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList()
+                : _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
 
             _currentPathNode = gridCell;
             _nodes = neighbours;
@@ -260,7 +280,7 @@ namespace Code.Animals.Movement
                 Gizmos.DrawWireCube(targetPos, Vector3.one);
 
                 // Draw a semi-transparent red cube
-                
+
                 Gizmos.color = new Color(0f, 1f, 1f, 0.3f);
                 Gizmos.DrawCube(targetPos, Vector3.one);
             }
@@ -305,12 +325,14 @@ namespace Code.Animals.Movement
 
         public virtual async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
-            Debug.Log($"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
+            Debug.Log(
+                $"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
 
             var possiblePositions = _targetDetector.GetPossibleAttackPositions(
                 _currentPathNode, CurrentTarget, _unitSize, _direction);
 
-            Debug.Log($"[PathfindingDebug][Move] Possible positions: {string.Join(", ", possiblePositions.Select(p => $"({p.x},{p.y})"))}");
+            Debug.Log(
+                $"[PathfindingDebug][Move] Possible positions: {string.Join(", ", possiblePositions.Select(p => $"({p.x},{p.y})"))}");
 
             var path = FindPath(possiblePositions);
             if (path == null || path.Count == 0) return;
@@ -319,7 +341,8 @@ namespace Code.Animals.Movement
 
             path = LimitPathBySpeed(path);
 
-            Debug.Log($"[PathfindingDebug][Move] Path after speed limit: {string.Join(" -> ", path.Select(p => p.GridPosition))}");
+            Debug.Log(
+                $"[PathfindingDebug][Move] Path after speed limit: {string.Join(" -> ", path.Select(p => p.GridPosition))}");
 
             await ExecuteMovement(path);
 
@@ -331,7 +354,6 @@ namespace Code.Animals.Movement
                 await reachedTargetCallback?.Invoke()!;
             }
         }
-
 
 
         private void UpdateTurnDirectionAnimation()
@@ -526,7 +548,7 @@ namespace Code.Animals.Movement
                 new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
             };
         }
-        
+
         private async Task ExecuteDodgeMovement(List<GridCell> path)
         {
             _movementAnimator.PlayJumpAnimation();
@@ -554,6 +576,5 @@ namespace Code.Animals.Movement
 
             await tween.AsyncWaitForCompletion();
         }
-
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Code.Animals;
+using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.Services;
 using Code.Battle.States;
@@ -31,7 +32,8 @@ namespace Code.Battle.StateMachine
             IUnitRepositioningService unitRepositioning,
             Framework.Code.Infrastructure.States.GameStateMachine gameStateMachine,
             AnimalSpawner animalSpawner,
-            StartBattleService startBattleService)
+            StartBattleService startBattleService,
+            IMergeUndoService mergeUndoService)
         {
             // Resolve circular dependency: FlowController needs StateMachine, StateMachine needs FlowController
             flowController.SetStateMachine(this);
@@ -39,7 +41,7 @@ namespace Code.Battle.StateMachine
             // Create all battle states with their dependencies
             _states = new Dictionary<Type, IBattleState>
             {
-                { typeof(PreBattleState), new PreBattleState(this, flowController, animalSpawner, enemySpawnService, unitTracker, startBattleService) },
+                { typeof(PreBattleState), new PreBattleState(this, flowController, animalSpawner, enemySpawnService, unitTracker, startBattleService, mergeUndoService) },
                 { typeof(BattleStartState), new BattleStartState(this) },
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },

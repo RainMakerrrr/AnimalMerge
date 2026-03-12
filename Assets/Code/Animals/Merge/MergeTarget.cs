@@ -2,19 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals.Facades;
+using Code.Animals.Merge.Commands;
+using Code.Animals.Merge.Services;
+using Code.Battle.Services;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Animals.Merge
 {
     public class MergeTarget : MonoBehaviour, IRaycastable
     {
         [SerializeField] private AnimalFacade _facade;
-        public event Action<List<AnimalType>> Merge; 
+        public event Action<List<AnimalType>> Merge;
+
+        private IMergeUndoService _mergeUndoService;
+        private IUnitTracker _unitTracker; 
 
         private void Awake()
         {
             if (_facade == null)
                 _facade = GetComponent<AnimalFacade>();
+        }
+
+        [Inject]
+        private void Construct(
+            IMergeUndoService mergeUndoService,
+            IUnitTracker unitTracker)
+        {
+            _mergeUndoService = mergeUndoService;
+            _unitTracker = unitTracker;
         }
 
         public bool Accept(AnimalFacade animal)
@@ -37,8 +53,39 @@ namespace Code.Animals.Merge
                 return false;
             }
 
+            // Check if undo is enabled - if so, use command pattern
+            if (_mergeUndoService != null && _mergeUndoService.IsEnabled)
+            {
+                Debug.Log("[MergeTarget] Undo enabled - executing merge via MergeCommand");
+
+                var command = new MergeCommand(
+                    this,
+                    _facade,
+                    animal,
+                    _unitTracker);
+
+                var success = _mergeUndoService.ExecuteMerge(command);
+
+                // Note: Visual effects are already invoked by ExecuteMergeDirectly() inside the command
+                // No need to invoke them again here
+
+                return success;
+            }
+            else
+            {
+                // Undo disabled - execute merge directly (original behavior)
+                return ExecuteMergeDirectly(animal);
+            }
+        }
+
+        /// <summary>
+        /// Executes merge directly without command pattern (original behavior)
+        /// Called when undo is disabled or for backward compatibility
+        /// </summary>
+        public bool ExecuteMergeDirectly(AnimalFacade animal)
+        {
             // Collect types for visual effects
-            List<AnimalType> types = animal.MergeSkills.Select(skill => skill.AnimalType).ToList();
+            var types = animal.MergeSkills.Select(skill => skill.AnimalType).ToList();
             types.Add(animal.Type);
 
             // Check: same type or different type?

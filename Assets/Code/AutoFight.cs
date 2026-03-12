@@ -30,15 +30,15 @@ namespace Code
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                _targetFinder.Setup();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-                Move();
-            }
+            // if (Input.GetKeyDown(KeyCode.K))
+            // {
+            //     _targetFinder.Setup();
+            // }
+            //
+            // if (Input.GetKeyDown(KeyCode.Z))
+            // {
+            //     Move();
+            // }
         }
 
         private async void Move()

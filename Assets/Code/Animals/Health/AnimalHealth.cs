@@ -29,6 +29,11 @@ namespace Code.Animals.Health
         public float Current { get; protected set; }
         public float Max { get; protected set; }
 
+        /// <summary>
+        /// Gets the AbilityManager for direct access (needed for undo operations)
+        /// </summary>
+        public AbilityManager AbilityManager => _abilityManager;
+
         public bool IsDead => Current <= 0;
 
         private Collider[] _colliders;
@@ -50,6 +55,14 @@ namespace Code.Animals.Health
             Max = newMaxHealth;
             _max = newMaxHealth;
             Current = Max; // Full heal when setting new maximum
+        }
+
+        /// <summary>
+        /// Sets the current health value directly (for undo operations)
+        /// </summary>
+        public void SetCurrentHealth(float value)
+        {
+            Current = Mathf.Clamp(value, 0f, Max);
         }
 
         public void SetAbility(IAbility ability)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals.Health;
+using Code.Animals.Merge;
 using Code.Animals.Merge.MergeSkills;
 using Code.Animals.Movement;
 using Code.Animals.Upgrade;
@@ -21,6 +22,7 @@ namespace Code.Animals.Facades
         [SerializeField] private Collider[] _colliders;
         [SerializeField] protected AnimalHealth _health;
         [SerializeField] protected AnimalMovement _movement;
+        [SerializeField] private MergeView _mergeView;
 
         protected IRandomProvider _randomProvider;
 
@@ -38,6 +40,25 @@ namespace Code.Animals.Facades
         public AnimalMovement Movement => _movement;
         public Collider[] Colliders => _colliders;
         public AnimalAnimator Animator => _animator;
+
+        /// <summary>
+        /// Gets the MergeView component. If not set in inspector, tries to find it on the GameObject.
+        /// </summary>
+        public MergeView MergeView
+        {
+            get
+            {
+                if (_mergeView == null)
+                {
+                    _mergeView = GetComponentInChildren<MergeView>();
+                    if (_mergeView == null)
+                    {
+                        Debug.LogWarning($"[AnimalFacade] MergeView not found on {name}. Visual undo will not work.");
+                    }
+                }
+                return _mergeView;
+            }
+        }
 
         public IRandomProvider RandomProvider => _randomProvider;
         public bool IsBoss { get; set; }
@@ -90,6 +111,21 @@ namespace Code.Animals.Facades
             // TODO: Implement AbilityManager.UnregisterAbility() if needed in the future
             Debug.LogWarning("[AnimalFacade] RemoveAbility not yet implemented in AbilityManager");
         }
+
+        /// <summary>
+        /// Gets the AbilityManager for direct access to abilities (needed for undo operations)
+        /// </summary>
+        public AbilityManager AbilityManager => _health?.AbilityManager;
+
+        /// <summary>
+        /// Gets the current tiles per move value
+        /// </summary>
+        public int GetTilesPerMove() => _movement.TilesPerMove;
+
+        /// <summary>
+        /// Sets the tiles per move value
+        /// </summary>
+        public void SetTilesPerMove(int value) => _movement.SetTilesPerMove(value);
         
 
         public void ClearNodes() => _movement.ClearNodes();

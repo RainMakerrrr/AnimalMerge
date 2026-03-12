@@ -1,4 +1,5 @@
 using Code.Animals;
+using Code.Animals.Merge.Services;
 using Code.Battle;
 using Code.Battle.Input;
 using Code.Battle.Services;
@@ -33,14 +34,23 @@ namespace Code.Infrastructure.Installers
             Container.Bind<IHealthRestorationService>().To<HealthRestorationService>().AsSingle();
             Container.Bind<IUnitRepositioningService>().To<UnitRepositioningService>().AsSingle();
 
+            // Merge undo service
+            Container.Bind<IMergeUndoService>().To<MergeUndoService>().AsSingle();
+
             // Battle start input system
             Container.Bind<StartBattleService>().AsSingle();
 
-            // Debug helper - only in Unity Editor
+            // Debug helpers - only in Unity Editor
 #if UNITY_EDITOR
             Container.Bind<KeyboardStartBattleHelper>()
                 .FromNewComponentOnNewGameObject()
                 .WithGameObjectName("KeyboardStartBattleHelper (Debug)")
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<KeyboardMergeUndoHelper>()
+                .FromNewComponentOnNewGameObject()
+                .WithGameObjectName("KeyboardMergeUndoHelper (Debug)")
                 .AsSingle()
                 .NonLazy();
 #endif
