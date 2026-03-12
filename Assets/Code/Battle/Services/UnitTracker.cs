@@ -11,6 +11,8 @@ namespace Code.Battle.Services
         private readonly List<AnimalFacade> _playerUnits;
         private readonly List<AnimalFacade> _enemyUnits;
 
+        public bool WasBossRegistered { get; private set; }
+
         public UnitTracker()
         {
             _playerUnits = new List<AnimalFacade>();
@@ -40,6 +42,12 @@ namespace Code.Battle.Services
                 _enemyUnits.Add(unit);
                 unit.Health.Died += OnUnitDied;
                 unit.OnRemoved += OnUnitRemoved;
+
+                // Track if a boss was registered
+                if (unit.IsBoss)
+                {
+                    WasBossRegistered = true;
+                }
             }
         }
 
@@ -57,25 +65,28 @@ namespace Code.Battle.Services
             if (removedFromPlayers || removedFromEnemies)
             {
                 // Unsubscribe from events to prevent memory leaks
-                unit.Health.Died -= OnUnitDied;
+                if (unit.Health != null)
+                {
+                    unit.Health.Died -= OnUnitDied;
+                }
                 unit.OnRemoved -= OnUnitRemoved;
             }
         }
 
         public int AlivePlayerUnitsCount =>
-            _playerUnits.Count(u => u != null && !u.Health.IsDead);
+            _playerUnits.Count(u => u != null && u.Health != null && !u.Health.IsDead);
 
         public int AliveEnemyUnitsCount =>
-            _enemyUnits.Count(u => u != null && !u.Health.IsDead);
+            _enemyUnits.Count(u => u != null && u.Health != null && !u.Health.IsDead);
 
         public bool HasAliveBoss =>
-            _enemyUnits.Any(u => u != null && !u.Health.IsDead && u.IsBoss);
+            _enemyUnits.Any(u => u != null && u.Health != null && !u.Health.IsDead && u.IsBoss);
 
         public IReadOnlyList<AnimalFacade> GetAlivePlayerUnits() =>
-            _playerUnits.Where(u => u != null && !u.Health.IsDead).ToList();
+            _playerUnits.Where(u => u != null && u.Health != null && !u.Health.IsDead).ToList();
 
         public IReadOnlyList<AnimalFacade> GetAliveEnemyUnits() =>
-            _enemyUnits.Where(u => u != null && !u.Health.IsDead).ToList();
+            _enemyUnits.Where(u => u != null && u.Health != null && !u.Health.IsDead).ToList();
 
         public void Reset()
         {
@@ -83,13 +94,13 @@ namespace Code.Battle.Services
             Debug.LogWarning($"[UnitTracker] Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
 
             // Unsubscribe from all events
-            foreach (var unit in _playerUnits.Where(u => u != null))
+            foreach (var unit in _playerUnits.Where(u => u != null && u.Health != null))
             {
                 unit.Health.Died -= OnUnitDied;
                 unit.OnRemoved -= OnUnitRemoved;
             }
 
-            foreach (var unit in _enemyUnits.Where(u => u != null))
+            foreach (var unit in _enemyUnits.Where(u => u != null && u.Health != null))
             {
                 unit.Health.Died -= OnUnitDied;
                 unit.OnRemoved -= OnUnitRemoved;
@@ -97,6 +108,7 @@ namespace Code.Battle.Services
 
             _playerUnits.Clear();
             _enemyUnits.Clear();
+            WasBossRegistered = false;
 
             Debug.LogWarning("[UnitTracker] Reset complete - all units cleared");
         }

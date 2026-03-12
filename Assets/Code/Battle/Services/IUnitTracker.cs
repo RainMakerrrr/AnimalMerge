@@ -12,6 +12,7 @@ namespace Code.Battle.Services
         int AlivePlayerUnitsCount { get; }
         int AliveEnemyUnitsCount { get; }
         bool HasAliveBoss { get; }
+        bool WasBossRegistered { get; }
 
         IReadOnlyList<AnimalFacade> GetAlivePlayerUnits();
         IReadOnlyList<AnimalFacade> GetAliveEnemyUnits();

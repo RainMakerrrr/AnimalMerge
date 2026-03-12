@@ -73,7 +73,10 @@
       "mcp__ai-game-developer__assets-find-built-in",
       "Bash(grep:*)",
       "Bash(del \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Battle\\\\BattleInitializer.cs\")",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(wc:*)",
+      "Bash(\"C:\\\\Program Files\\\\Unity\\\\Hub\\\\Editor\\\\2022.3.51f1\\\\Editor\\\\Unity.exe\" -runTests -batchmode -projectPath . -testResults \"TestResults.xml\" -testPlatform EditMode -logFile -)",
+      "Bash(Select-String -Pattern \"Test|Error|Failed|Passed|Method has non-void\")"
     ]
   }
 }

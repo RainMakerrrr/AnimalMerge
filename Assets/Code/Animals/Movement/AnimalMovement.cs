@@ -303,7 +303,7 @@ namespace Code.Animals.Movement
             UpdateNodeOccupancy(path.Last());
         }
 
-        public async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
+        public virtual async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
         {
             Debug.Log($"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
 
