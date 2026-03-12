@@ -21,8 +21,8 @@ namespace Code.Animals.Merge.Commands
         public float Damage { get; set; }
         public int TilesPerMove { get; set; }
 
-        // Abilities (we store types to recreate them on undo)
-        public List<Type> AbilityTypes { get; set; }
+        // Abilities (we store references to actual ability instances)
+        public List<IAbility> Abilities { get; set; }
 
         // Merge skills (reference to the actual skill objects)
         public List<IMergeSkill> MergeSkills { get; set; }
@@ -41,7 +41,7 @@ namespace Code.Animals.Merge.Commands
 
         public MergeStateSnapshot()
         {
-            AbilityTypes = new List<Type>();
+            Abilities = new List<IAbility>();
             MergeSkills = new List<IMergeSkill>();
         }
 
@@ -75,17 +75,16 @@ namespace Code.Animals.Merge.Commands
                 snapshot.TilesPerMove = animal.Movement.TilesPerMove;
             }
 
-            // Capture abilities (store types so we can recreate them on undo)
-            // We can't easily serialize ability instances, so we store their types
-            // This assumes abilities can be recreated from their type
-            var abilityManager = animal.Health?.AbilityManager;
+            // Capture abilities - store references to actual ability instances
+            var abilityManager = animal.AbilityManager;
             if (abilityManager != null)
             {
-                // Get all registered abilities
-                // Note: We'll need to implement a way to get ability types from AbilityManager
-                // For now, we'll capture what we can
-                Debug.Log($"[MergeStateSnapshot] Captured state for {animal.name} - HP: {snapshot.CurrentHealth}/{snapshot.MaxHealth}, Damage: {snapshot.Damage}");
+                // Get all registered abilities and make a copy of the list
+                snapshot.Abilities = new List<IAbility>(abilityManager.Abilities);
+                Debug.Log($"[MergeStateSnapshot] Captured {snapshot.Abilities.Count} abilities for {animal.name}");
             }
+
+            Debug.Log($"[MergeStateSnapshot] Captured state for {animal.name} - HP: {snapshot.CurrentHealth}/{snapshot.MaxHealth}, Damage: {snapshot.Damage}");
 
             // Capture merge skills (we can store references since these are persistent objects)
             if (animal.MergeSkills != null)

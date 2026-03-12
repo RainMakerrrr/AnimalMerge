@@ -171,13 +171,46 @@ namespace Code.Animals.Merge.Commands
 
         private void RemoveAddedAbilities()
         {
-            // TODO: Implement this once AbilityManager has an UnregisterAbility method
-            // For now, we'll log a warning
-            Debug.LogWarning("[MergeCommand] RemoveAddedAbilities not fully implemented - AbilityManager.UnregisterAbility needed");
+            var abilityManager = _targetAnimal.AbilityManager;
+            if (abilityManager == null)
+            {
+                Debug.LogWarning("[MergeCommand] AbilityManager is null on target animal");
+                return;
+            }
 
-            // Strategy: Compare current abilities with abilities before merge
-            // Remove any abilities that weren't present before
-            // This requires AbilityManager to expose a way to get and remove abilities
+            if (_targetStateBefore.Abilities == null)
+            {
+                Debug.LogWarning("[MergeCommand] No abilities saved before merge");
+                return;
+            }
+
+            // Get current abilities
+            var currentAbilities = abilityManager.Abilities.ToList();
+
+            // Find abilities that were added during merge (present now, but not before)
+            var addedAbilities = currentAbilities.Where(a => !_targetStateBefore.Abilities.Contains(a)).ToList();
+
+            if (addedAbilities.Count == 0)
+            {
+                Debug.Log("[MergeCommand] No new abilities to remove");
+                return;
+            }
+
+            // Remove each added ability
+            foreach (var ability in addedAbilities)
+            {
+                var removed = abilityManager.UnregisterAbility(ability);
+                if (removed)
+                {
+                    Debug.Log($"[MergeCommand] Removed ability: {ability.GetType().Name}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[MergeCommand] Failed to remove ability: {ability.GetType().Name}");
+                }
+            }
+
+            Debug.Log($"[MergeCommand] Removed {addedAbilities.Count} abilities added during merge");
         }
 
         private void RemoveAddedMergeSkills()

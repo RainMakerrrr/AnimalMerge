@@ -25,6 +25,7 @@ namespace Code.Animals.Facades
         [SerializeField] private MergeView _mergeView;
 
         protected IRandomProvider _randomProvider;
+        private AbilityManager _abilityManager;
 
         /// <summary>
         /// Event fired when this animal is about to be removed (merged or destroyed)
@@ -79,9 +80,27 @@ namespace Code.Animals.Facades
 
         private void Awake()
         {
+            // Initialize AbilityManager - facade owns it, components use it
+            _abilityManager = new AbilityManager();
+
             InitBehaviours();
-            _health.Construct(_colliders);
+            _health.Construct(_colliders, _abilityManager);
             _health.Died += NotifyRemoved;
+        }
+
+        private void Update()
+        {
+            if (UnityEngine.Input.GetKeyDown(KeyCode.L))
+            {
+                Debug.Log($"[Abilities] Ability log for {name}");
+                Debug.Log($"[Abilities] {_abilityManager.Abilities.Count}");
+
+                foreach (var ability in _abilityManager.Abilities)
+                {
+                    Debug.Log($"[Abilities] Ability {ability.GetType().Name}");
+                }
+                Debug.Log($"[Abilities] -------------------");
+            }
         }
 
         private void OnDestroy()
@@ -96,11 +115,24 @@ namespace Code.Animals.Facades
         public void UpgradeSpeed(int multiplier) => _upgrade.UpgradeSpeed(multiplier);
 
         /// <summary>
-        /// Adds an ability to this animal. The ability will be registered in AnimalHealth's AbilityManager.
+        /// Adds an ability to this animal's AbilityManager.
+        /// Also adds it to Health.MergedAbilities list for tracking.
         /// </summary>
         public void AddAbility(IAbility ability)
         {
-            _health.AddAbility(ability); // Registers in AbilityManager
+            if (ability == null)
+            {
+                Debug.LogWarning("[AnimalFacade] Attempted to add null ability");
+                return;
+            }
+
+            // Register in AbilityManager (owned by facade)
+            _abilityManager.RegisterAbility(ability);
+
+            // Also add to Health's tracking list
+            _health.MergedAbilities.Add(ability);
+
+            Debug.Log($"[AnimalFacade] Added ability: {ability.GetType().Name}");
         }
 
         /// <summary>
@@ -108,14 +140,30 @@ namespace Code.Animals.Facades
         /// </summary>
         public void RemoveAbility(IAbility ability)
         {
-            // TODO: Implement AbilityManager.UnregisterAbility() if needed in the future
-            Debug.LogWarning("[AnimalFacade] RemoveAbility not yet implemented in AbilityManager");
+            if (ability == null)
+            {
+                Debug.LogWarning("[AnimalFacade] Attempted to remove null ability");
+                return;
+            }
+
+            var removed = _abilityManager.UnregisterAbility(ability);
+            if (removed)
+            {
+                // Also remove from Health's tracking list
+                _health.MergedAbilities.Remove(ability);
+                Debug.Log($"[AnimalFacade] Removed ability: {ability.GetType().Name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[AnimalFacade] Failed to remove ability: {ability.GetType().Name}");
+            }
         }
 
         /// <summary>
-        /// Gets the AbilityManager for direct access to abilities (needed for undo operations)
+        /// Gets the AbilityManager for direct access to abilities.
+        /// The facade owns the AbilityManager and provides it to components that need it.
         /// </summary>
-        public AbilityManager AbilityManager => _health?.AbilityManager;
+        public AbilityManager AbilityManager => _abilityManager;
 
         /// <summary>
         /// Gets the current tiles per move value

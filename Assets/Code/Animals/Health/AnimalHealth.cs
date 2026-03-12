@@ -21,26 +21,28 @@ namespace Code.Animals.Health
 
         public IAbility Ability { get; protected set; }
 
-        protected List<IAbility> MergedAbilities = new List<IAbility>();
+        // List of abilities added through merges (for tracking purposes)
+        // AbilityManager (owned by AnimalFacade) is the source of truth for registered abilities
+        public List<IAbility> MergedAbilities { get; } = new List<IAbility>();
 
-        // AbilityManager for centralized ability management
+        // AbilityManager reference (owned by AnimalFacade, passed via Construct)
         protected AbilityManager _abilityManager;
 
         public float Current { get; protected set; }
         public float Max { get; protected set; }
 
-        /// <summary>
-        /// Gets the AbilityManager for direct access (needed for undo operations)
-        /// </summary>
-        public AbilityManager AbilityManager => _abilityManager;
-
         public bool IsDead => Current <= 0;
 
         private Collider[] _colliders;
 
-        public void Construct(Collider[] colliders)
+        /// <summary>
+        /// Constructs AnimalHealth with required dependencies.
+        /// AbilityManager is owned by AnimalFacade and passed here for use.
+        /// </summary>
+        public void Construct(Collider[] colliders, AbilityManager abilityManager)
         {
             _colliders = colliders;
+            _abilityManager = abilityManager;
         }
 
         public void Upgrade(float multiplier)
@@ -69,14 +71,18 @@ namespace Code.Animals.Health
         {
             Ability = ability;
 
-            // Ensure AbilityManager exists (for tests where Start() might not be called)
-            _abilityManager ??= new AbilityManager();
+            // Ensure AbilityManager exists (fallback for tests where Construct() might not be called)
+            if (_abilityManager == null)
+            {
+                Debug.LogWarning("[AnimalHealth] AbilityManager is null! Creating fallback instance. This should only happen in tests.");
+                _abilityManager = new AbilityManager();
+            }
 
             // Register in AbilityManager
             if (ability != null)
             {
                 _abilityManager.RegisterAbility(ability);
-                Debug.Log($"[AnimalHealth] Registered primary ability in AbilityManager: {ability.GetType().Name}");
+                Debug.Log($"[AnimalHealth] Registered primary ability: {ability.GetType().Name}");
             }
         }
 
@@ -84,17 +90,21 @@ namespace Code.Animals.Health
         {
             MergedAbilities.Add(ability);
 
-            // Ensure AbilityManager exists (for tests where Start() might not be called)
-            _abilityManager ??= new AbilityManager();
+            // Ensure AbilityManager exists (fallback for tests where Construct() might not be called)
+            if (_abilityManager == null)
+            {
+                Debug.LogWarning("[AnimalHealth] AbilityManager is null! Creating fallback instance. This should only happen in tests.");
+                _abilityManager = new AbilityManager();
+            }
 
             // Register in AbilityManager
             if (ability != null)
             {
                 _abilityManager.RegisterAbility(ability);
-                Debug.Log($"[AnimalHealth] Registered merged ability in AbilityManager: {ability.GetType().Name}");
+                Debug.Log($"[AnimalHealth] Registered merged ability: {ability.GetType().Name}");
             }
 
-            Debug.Log($"[AnimaHealth] add ability: {ability.GetType().Name}, {name}, abilities count - {MergedAbilities.Count}, my ability  {Ability?.GetType().Name}");
+            Debug.Log($"[AnimalHealth] Add ability: {ability.GetType().Name}, abilities count: {MergedAbilities.Count}");
         }
 
 
