@@ -38,6 +38,15 @@ All technical specifications are located in `Documentation/Specifications/`:
   - Специальные реализации (FoxHealth, HedgehogHealth)
   - Исправление бага множественного урона (2026-02-04)
 
+- **[05_Battle_System_Timings_Specification.md](../Documentation/Specifications/05_Battle_System_Timings_Specification.md)** - Тайминги боевой системы
+  - Граф состояний BattleStateMachine (PreBattle → PlayerTurn → EnemyTurn → CheckVictory → etc.)
+  - Длительность движения юнитов (формула: pathLength / 2.0)
+  - Тайминги атак (обычная атака через _attackClip.length, Chicken Jump = 1.0s)
+  - Порядок и длительность выполнения способностей (Dodge, CounterAttack)
+  - Все искусственные задержки (Task.Delay, WaitForSeconds)
+  - Примеры расчётов полной длительности хода
+  - Настраиваемые параметры для баланса
+
 **ВАЖНО:** При работе с любой системой, для которой есть спецификация, ВСЕГДА сначала читай спецификацию, чтобы понять:
 - Текущую архитектуру
 - Принятые решения

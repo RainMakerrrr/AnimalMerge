@@ -10,6 +10,7 @@
 - `02_Pathfinding_Test_Cases.md` - Тест-кейсы для системы поиска пути
 - `03_Merge_And_Skills_System_Specification.md` - Система мерджа животных и навыков
 - `04_Attack_And_Damage_System_Specification.md` - Система атаки и получения урона
+- `05_Battle_System_Timings_Specification.md` - Тайминги боевой системы (состояния, движение, атаки, способности)
 
 ## Цель спецификаций
 
@@ -107,7 +108,6 @@ Claude:
 
 ## Планируемые спецификации
 
-- [ ] `05_Battle_System_Specification.md` - Боевая система (очередность ходов, логика боя)
 - [ ] `06_Unit_System_Specification.md` - Система юнитов и их характеристик
 - [ ] `07_Grid_System_Specification.md` - Система игровой сетки
 - [ ] `08_Animation_System_Specification.md` - Система анимации боя
