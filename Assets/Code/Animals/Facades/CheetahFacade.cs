@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Code.Animals.Facades
 {
-    public class CheetahFacade : AnimalFacade
+    public class CheetahFacade : PlayerAnimalFacade
     {
         [SerializeField] private int _mergeSkillMultiplier = 2;
 

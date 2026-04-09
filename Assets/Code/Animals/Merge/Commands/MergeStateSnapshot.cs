@@ -48,7 +48,7 @@ namespace Code.Animals.Merge.Commands
         /// <summary>
         /// Captures the current state of an animal
         /// </summary>
-        public static MergeStateSnapshot Capture(AnimalFacade animal)
+        public static MergeStateSnapshot Capture(PlayerAnimalFacade animal)
         {
             if (animal == null)
             {

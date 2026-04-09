@@ -153,7 +153,7 @@ namespace Code.GridPathfinding
         /// <summary>
         /// Implementation of IRaycastable - checks if animal can be placed here
         /// </summary>
-        public bool Accept(AnimalFacade animal)
+        public bool Accept(PlayerAnimalFacade animal)
         {
             if (!IsInDeploymentZone())
                 return false;

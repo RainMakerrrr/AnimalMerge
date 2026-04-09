@@ -92,7 +92,7 @@ namespace Code.Tests.EditorTests.MergeSystem
         }
 
         // Helper method to create mock animal with abilities
-        private AnimalFacade CreateMockAnimalWithAbilities(int abilityCount)
+        private PlayerAnimalFacade CreateMockAnimalWithAbilities(int abilityCount)
         {
             // Create a real GameObject (needed for GetComponent)
             var go = new GameObject("TestAnimal");
@@ -167,7 +167,7 @@ namespace Code.Tests.EditorTests.MergeSystem
         }
 
         // Simple test implementation of AnimalFacade
-        private class TestAnimalFacade : AnimalFacade
+        private class TestAnimalFacade : PlayerAnimalFacade
         {
             public override void InitBehaviours()
             {

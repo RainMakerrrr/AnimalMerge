@@ -25,6 +25,7 @@ namespace Code.Animals
         protected IPhysicsService _physicsService;
         protected IDamageable _damageable;
         protected ITarget _targetOverride; // Specific target set via Attack(ITarget)
+        private AbilityManager _abilityManager;
 
         public float Damage => _damage;
         public bool IsAoE => _isAoE;
@@ -69,6 +70,15 @@ namespace Code.Animals
         private void Construct(IPhysicsService physicsService)
         {
             _physicsService = physicsService;
+        }
+
+        /// <summary>
+        /// Injects AbilityManager for post-attack ability execution.
+        /// Called by AnimalFacade.Awake() after AbilityManager is created.
+        /// </summary>
+        public void Construct(AbilityManager abilityManager)
+        {
+            _abilityManager = abilityManager;
         }
 
         private void Start()
@@ -154,6 +164,9 @@ namespace Code.Animals
             {
                 Debug.Log($"[Attack] Using target override: {_targetOverride.Damageable}");
                 await _targetOverride.Damageable.TakeDamageAsync(this);
+
+                // Execute post-attack abilities if AbilityManager exists
+                await ExecutePostAttackAbilitiesAsync(_targetOverride);
                 return;
             }
 
@@ -225,5 +238,35 @@ namespace Code.Animals
         private Collider GetClosestCollider() =>
             _colliders.Where(c => c.GetComponentInParent<IDamageable>() != null)
                 .OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).First();
+
+        /// <summary>
+        /// Executes post-attack abilities (like Retreat) after successful attack.
+        /// </summary>
+        protected virtual async Task ExecutePostAttackAbilitiesAsync(ITarget target)
+        {
+            if (_abilityManager == null)
+            {
+                return;
+            }
+
+            // Create context for post-attack abilities
+            var context = new AbilityContext(
+                attacker: this,              // Self (attacker)
+                target: target.Damageable,   // Who we attacked
+                damage: _damage
+            );
+
+            // Set target for abilities that need it (like RetreatAbility)
+            foreach (var ability in _abilityManager.Abilities)
+            {
+                if (ability is IPostAttackAbility postAttackAbility)
+                {
+                    postAttackAbility.SetAttackTarget(target);
+                }
+            }
+
+            Debug.Log($"[AnimalAttack] Executing post-attack abilities for {name}");
+            await _abilityManager.ExecuteAbilitiesAsync(context);
+        }
     }
 }

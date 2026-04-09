@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Code.Animals.Facades
 {
-    public class FoxFacade : AnimalFacade
+    public class FoxFacade : PlayerAnimalFacade
     {
         public override void InitBehaviours()
         {

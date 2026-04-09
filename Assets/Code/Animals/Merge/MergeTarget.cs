@@ -12,7 +12,7 @@ namespace Code.Animals.Merge
 {
     public class MergeTarget : MonoBehaviour, IRaycastable
     {
-        [SerializeField] private AnimalFacade _facade;
+        [SerializeField] private PlayerAnimalFacade _facade;
         public event Action<List<AnimalType>> Merge;
 
         private IMergeUndoService _mergeUndoService;
@@ -21,7 +21,7 @@ namespace Code.Animals.Merge
         private void Awake()
         {
             if (_facade == null)
-                _facade = GetComponent<AnimalFacade>();
+                _facade = GetComponent<PlayerAnimalFacade>();
         }
 
         [Inject]
@@ -33,7 +33,7 @@ namespace Code.Animals.Merge
             _unitTracker = unitTracker;
         }
 
-        public bool Accept(AnimalFacade animal)
+        public bool Accept(PlayerAnimalFacade animal)
         {
             Debug.Log($"[Merge] merge {_facade.name} with {animal.name}");
 
@@ -82,7 +82,7 @@ namespace Code.Animals.Merge
         /// Executes merge directly without command pattern (original behavior)
         /// Called when undo is disabled or for backward compatibility
         /// </summary>
-        public bool ExecuteMergeDirectly(AnimalFacade animal)
+        public bool ExecuteMergeDirectly(PlayerAnimalFacade animal)
         {
             // Collect types for visual effects
             var types = animal.MergeSkills.Select(skill => skill.AnimalType).ToList();

@@ -62,6 +62,7 @@ namespace Code.Animals
 
         /// <summary>
         /// Performs the jump attack sequence: jump to target -> deal damage -> jump back to original position.
+        /// Jump and damage execution happen in parallel for better performance.
         /// </summary>
         private async Task PerformJumpAttack(ITarget target)
         {
@@ -76,38 +77,19 @@ namespace Code.Animals
 
                 Debug.Log($"[ChickenAttack] Jumping from {transform.position} to {jumpTarget}");
 
-                // Perform jump using DOTween DOJump
-                var jumpTween = transform.DOJump(
-                    endValue: jumpTarget,
-                    jumpPower: _jumpPower,
-                    numJumps: _numJumps,
-                    duration: _jumpDuration
-                );
-
                 _animator.SetEnableFlappingAnimation(true);
-                
-                // Deal damage at 50% of the jump (at the peak)
+
                 var halfDuration = _jumpDuration * 0.5f;
-                await Task.Delay((int)(halfDuration * 1000));
 
-                Debug.Log($"[ChickenAttack] Dealing damage to {target}");
-                await target.Damageable.TakeDamageAsync(this);
+                // Create parallel tasks: jump sequence (synchronous) and damage sequence
+                var jumpTask = PerformJumpSequence(jumpTarget, originalPosition);
+                var damageTask = PerformDamageSequence(target, halfDuration);
 
-                // Wait for jump to complete
-                await jumpTween.AsyncWaitForCompletion();
-
-                Debug.Log("[ChickenAttack] Jumping back to original position");
-
-                // Jump back to original position
-                await transform.DOJump(
-                    endValue: originalPosition,
-                    jumpPower: _jumpPower,
-                    numJumps: _numJumps,
-                    duration: _jumpDuration
-                ).AsyncWaitForCompletion();
+                // Execute both tasks in parallel
+                await Task.WhenAll(jumpTask, damageTask);
 
                 _animator.SetEnableFlappingAnimation(false);
-                
+
                 Debug.Log("[ChickenAttack] Jump attack completed");
             }
             catch (System.Exception e)
@@ -118,6 +100,46 @@ namespace Code.Animals
             {
                 _isJumping = false;
             }
+        }
+
+        /// <summary>
+        /// Performs the jump sequence: jump to target, then jump back to original position.
+        /// This is executed synchronously (await each jump).
+        /// </summary>
+        private async Task PerformJumpSequence(Vector3 jumpTarget, Vector3 originalPosition)
+        {
+            // Jump to target
+            await transform.DOJump(
+                endValue: jumpTarget,
+                jumpPower: _jumpPower,
+                numJumps: _numJumps,
+                duration: _jumpDuration
+            ).AsyncWaitForCompletion();
+
+            Debug.Log("[ChickenAttack] Jumping back to original position");
+
+            // Jump back to original position
+            await transform.DOJump(
+                endValue: originalPosition,
+                jumpPower: _jumpPower,
+                numJumps: _numJumps,
+                duration: _jumpDuration
+            ).AsyncWaitForCompletion();
+        }
+
+        /// <summary>
+        /// Performs the damage sequence: wait for half duration (peak of jump), then deal damage.
+        /// This is executed in parallel with the jump sequence.
+        /// </summary>
+        private async Task PerformDamageSequence(ITarget target, float delaySeconds)
+        {
+            // Wait for half duration (peak of the jump)
+            await Task.Delay((int)(delaySeconds * 1000));
+
+            Debug.Log($"[ChickenAttack] Dealing damage to {target}");
+
+            // Deal damage
+            await target.Damageable.TakeDamageAsync(this);
         }
 
         /// <summary>

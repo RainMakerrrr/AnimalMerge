@@ -15,8 +15,8 @@ namespace Code.Animals.Merge.Commands
     public class MergeCommand : IMergeCommand
     {
         private readonly MergeTarget _mergeTarget;
-        private readonly AnimalFacade _targetAnimal;
-        private readonly AnimalFacade _sourceAnimal;
+        private readonly PlayerAnimalFacade _targetAnimal;
+        private readonly PlayerAnimalFacade _sourceAnimal;
         private readonly IUnitTracker _unitTracker;
 
         // State snapshots
@@ -36,8 +36,8 @@ namespace Code.Animals.Merge.Commands
 
         public MergeCommand(
             MergeTarget mergeTarget,
-            AnimalFacade targetAnimal,
-            AnimalFacade sourceAnimal,
+            PlayerAnimalFacade targetAnimal,
+            PlayerAnimalFacade sourceAnimal,
             IUnitTracker unitTracker)
         {
             _mergeTarget = mergeTarget ?? throw new ArgumentNullException(nameof(mergeTarget));

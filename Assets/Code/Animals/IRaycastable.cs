@@ -5,6 +5,6 @@ namespace Code.Animals
 {
     public interface IRaycastable
     {
-        bool Accept(AnimalFacade animal);
+        bool Accept(PlayerAnimalFacade animal);
     }
 }

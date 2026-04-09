@@ -182,6 +182,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
         private class TestTransformable : ITransformable
         {
             public bool ShiftCalled { get; private set; }
+            public bool RetreatCalled { get; private set; }
 
             public Vector3 Position => Vector3.zero;
             public Vector2Int IntPosition => Vector2Int.zero;
@@ -197,6 +198,12 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             public Task Shift()
             {
                 ShiftCalled = true;
+                return Task.CompletedTask;
+            }
+
+            public Task RetreatFrom(Vector2Int targetPosition, int maxDistance)
+            {
+                RetreatCalled = true;
                 return Task.CompletedTask;
             }
         }

@@ -11,12 +11,12 @@ namespace Code.Animals.Merge.MergeSkills
         /// Merges this skill into the target animal
         /// </summary>
         /// <returns>True if merge was successful, false otherwise</returns>
-        bool Merge(AnimalFacade animal);
+        bool Merge(PlayerAnimalFacade animal);
         /// <summary>
         /// Merges this skill into the target animal, also applying skills from other animal
         /// </summary>
         /// <returns>True if merge was successful, false otherwise</returns>
-        bool Merge(AnimalFacade animal, AnimalFacade other);
+        bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other);
     }
 
     public class ElephantMergeSkill : IMergeSkill
@@ -29,13 +29,13 @@ namespace Code.Animals.Merge.MergeSkills
             _multiplier = multiplier;
         }
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             animal.UpgradeHealth(_multiplier);
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             animal.UpgradeHealth(_multiplier);
 
@@ -62,13 +62,13 @@ namespace Code.Animals.Merge.MergeSkills
             _multiplier = multiplier;
         }
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             animal.UpgradeSpeed(_multiplier);
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             animal.UpgradeSpeed(_multiplier);
 
@@ -94,13 +94,13 @@ namespace Code.Animals.Merge.MergeSkills
             _multiplier = multiplier;
         }
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             animal.UpgradeDamage(_multiplier);
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             animal.UpgradeDamage(_multiplier);
 
@@ -119,7 +119,7 @@ namespace Code.Animals.Merge.MergeSkills
     {
         public AnimalType AnimalType => AnimalType.Hedgehog;
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);
@@ -130,7 +130,7 @@ namespace Code.Animals.Merge.MergeSkills
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);
@@ -152,7 +152,7 @@ namespace Code.Animals.Merge.MergeSkills
     {
         public AnimalType AnimalType => AnimalType.Fox;
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, isOwner: false, animal.RandomProvider));
 
@@ -164,7 +164,7 @@ namespace Code.Animals.Merge.MergeSkills
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             if (animal == null)
                 return false;
@@ -206,7 +206,7 @@ namespace Code.Animals.Merge.MergeSkills
             _animalFactory = animalFactory;
         }
 
-        public bool Merge(AnimalFacade animal)
+        public bool Merge(PlayerAnimalFacade animal)
         {
             if (animal == null)
             {
@@ -229,7 +229,7 @@ namespace Code.Animals.Merge.MergeSkills
 
             // 3. Create clone of the same type
             Debug.Log($"[ChickenMergeSkill] Creating clone of {animal.Type} at {freeCell.GridPosition}");
-            var clone = _animalFactory.Create(animal.Type);
+            var clone = _animalFactory.Create(animal.Type) as PlayerAnimalFacade;
             if (clone == null)
             {
                 Debug.LogError($"[ChickenMergeSkill] Failed to create clone of {animal.Type}!");
@@ -294,7 +294,7 @@ namespace Code.Animals.Merge.MergeSkills
             return true;
         }
 
-        public bool Merge(AnimalFacade animal, AnimalFacade other)
+        public bool Merge(PlayerAnimalFacade animal, PlayerAnimalFacade other)
         {
             if (animal == null)
             {

@@ -227,7 +227,7 @@ namespace Code.Animals.Movement
                 Debug.Log($"[Merge] try place on {raycastable}");
             }
 
-            return raycastable != null && raycastable.Accept(GetComponent<AnimalFacade>());
+            return raycastable != null && raycastable.Accept(GetComponent<PlayerAnimalFacade>());
         }
 
         public void SetNewNode(GridCell gridCell, bool isReset = false)
@@ -575,6 +575,52 @@ namespace Code.Animals.Movement
             _unitOccupancy.ClearOccupancy();
 
             await tween.AsyncWaitForCompletion();
+        }
+
+        /// <summary>
+        /// Retreats from target position by specified distance.
+        /// Used by Velociraptor's retreat ability.
+        /// </summary>
+        public async Task RetreatFrom(Vector2Int targetPosition, int maxDistance)
+        {
+            // 1. Calculate retreat direction (away from target)
+            var currentPos = _currentPathNode.GridPosition;
+            var retreatDirection = currentPos - targetPosition;
+            var normalizedDirection = NormalizeToCardinalDirection(retreatDirection);
+
+            // 2. Get retreat positions (tries max distance first, then shorter)
+            var retreatPositions = GetRetreatPositions(currentPos, normalizedDirection, maxDistance);
+
+            // 3. Find valid path using existing pathfinding
+            var path = FindPath(retreatPositions);
+
+            // 4. Execute retreat if path found
+            if (path != null && path.Count > 0)
+            {
+                await ExecuteDodgeMovement(path); // Reuses dodge animation/movement
+                UpdateNodeOccupancy(path.Last());
+            }
+        }
+
+        private Vector2Int NormalizeToCardinalDirection(Vector2Int direction)
+        {
+            // Convert to primary axis (North, South, East, West)
+            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+                return new Vector2Int(direction.x > 0 ? 1 : -1, 0);
+            else
+                return new Vector2Int(0, direction.y > 0 ? 1 : -1);
+        }
+
+        private Vector2Int[] GetRetreatPositions(Vector2Int current, Vector2Int direction, int maxDistance)
+        {
+            // Generate retreat positions from max distance down to 1
+            // This creates graceful fallback: tries 4, 3, 2, 1 cells
+            var positions = new List<Vector2Int>();
+            for (int d = maxDistance; d >= 1; d--)
+            {
+                positions.Add(current + direction * d);
+            }
+            return positions.ToArray();
         }
     }
 }

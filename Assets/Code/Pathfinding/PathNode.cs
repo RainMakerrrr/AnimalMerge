@@ -143,7 +143,7 @@ namespace Code.Pathfinding
 
         public override string ToString() => x + "," + y;
         
-        public bool Accept(AnimalFacade animal)
+        public bool Accept(PlayerAnimalFacade animal)
         {
             PathNode[] possibleNodes =
             {

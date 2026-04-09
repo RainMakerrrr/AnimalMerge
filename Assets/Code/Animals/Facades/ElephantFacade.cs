@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Code.Animals.Facades
 {
-    public class ElephantFacade : AnimalFacade
+    public class ElephantFacade : PlayerAnimalFacade
     {
         [SerializeField] private float _mergeSkillMultiplier = 1.5f;
 

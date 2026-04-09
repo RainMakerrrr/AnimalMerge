@@ -20,5 +20,11 @@ namespace Code
         List<IGridCell> GetOccupiedCells();
 
         Task Shift();
+
+        /// <summary>
+        /// Retreats from target position by specified distance.
+        /// Used by Velociraptor's retreat ability.
+        /// </summary>
+        Task RetreatFrom(Vector2Int targetPosition, int maxDistance);
     }
 }

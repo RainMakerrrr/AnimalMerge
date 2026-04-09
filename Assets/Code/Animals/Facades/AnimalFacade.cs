@@ -13,16 +13,50 @@ using Zenject;
 
 namespace Code.Animals.Facades
 {
+    public abstract class PlayerAnimalFacade : AnimalFacade
+    {
+        [SerializeField] private AnimalUpgrade _upgrade;
+        [SerializeField] private MergeView _mergeView;
+        
+        public MergeView MergeView
+        {
+            get
+            {
+                if (_mergeView == null)
+                {
+                    _mergeView = GetComponentInChildren<MergeView>();
+                    if (_mergeView == null)
+                    {
+                        Debug.LogWarning($"[AnimalFacade] MergeView not found on {name}. Visual undo will not work.");
+                    }
+                }
+
+                return _mergeView;
+            }
+        }
+        
+        public IMergeSkill MergeSkill { get; protected set; }
+
+        public List<IMergeSkill> MergeSkills = new List<IMergeSkill>();
+        
+        public void UpgradeHealth(float multiplier) => _upgrade.UpgradeHealth(multiplier);
+        public void UpgradeDamage(float multiplier) => _upgrade.UpgradeDamage(multiplier);
+        public void UpgradeSpeed(int multiplier) => _upgrade.UpgradeSpeed(multiplier);
+
+    }
+
+    public abstract class EnemyAnimalFacade : AnimalFacade
+    {
+    }
+
     public abstract class AnimalFacade : MonoBehaviour, ITarget
     {
         [SerializeField] private AnimalType _type;
         [SerializeField] private AnimalAnimator _animator;
         [SerializeField] private AnimalAttack _attack;
-        [SerializeField] private AnimalUpgrade _upgrade;
         [SerializeField] private Collider[] _colliders;
         [SerializeField] protected AnimalHealth _health;
         [SerializeField] protected AnimalMovement _movement;
-        [SerializeField] private MergeView _mergeView;
 
         protected IRandomProvider _randomProvider;
         private AbilityManager _abilityManager;
@@ -41,29 +75,11 @@ namespace Code.Animals.Facades
         public AnimalMovement Movement => _movement;
         public Collider[] Colliders => _colliders;
         public AnimalAnimator Animator => _animator;
-
-        /// <summary>
-        /// Gets the MergeView component. If not set in inspector, tries to find it on the GameObject.
-        /// </summary>
-        public MergeView MergeView
-        {
-            get
-            {
-                if (_mergeView == null)
-                {
-                    _mergeView = GetComponentInChildren<MergeView>();
-                    if (_mergeView == null)
-                    {
-                        Debug.LogWarning($"[AnimalFacade] MergeView not found on {name}. Visual undo will not work.");
-                    }
-                }
-                return _mergeView;
-            }
-        }
+        
 
         public IRandomProvider RandomProvider => _randomProvider;
         public bool IsBoss { get; set; }
-        
+
         [Inject]
         private void Construct(IRandomProvider randomProvider)
         {
@@ -72,19 +88,23 @@ namespace Code.Animals.Facades
 
 
         protected IAbility Ability;
-        public IMergeSkill MergeSkill { get; protected set; }
-
-        public List<IMergeSkill> MergeSkills = new List<IMergeSkill>();
 
         private ITarget _target;
 
-        private void Awake()
+        private void Start()
         {
             // Initialize AbilityManager - facade owns it, components use it
             _abilityManager = new AbilityManager();
 
             InitBehaviours();
             _health.Construct(_colliders, _abilityManager);
+
+            // Inject AbilityManager into AnimalAttack for post-attack abilities
+            if (_attack != null)
+            {
+                _attack.Construct(_abilityManager);
+            }
+
             _health.Died += NotifyRemoved;
         }
 
@@ -99,6 +119,7 @@ namespace Code.Animals.Facades
                 {
                     Debug.Log($"[Abilities] Ability {ability.GetType().Name}");
                 }
+
                 Debug.Log($"[Abilities] -------------------");
             }
         }
@@ -109,11 +130,7 @@ namespace Code.Animals.Facades
         }
 
         public abstract void InitBehaviours();
-
-        public void UpgradeHealth(float multiplier) => _upgrade.UpgradeHealth(multiplier);
-        public void UpgradeDamage(float multiplier) => _upgrade.UpgradeDamage(multiplier);
-        public void UpgradeSpeed(int multiplier) => _upgrade.UpgradeSpeed(multiplier);
-
+        
         /// <summary>
         /// Adds an ability to this animal's AbilityManager.
         /// Also adds it to Health.MergedAbilities list for tracking.
@@ -174,7 +191,7 @@ namespace Code.Animals.Facades
         /// Sets the tiles per move value
         /// </summary>
         public void SetTilesPerMove(int value) => _movement.SetTilesPerMove(value);
-        
+
 
         public void ClearNodes() => _movement.ClearNodes();
 

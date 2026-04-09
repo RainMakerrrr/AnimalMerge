@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Code.Animals.Facades
 {
-    public class HedgehogFacade : AnimalFacade
+    public class HedgehogFacade : PlayerAnimalFacade
     {
         public override void InitBehaviours()
         {

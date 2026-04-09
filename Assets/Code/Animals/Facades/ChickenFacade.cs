@@ -13,7 +13,7 @@ namespace Code.Animals.Facades
     /// Each chicken is independent but linked via _neighborChickens for "remove all" functionality.
     /// - Merge Skill: ChickenMergeSkill - duplicates merged animal with 75% stats
     /// </summary>
-    public class ChickenFacade : AnimalFacade
+    public class ChickenFacade : PlayerAnimalFacade
     {
         private IGridManager _gridManager;
         private IAnimalFactory _animalFactory;

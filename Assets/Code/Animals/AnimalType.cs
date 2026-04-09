@@ -1,4 +1,4 @@
-﻿namespace Code.Animals
+namespace Code.Animals
 {
     public enum AnimalType
     {
@@ -7,6 +7,9 @@
         Deer,
         Fox,
         Hedgehog,
-        Chicken
+        Chicken,
+        TRex,
+        Pterodactyl,
+        Velociraptor
     }
 }
