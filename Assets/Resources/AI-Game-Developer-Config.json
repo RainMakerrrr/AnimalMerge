@@ -69,7 +69,7 @@
     },
     {
       "name": "console-get-logs",
-      "enabled": true
+      "enabled": false
     },
     {
       "name": "editor-application-get-state",
