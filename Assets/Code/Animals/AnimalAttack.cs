@@ -27,6 +27,8 @@ namespace Code.Animals
         protected ITarget _targetOverride; // Specific target set via Attack(ITarget)
         private AbilityManager _abilityManager;
 
+        private bool _isAttackDone;
+        
         public float Damage => _damage;
         public bool IsAoE => _isAoE;
 
@@ -133,8 +135,15 @@ namespace Code.Animals
 
             // Set target override for AttackAnimationHandlerAsync
             _targetOverride = target;
-            await _animator.WaitForAttackAnimation();
-            _targetOverride = null; // Clear after attack
+            Debug.Log($"[AttackingDebug] Target for {name} is {target.Transformable.CurrentPathNode.GridPosition}");
+            _animator.PlayAttackAnimation();
+
+            while (!_isAttackDone)
+            {
+                await Task.Yield();
+            }
+
+            _isAttackDone = false;
         }
 
         private void OnDrawGizmos()
@@ -159,14 +168,20 @@ namespace Code.Animals
             if (animal != null && animal.Type == AnimalType.Hedgehog) return;
             if (_attackPoint == null) return;
 
+            // FIX: Capture target IMMEDIATELY to avoid race condition
+            // _targetOverride can be cleared by Attack(ITarget) before this method executes
+            var targetSnapshot = _targetOverride;
+
             // If specific target was set via Attack(ITarget), attack it directly
-            if (_targetOverride != null)
+            if (targetSnapshot != null)
             {
-                Debug.Log($"[Attack] Using target override: {_targetOverride.Damageable}");
-                await _targetOverride.Damageable.TakeDamageAsync(this);
+                Debug.Log($"[Attack] Using target override: {targetSnapshot.Damageable}");
+                await targetSnapshot.Damageable.TakeDamageAsync(this);
 
                 // Execute post-attack abilities if AbilityManager exists
-                await ExecutePostAttackAbilitiesAsync(_targetOverride);
+                await ExecutePostAttackAbilitiesAsync(targetSnapshot);
+                _isAttackDone = true;
+
                 return;
             }
 
@@ -223,6 +238,7 @@ namespace Code.Animals
 
                 Debug.Log($"[Attack] Single-target: Attacking closest target {closestTarget}");
                 await closestTarget.TakeDamageAsync(this);
+                _isAttackDone = true;
                 return;
             }
 
@@ -233,6 +249,8 @@ namespace Code.Animals
                 Debug.Log($"[Attack] Applying damage to: {health}");
                 await health.TakeDamageAsync(this);
             }
+
+            _isAttackDone = true;
         }
 
         private Collider GetClosestCollider() =>
@@ -241,12 +259,22 @@ namespace Code.Animals
 
         /// <summary>
         /// Executes post-attack abilities (like Retreat) after successful attack.
+        /// Only executes IPostAttackAbility, not defensive abilities (Dodge, CounterAttack).
         /// </summary>
         protected virtual async Task ExecutePostAttackAbilitiesAsync(ITarget target)
         {
             if (_abilityManager == null)
             {
                 return;
+            }
+
+            // Set attack target for all post-attack abilities
+            foreach (var ability in _abilityManager.Abilities)
+            {
+                if (ability is IPostAttackAbility postAttackAbility)
+                {
+                    postAttackAbility.SetAttackTarget(target);
+                }
             }
 
             // Create context for post-attack abilities
@@ -256,17 +284,8 @@ namespace Code.Animals
                 damage: _damage
             );
 
-            // Set target for abilities that need it (like RetreatAbility)
-            foreach (var ability in _abilityManager.Abilities)
-            {
-                if (ability is IPostAttackAbility postAttackAbility)
-                {
-                    postAttackAbility.SetAttackTarget(target);
-                }
-            }
-
-            Debug.Log($"[AnimalAttack] Executing post-attack abilities for {name}");
-            await _abilityManager.ExecuteAbilitiesAsync(context);
+            // Execute only post-attack abilities using AbilityManager
+            await _abilityManager.ExecuteAbilitiesOfTypeAsync<IPostAttackAbility>(context);
         }
     }
 }

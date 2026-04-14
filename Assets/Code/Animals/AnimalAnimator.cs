@@ -78,7 +78,7 @@ namespace Code.Animals
             if (_animator == null) return;
 
             // Clamp to [-1, 1]
-            Debug.Log($"[TurnAnimation] name - {name}, direction - {direction}");
+            //Debug.Log($"[TurnAnimation] name - {name}, direction - {direction}");
             var clampedDirection = Mathf.Clamp(direction, -1f, 1f);
             _animator.SetFloat(TurnDirection, clampedDirection);
         }

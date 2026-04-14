@@ -318,10 +318,12 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         private class TestAnimalMovement : AnimalMovement
         {
             // Override Move to prevent actual execution
-            public override async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
+            public override async Task<bool> Move(Vector3 target)
             {
                 // Do nothing - just return completed task
                 await Task.CompletedTask;
+
+                return false;
             }
         }
 

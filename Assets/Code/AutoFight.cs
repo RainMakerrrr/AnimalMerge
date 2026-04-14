@@ -184,9 +184,13 @@ namespace Code
                         continue;
                     }
 
-                    await animalMovement.Move(
-                        (targetCell ?? animalMovement.CurrentTarget.Transformable.CurrentPathNode).WorldPosition,
-                        () => animal.AttackInstance.Attack(animalMovement.CurrentTarget));
+                    var isCloseToTarget = await animalMovement.Move(
+                        (targetCell ?? animalMovement.CurrentTarget.Transformable.CurrentPathNode).WorldPosition);
+
+                    if (isCloseToTarget)
+                    {
+                        await animal.AttackInstance.Attack(animalMovement.CurrentTarget);
+                    }
                 }
             }
         }

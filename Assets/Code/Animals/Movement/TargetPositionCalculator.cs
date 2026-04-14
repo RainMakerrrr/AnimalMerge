@@ -38,7 +38,7 @@ namespace Code.Animals.Movement
                 return System.Array.Empty<Vector2Int>();
             }
 
-            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Target cells: {string.Join(", ", targetCells.Select(c => $"({c.X},{c.Y})"))}");
+            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Target cells: {string.Join(", ", targetCells.Select(c => $"({c.X},{c.Y})"))}");
 
             // 2. Построить зону атаки (все соседи клеток цели)
             var attackZone = new HashSet<Vector2Int>();
@@ -54,8 +54,8 @@ namespace Code.Animals.Movement
                 }
             }
 
-            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone size: {attackZone.Count}");
-            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone cells: {string.Join(", ", attackZone.Select(az => $"({az.x},{az.y})"))}");
+            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone size: {attackZone.Count}");
+            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone cells: {string.Join(", ", attackZone.Select(az => $"({az.x},{az.y})"))}");
 
             // 3. Для каждой клетки зоны атаки найти возможные anchor points
             var candidateAnchors = new HashSet<Vector2Int>();
@@ -69,7 +69,7 @@ namespace Code.Animals.Movement
                 }
             }
 
-            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Candidate anchors: {string.Join(", ", candidateAnchors.Select(a => $"({a.x},{a.y})"))}");
+            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Candidate anchors: {string.Join(", ", candidateAnchors.Select(a => $"({a.x},{a.y})"))}");
 
             // 4. Фильтровать: проверить какие anchor points валидны
             var validPositions = new List<Vector2Int>();

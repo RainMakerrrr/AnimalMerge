@@ -148,9 +148,9 @@ namespace Code.Animals.Health
             // Ensure AbilityManager exists (lazy initialization for edge cases)
             _abilityManager ??= new AbilityManager();
 
-            // Use AbilityManager for centralized ability execution
+            // Use AbilityManager to execute only defensive abilities (exclude post-attack abilities)
             var context = new AbilityContext(attacker, this, attacker.Damage);
-            bool isBlocked = await _abilityManager.ExecuteAbilitiesAsync(context);
+            bool isBlocked = await _abilityManager.ExecuteAbilitiesExceptTypeAsync<IPostAttackAbility>(context);
             return isBlocked;
         }
 

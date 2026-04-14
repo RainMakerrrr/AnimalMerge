@@ -148,7 +148,12 @@ namespace Code.Battle.Services
                 }
 
                 movement.CurrentTarget = target;
-                await movement.Move(targetCell.WorldPosition, () => unit.AttackInstance.Attack(target));
+                var isCloseToTarget = await movement.Move(targetCell.WorldPosition);
+
+                if (isCloseToTarget)
+                {
+                    await unit.AttackInstance.Attack(target);
+                }
             }
         }
 

@@ -323,7 +323,7 @@ namespace Code.Animals.Movement
             UpdateNodeOccupancy(path.Last());
         }
 
-        public virtual async Task Move(Vector3 target, Func<Task> reachedTargetCallback = null)
+        public virtual async Task<bool> Move(Vector3 target)
         {
             Debug.Log(
                 $"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
@@ -335,7 +335,7 @@ namespace Code.Animals.Movement
                 $"[PathfindingDebug][Move] Possible positions: {string.Join(", ", possiblePositions.Select(p => $"({p.x},{p.y})"))}");
 
             var path = FindPath(possiblePositions);
-            if (path == null || path.Count == 0) return;
+            if (path == null || path.Count == 0) return false;
 
             Debug.Log($"[PathfindingDebug][Move] Path found: {string.Join(" -> ", path.Select(p => p.GridPosition))}");
 
@@ -351,8 +351,11 @@ namespace Code.Animals.Movement
             if (_targetDetector.IsCloseToTarget(_currentPathNode, _nodes.Cast<IGridCell>().ToList(), CurrentTarget))
             {
                 RotateToTarget(CurrentTarget!.Transformable!.Position - transform.position);
-                await reachedTargetCallback?.Invoke()!;
+
+                return true;
             }
+
+            return false;
         }
 
 
@@ -578,37 +581,97 @@ namespace Code.Animals.Movement
         }
 
         /// <summary>
-        /// Retreats from target position by specified distance.
+        /// Retreats backward by specified distance.
+        /// ALWAYS moves backward (opposite to unit's facing direction), only along Z-axis.
         /// Used by Velociraptor's retreat ability.
         /// </summary>
         public async Task RetreatFrom(Vector2Int targetPosition, int maxDistance)
         {
-            // 1. Calculate retreat direction (away from target)
             var currentPos = _currentPathNode.GridPosition;
-            var retreatDirection = currentPos - targetPosition;
-            var normalizedDirection = NormalizeToCardinalDirection(retreatDirection);
 
-            // 2. Get retreat positions (tries max distance first, then shorter)
-            var retreatPositions = GetRetreatPositions(currentPos, normalizedDirection, maxDistance);
+            // Get backward direction (opposite to unit's facing direction)
+            var backwardDirection = GetBackwardDirection();
 
-            // 3. Find valid path using existing pathfinding
+            Debug.Log($"[RetreatFrom] Current pos: {currentPos}, Direction: {_direction}, Backward: {backwardDirection}");
+
+            // Get retreat positions (tries max distance first, then shorter for graceful fallback)
+            var retreatPositions = GetRetreatPositions(currentPos, backwardDirection, maxDistance);
+
+            Debug.Log($"[RetreatFrom] Retreat positions: {string.Join(", ", retreatPositions.Select(p => $"({p.x},{p.y})"))}");
+
+            // Find valid path using existing pathfinding
             var path = FindPath(retreatPositions);
 
-            // 4. Execute retreat if path found
+            // Execute retreat if path found
             if (path != null && path.Count > 0)
             {
-                await ExecuteDodgeMovement(path); // Reuses dodge animation/movement
+                Debug.Log($"[RetreatFrom] Retreating {path.Count} cells backward");
+                await ExecuteRetreatMovement(path);
                 UpdateNodeOccupancy(path.Last());
+            }
+            else
+            {
+                Debug.LogWarning("[RetreatFrom] No valid retreat path found");
             }
         }
 
-        private Vector2Int NormalizeToCardinalDirection(Vector2Int direction)
+        /// <summary>
+        /// Returns the backward direction vector (opposite to unit's facing direction).
+        /// </summary>
+        private Vector2Int GetBackwardDirection()
         {
-            // Convert to primary axis (North, South, East, West)
-            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
-                return new Vector2Int(direction.x > 0 ? 1 : -1, 0);
-            else
-                return new Vector2Int(0, direction.y > 0 ? 1 : -1);
+            switch (_direction)
+            {
+                case Direction.North:
+                    return new Vector2Int(0, -1); // South (backward on Z-axis)
+                case Direction.South:
+                    return new Vector2Int(0, 1);  // North (backward on Z-axis)
+                case Direction.East:
+                    return new Vector2Int(-1, 0); // West
+                case Direction.West:
+                    return new Vector2Int(1, 0);  // East
+                default:
+                    return new Vector2Int(0, -1); // Default: South
+            }
+        }
+
+        /// <summary>
+        /// Executes retreat movement with running animation.
+        /// Unit smoothly rotates to face forward direction during retreat.
+        /// </summary>
+        private async Task ExecuteRetreatMovement(List<GridCell> path)
+        {
+            var pathPositions = GetPathPositions(path);
+            _debugPathPoints = _debugDrawPath ? pathPositions : null;
+
+            _unitOccupancy.ClearOccupancy();
+            _isMoving = true;
+
+            // Set target rotation to unit's forward direction (выравниваем по forward)
+            var forwardDirection = DirectionToVector3(_direction);
+            _targetRotation = Quaternion.LookRotation(forwardDirection);
+
+            Debug.Log($"[RetreatMovement] Rotating to forward direction: {_direction} ({forwardDirection})");
+
+            // Use same duration calculation as normal movement (pathLength / 2.0)
+            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+                .OnUpdate(() =>
+                {
+                    // Apply rotation to smoothly face forward during retreat
+                    ApplyRotation();
+                    _movementAnimator.PlayMovementAnimation(1f); // Running animation
+                })
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    _isMoving = false;
+                    // Ensure final rotation is exactly forward
+                    RotateToTarget(forwardDirection);
+                    _movementAnimator.StopMovementAnimation();
+                    _debugPathPoints = null;
+                });
+
+            await tween.AsyncWaitForCompletion();
         }
 
         private Vector2Int[] GetRetreatPositions(Vector2Int current, Vector2Int direction, int maxDistance)

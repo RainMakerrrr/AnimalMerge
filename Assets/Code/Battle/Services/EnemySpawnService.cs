@@ -16,6 +16,7 @@ namespace Code.Battle.Services
         private readonly DiContainer _container;
         private readonly IGridManager _gridManager;
         private readonly List<AnimalFacade> _spawnedEnemies;
+        private int _counter;
 
         public EnemySpawnService(
             DiContainer container,
@@ -78,9 +79,9 @@ namespace Code.Battle.Services
                 return null;
             }
 
-            // Instantiate enemy using Zenject
             var enemy = _container.InstantiatePrefabForComponent<AnimalFacade>(enemyConfig.Prefab);
-
+            enemy.name += $"_{_counter}";
+            
             if (enemy == null)
             {
                 Debug.LogError($"[EnemySpawnService] Failed to instantiate enemy prefab");
@@ -133,6 +134,8 @@ namespace Code.Battle.Services
 
             Debug.Log($"[EnemySpawnService] Spawned {enemy.name} at grid {gridPosition}, FINAL position: {enemy.transform.position}");
 
+            _counter++;
+            
             return enemy;
         }
 
