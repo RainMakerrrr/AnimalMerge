@@ -132,6 +132,111 @@ namespace Code.Abilities
         }
 
         /// <summary>
+        /// Executes only abilities of the specified type in priority order.
+        /// Higher priority abilities are executed first.
+        /// </summary>
+        /// <typeparam name="T">The type of abilities to execute (must implement IAbility).</typeparam>
+        /// <param name="context">The context containing information about the damage event.</param>
+        /// <returns>True if damage was blocked by any ability, false otherwise.</returns>
+        public async Task<bool> ExecuteAbilitiesOfTypeAsync<T>(AbilityContext context) where T : IAbility
+        {
+            if (context == null)
+            {
+                Debug.LogWarning("[AbilityManager] ExecuteAbilitiesOfTypeAsync called with null context");
+                return false;
+            }
+
+            var filteredAbilities = _abilities
+                .OfType<T>()
+                .OrderByDescending(a => a.Priority)
+                .ToList();
+
+            if (filteredAbilities.Count == 0)
+            {
+                Debug.Log($"[AbilityManager] No abilities of type {typeof(T).Name} registered");
+                return false;
+            }
+
+            Debug.Log($"[AbilityManager] Executing {filteredAbilities.Count} abilities of type {typeof(T).Name}");
+
+            bool damageBlocked = false;
+
+            foreach (var ability in filteredAbilities)
+            {
+                if (!ability.CanUse(context.Attacker))
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
+                    continue;
+                }
+
+                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
+                await ability.Apply();
+
+                if (ability.IsBlockingDamage)
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
+                    damageBlocked = true;
+                }
+            }
+
+            context.IsBlocked = damageBlocked;
+            return damageBlocked;
+        }
+
+        /// <summary>
+        /// Executes all abilities EXCEPT those of the specified type in priority order.
+        /// Higher priority abilities are executed first.
+        /// </summary>
+        /// <typeparam name="T">The type of abilities to exclude (must implement IAbility).</typeparam>
+        /// <param name="context">The context containing information about the damage event.</param>
+        /// <returns>True if damage was blocked by any ability, false otherwise.</returns>
+        public async Task<bool> ExecuteAbilitiesExceptTypeAsync<T>(AbilityContext context) where T : IAbility
+        {
+            if (context == null)
+            {
+                Debug.LogWarning("[AbilityManager] ExecuteAbilitiesExceptTypeAsync called with null context");
+                return false;
+            }
+
+            var filteredAbilities = _abilities
+                .Where(a => a is not T)
+                .OrderByDescending(a => a.Priority)
+                .ToList();
+
+            if (filteredAbilities.Count == 0)
+            {
+                Debug.Log($"[AbilityManager] No abilities (excluding {typeof(T).Name}) registered");
+                return false;
+            }
+
+            Debug.Log($"[AbilityManager] Executing {filteredAbilities.Count} abilities (excluding {typeof(T).Name})");
+
+            bool damageBlocked = false;
+
+            foreach (var ability in filteredAbilities)
+            {
+                if (!ability.CanUse(context.Attacker))
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
+                    continue;
+                }
+
+                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
+                await ability.Apply();
+
+                if (ability.IsBlockingDamage)
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
+                    damageBlocked = true;
+                    // Continue execution - other abilities (like CounterAttack) should still run
+                }
+            }
+
+            context.IsBlocked = damageBlocked;
+            return damageBlocked;
+        }
+
+        /// <summary>
         /// Checks if any registered ability would block the incoming damage.
         /// This is a non-destructive check that doesn't apply the abilities.
         /// </summary>

@@ -16,7 +16,8 @@ namespace Code.Animals.Facades
                 isOwner: true  // Boss Velociraptor: 100% success rate
             );
 
-            _health.SetAbility(Ability);
+            // Register in facade's AbilityManager (used by both AnimalAttack and AnimalHealth)
+            AddAbility(Ability);
 
             Debug.Log("[VelociraptorFacade] Registered RetreatAbility");
         }

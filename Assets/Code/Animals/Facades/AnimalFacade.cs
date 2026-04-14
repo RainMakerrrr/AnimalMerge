@@ -132,8 +132,28 @@ namespace Code.Animals.Facades
         public abstract void InitBehaviours();
         
         /// <summary>
+        /// Sets the primary (base) ability for this animal.
+        /// Primary abilities are NOT added to MergedAbilities list (they are not inherited from merge).
+        /// Use this in InitBehaviours() for the animal's base ability (e.g., Fox Dodge, Velociraptor Retreat).
+        /// </summary>
+        public void SetPrimaryAbility(IAbility ability)
+        {
+            if (ability == null)
+            {
+                Debug.LogWarning("[AnimalFacade] Attempted to set null primary ability");
+                return;
+            }
+
+            // Register in AbilityManager (owned by facade)
+            _abilityManager.RegisterAbility(ability);
+
+            Debug.Log($"[AnimalFacade] Set primary ability: {ability.GetType().Name}");
+        }
+
+        /// <summary>
         /// Adds an ability to this animal's AbilityManager.
         /// Also adds it to Health.MergedAbilities list for tracking.
+        /// Use this for abilities obtained through merging.
         /// </summary>
         public void AddAbility(IAbility ability)
         {
@@ -146,10 +166,10 @@ namespace Code.Animals.Facades
             // Register in AbilityManager (owned by facade)
             _abilityManager.RegisterAbility(ability);
 
-            // Also add to Health's tracking list
+            // Also add to Health's tracking list for merge inheritance
             _health.MergedAbilities.Add(ability);
 
-            Debug.Log($"[AnimalFacade] Added ability: {ability.GetType().Name}");
+            Debug.Log($"[AnimalFacade] Added merged ability: {ability.GetType().Name}");
         }
 
         /// <summary>

@@ -76,7 +76,11 @@
       "Bash(git log:*)",
       "Bash(wc:*)",
       "Bash(\"C:\\\\Program Files\\\\Unity\\\\Hub\\\\Editor\\\\2022.3.51f1\\\\Editor\\\\Unity.exe\" -runTests -batchmode -projectPath . -testResults \"TestResults.xml\" -testPlatform EditMode -logFile -)",
-      "Bash(Select-String -Pattern \"Test|Error|Failed|Passed|Method has non-void\")"
+      "Bash(Select-String -Pattern \"Test|Error|Failed|Passed|Method has non-void\")",
+      "mcp__ai-game-developer__script-read",
+      "mcp__ai-game-developer__script-update-or-create",
+      "mcp__ai-game-developer__gameobject-modify",
+      "mcp__ai-game-developer__gameobject-component-list-all"
     ]
   }
 }

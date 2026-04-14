@@ -12,7 +12,8 @@ namespace Code.Animals.Facades
             MergeSkill = new FoxMergeSkill();
 
             //MergeSkills.Add(MergeSkill);
-            _health.SetAbility(Ability);
+            // Register in facade's AbilityManager (used by both AnimalAttack and AnimalHealth)
+            AddAbility(Ability);
 
             Debug.Log($"ME - {gameObject.name}, my merge skills - {MergeSkills.Count}");
             MergeSkills.ForEach(Debug.Log);
