@@ -1,4 +1,5 @@
-﻿using Code.Animals.Movement;
+﻿using System;
+using Code.Animals.Movement;
 using Code.Infrastructure.Services.Input;
 using UnityEngine;
 using Zenject;
@@ -113,7 +114,8 @@ namespace Code.Animals
             var worldMousePosFar = _camera.ScreenToWorldPoint(screenMousePosFar);
             var worldMousePosNear = _camera.ScreenToWorldPoint(screenMousePosNear);
 
-            Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out var hit);
+            Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out var hit, Mathf.Infinity,
+                layerMask: LayerMask.GetMask("Animal"));
 
             return hit;
         }
