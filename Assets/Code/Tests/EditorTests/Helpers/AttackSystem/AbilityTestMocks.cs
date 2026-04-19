@@ -55,7 +55,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         public static Dodge CreateDodge(bool isOwner, int initialCounter = 0, IRandomProvider randomProvider = null)
         {
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.CompletedTask);
+            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful by default
 
             var go = new GameObject("DodgeTest");
             var collider = go.AddComponent<BoxCollider>();
@@ -86,7 +86,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             var go = new GameObject("MockDodgeTest");
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.CompletedTask);
+            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful by default
 
             var collider = go.AddComponent<BoxCollider>();
             var colliders = new Collider[] { collider };
@@ -153,8 +153,13 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         private readonly bool _isOwner;
         private int _counter;
         private readonly Func<int> _randomValueProvider;
+        private bool _blockDamage;
 
-        public bool IsBlockingDamage => true;
+        /// <summary>
+        /// Returns true if the last dodge was successful and should block damage.
+        /// Updated by Apply() based on Shift() result.
+        /// </summary>
+        public bool IsBlockingDamage => _blockDamage;
         public int Priority => 1;
 
         public int Counter => _counter;
@@ -193,6 +198,9 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             ApplyCallCount++;
 
+            // Assume dodge will succeed by default
+            _blockDamage = true;
+
             foreach (var collider in _colliders)
             {
                 if (collider != null)
@@ -200,7 +208,22 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             }
 
             _counter++;
-            await _transformable.Shift();
+
+            // Execute shift and check if it was successful
+            bool dodgeSuccessful = await _transformable.Shift();
+
+            // If shift failed (no valid dodge positions), don't block damage
+            if (!dodgeSuccessful)
+            {
+                _blockDamage = false;
+            }
+
+            // Re-enable colliders
+            foreach (var collider in _colliders)
+            {
+                if (collider != null)
+                    collider.enabled = true;
+            }
         }
     }
 

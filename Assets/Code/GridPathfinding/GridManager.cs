@@ -182,6 +182,32 @@ namespace Code.GridPathfinding
             return true;
         }
 
+        /// <summary>
+        /// Checks if a unit can be placed at position, excluding specific cells from walkability check.
+        /// This is useful for pathfinding when a unit needs to ignore its own current occupied cells.
+        /// </summary>
+        public bool CanPlaceUnit(Vector2Int position, UnitSize size, Direction direction, HashSet<Vector2Int> excludePositions)
+        {
+            var cells = GetOccupiedCellsInternal(position, size, direction);
+
+            foreach (var cell in cells)
+            {
+                if (cell == null)
+                    return false;
+
+                // Skip walkability check for excluded positions (e.g., unit's current cells)
+                var cellPos = new Vector2Int(cell.X, cell.Y);
+                if (excludePositions != null && excludePositions.Contains(cellPos))
+                    continue;
+
+                // Check walkability for non-excluded cells
+                if (!cell.IsWalkable)
+                    return false;
+            }
+
+            return true;
+        }
+
         public List<IGridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction)
         {
             return GetOccupiedCellsInternal(position, size, direction).Cast<IGridCell>().ToList();

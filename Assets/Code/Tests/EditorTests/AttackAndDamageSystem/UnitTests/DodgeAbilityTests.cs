@@ -86,6 +86,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         /// UT-DODGE-004: Apply_DisablesCollidersAndShifts
         /// Verifies that Apply() temporarily disables colliders, calls Shift(), and re-enables colliders after
         /// UPDATED: Event-Driven architecture - Dodge self-manages colliders
+        /// UPDATED: Shift() returns bool - true if successful
         /// </summary>
         [Test]
         public void Apply_DisablesCollidersAndShifts_BehaviorCorrect()
@@ -96,7 +97,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             transformable.Shift().Returns(callInfo =>
             {
                 shiftCalled = true;
-                return Task.CompletedTask;
+                return Task.FromResult(true); // Shift successful
             });
 
             var go = new GameObject("DodgeTest");
@@ -130,22 +131,65 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         }
 
         /// <summary>
-        /// UT-DODGE-005: IsBlockingDamage_True
-        /// Verifies that Dodge correctly reports IsBlockingDamage = true
+        /// UT-DODGE-005: IsBlockingDamage_WhenShiftSuccessful_True
+        /// Verifies that Dodge correctly reports IsBlockingDamage = true when Shift() succeeds
         /// </summary>
         [Test]
-        public void IsBlockingDamage_True_CorrectValue()
+        public void IsBlockingDamage_WhenShiftSuccessful_True()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true);
+            var transformable = Substitute.For<ITransformable>();
+            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful
+
+            var go = new GameObject("DodgeTest");
+            var collider = go.AddComponent<BoxCollider>();
+            var colliders = new UnityEngine.Collider[] { collider };
+
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
+            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
+
+            // Act
+            dodge.Apply().GetAwaiter().GetResult();
 
             // Assert
             dodge.IsBlockingDamage.Should().BeTrue(
-                "Dodge should block damage when successfully applied");
+                "Dodge should block damage when Shift() succeeds");
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(go);
         }
 
         /// <summary>
-        /// UT-DODGE-006: Priority_Is1
+        /// UT-DODGE-006: IsBlockingDamage_WhenShiftFails_False
+        /// Verifies that Dodge correctly reports IsBlockingDamage = false when Shift() fails (no valid dodge positions)
+        /// </summary>
+        [Test]
+        public void IsBlockingDamage_WhenShiftFails_False()
+        {
+            // Arrange
+            var transformable = Substitute.For<ITransformable>();
+            transformable.Shift().Returns(Task.FromResult(false)); // Shift failed - no valid positions
+
+            var go = new GameObject("DodgeTest");
+            var collider = go.AddComponent<BoxCollider>();
+            var colliders = new UnityEngine.Collider[] { collider };
+
+            var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
+            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
+
+            // Act
+            dodge.Apply().GetAwaiter().GetResult();
+
+            // Assert
+            dodge.IsBlockingDamage.Should().BeFalse(
+                "Dodge should NOT block damage when Shift() fails (no valid positions)");
+
+            // Cleanup
+            UnityEngine.Object.DestroyImmediate(go);
+        }
+
+        /// <summary>
+        /// UT-DODGE-007: Priority_Is1
         /// Verifies that Dodge has priority 1 (higher than CounterAttack's 0)
         /// </summary>
         [Test]

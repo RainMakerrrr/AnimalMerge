@@ -195,10 +195,10 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
                 return new List<IGridCell>();
             }
 
-            public Task Shift()
+            public Task<bool> Shift()
             {
                 ShiftCalled = true;
-                return Task.CompletedTask;
+                return Task.FromResult(true); // Shift successful
             }
 
             public Task RetreatFrom(Vector2Int targetPosition, int maxDistance)

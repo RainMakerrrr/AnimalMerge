@@ -36,6 +36,7 @@ namespace Code.Animals.Movement
         [SerializeField] private float _turnDirectionSmoothSpeed = 4f;
         [SerializeField] private float _turnAmplification = 1.3f;
         [SerializeField] private float _turnAngleThreshold = 10f;
+        [SerializeField] private float _moveDuration = 0.5f;
 
         private Vector3[] _debugPathPoints;
         private Quaternion _targetRotation;
@@ -312,15 +313,36 @@ namespace Code.Animals.Movement
             return null;
         }
 
-        public async Task Shift()
+        /// <summary>
+        /// Executes dodge movement to avoid incoming damage.
+        /// Returns true if dodge was successful (valid position found and movement executed), false otherwise.
+        /// </summary>
+        public async Task<bool> Shift()
         {
             var dodgePositions = GetDodgePositions();
+
+            // If no valid dodge positions, dodge fails
+            if (dodgePositions.Length == 0)
+            {
+                Debug.Log("[Dodge] No valid dodge positions found - dodge failed, damage will be applied");
+                return false;
+            }
+
             var path = FindPath(dodgePositions);
 
-            if (path == null || path.Count == 0) return;
+            // If pathfinding failed, dodge fails
+            if (path == null || path.Count == 0)
+            {
+                Debug.Log("[Dodge] Pathfinding failed - dodge failed, damage will be applied");
+                return false;
+            }
 
+            // Execute dodge movement
             await ExecuteDodgeMovement(path);
             UpdateNodeOccupancy(path.Last());
+
+            Debug.Log("[Dodge] Dodge successful - damage blocked");
+            return true;
         }
 
         public virtual async Task<bool> Move(Vector3 target)
@@ -502,7 +524,7 @@ namespace Code.Animals.Movement
             _currentTurnDirection = 0f;
             _targetTurnDirection = 0f;
 
-            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+            var tween = transform.DOPath(pathPositions, pathPositions.Length * _moveDuration)
                 .OnWaypointChange(i =>
                 {
                     var nextIndex = i + 1;
@@ -542,19 +564,59 @@ namespace Code.Animals.Movement
             _unitOccupancy.MarkCellsAsOccupied(finalCell, neighbours);
         }
 
+        /// <summary>
+        /// Gets valid dodge positions for the unit.
+        /// Only returns positions where the unit can actually be placed (accounting for size, direction, and grid bounds).
+        /// Priority order: right, left, back (relative to grid axes).
+        /// </summary>
         private Vector2Int[] GetDodgePositions()
         {
-            return new Vector2Int[]
+            // Get current unit's occupied cells to exclude from walkability checks
+            // This allows dodge to positions that overlap with current location
+            var currentOccupiedCells = _gridManager.GetOccupiedCells(
+                new Vector2Int(_currentPathNode.X, _currentPathNode.Y), _unitSize, _direction);
+            var excludePositions = new HashSet<Vector2Int>();
+            foreach (var cell in currentOccupiedCells)
             {
-                new Vector2Int(_currentPathNode.X + 1, _currentPathNode.Y),
-                new Vector2Int(_currentPathNode.X - 1, _currentPathNode.Y),
-                new Vector2Int(_currentPathNode.X, _currentPathNode.Y - 1),
+                excludePositions.Add(new Vector2Int(cell.X, cell.Y));
+            }
+
+            var currentPos = new Vector2Int(_currentPathNode.X, _currentPathNode.Y);
+            var validPositions = new List<Vector2Int>();
+
+            // Try dodge positions in priority order: right, left, back
+            var candidates = new Vector2Int[]
+            {
+                new Vector2Int(currentPos.x + 1, currentPos.y), // Right
+                new Vector2Int(currentPos.x - 1, currentPos.y), // Left
+                new Vector2Int(currentPos.x, currentPos.y - 1), // Back
             };
+
+            Debug.Log($"[Dodge] Current position: ({currentPos.x},{currentPos.y}), Size: {_unitSize}, Direction: {_direction}");
+            Debug.Log($"[Dodge] Excluded cells (current occupancy): {string.Join(", ", excludePositions.Select(p => $"({p.x},{p.y})"))}");
+
+            foreach (var candidate in candidates)
+            {
+                // Check if unit can be placed at this position (excluding own current cells)
+                if (_gridManager.CanPlaceUnit(candidate, _unitSize, _direction, excludePositions))
+                {
+                    validPositions.Add(candidate);
+                    Debug.Log($"[Dodge] Valid dodge position: ({candidate.x},{candidate.y})");
+                }
+                else
+                {
+                    Debug.Log($"[Dodge] Invalid dodge position: ({candidate.x},{candidate.y}) - cannot place unit");
+                }
+            }
+
+            Debug.Log($"[Dodge] Total valid dodge positions: {validPositions.Count}");
+
+            return validPositions.ToArray();
         }
 
         private async Task ExecuteDodgeMovement(List<GridCell> path)
         {
-            _movementAnimator.PlayJumpAnimation();
+            //_movementAnimator.PlayJumpAnimation();
 
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;

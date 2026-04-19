@@ -19,7 +19,11 @@ namespace Code
         /// </summary>
         List<IGridCell> GetOccupiedCells();
 
-        Task Shift();
+        /// <summary>
+        /// Executes dodge movement to avoid incoming damage.
+        /// Returns true if dodge was successful (valid position found), false if no valid dodge position exists.
+        /// </summary>
+        Task<bool> Shift();
 
         /// <summary>
         /// Retreats from target position by specified distance.

@@ -11,8 +11,13 @@ namespace Code.Abilities
         private readonly bool _isOwner;
         private readonly IRandomProvider _randomProvider;
         private int _counter;
+        private bool _blockDamage;
 
-        public bool IsBlockingDamage => true;
+        /// <summary>
+        /// Returns true if the last dodge was successful and should block damage.
+        /// Updated by Apply() based on Shift() result.
+        /// </summary>
+        public bool IsBlockingDamage => _blockDamage;
         public int Priority => 1;
 
         public bool CanUse(IAttacker attacker)
@@ -42,6 +47,9 @@ namespace Code.Abilities
 
         public async Task Apply()
         {
+            // Assume dodge will succeed by default
+            _blockDamage = true;
+
             // Disable colliders before shift (to avoid being hit during teleport)
             foreach (Collider collider in _colliders)
             {
@@ -49,10 +57,22 @@ namespace Code.Abilities
             }
 
             _counter++;
-            await _transformable.Shift();
 
-            // NEW: Re-enable colliders after shift completes (self-management)
-            // This eliminates dependency on AnimalHealth.EnableColliders()
+            // Execute shift and check if it was successful
+            bool dodgeSuccessful = await _transformable.Shift();
+
+            // If shift failed (no valid dodge positions), don't block damage
+            if (!dodgeSuccessful)
+            {
+                _blockDamage = false;
+                Debug.Log("[Dodge] Shift failed (no valid positions) - damage will NOT be blocked");
+            }
+            else
+            {
+                Debug.Log("[Dodge] Shift successful - damage blocked");
+            }
+
+            // Re-enable colliders after shift completes (whether successful or not)
             foreach (Collider collider in _colliders)
             {
                 if (collider != null) // Safety check

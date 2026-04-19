@@ -38,7 +38,7 @@ namespace Code.Animals.Movement
                 return System.Array.Empty<Vector2Int>();
             }
 
-            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Target cells: {string.Join(", ", targetCells.Select(c => $"({c.X},{c.Y})"))}");
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Target cells: {string.Join(", ", targetCells.Select(c => $"({c.X},{c.Y})"))}");
 
             // 2. Построить зону атаки (все соседи клеток цели)
             var attackZone = new HashSet<Vector2Int>();
@@ -54,8 +54,8 @@ namespace Code.Animals.Movement
                 }
             }
 
-            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone size: {attackZone.Count}");
-            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone cells: {string.Join(", ", attackZone.Select(az => $"({az.x},{az.y})"))}");
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone size: {attackZone.Count}");
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Attack zone cells: {string.Join(", ", attackZone.Select(az => $"({az.x},{az.y})"))}");
 
             // 3. Для каждой клетки зоны атаки найти возможные anchor points
             var candidateAnchors = new HashSet<Vector2Int>();
@@ -69,22 +69,40 @@ namespace Code.Animals.Movement
                 }
             }
 
-            //Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Candidate anchors: {string.Join(", ", candidateAnchors.Select(a => $"({a.x},{a.y})"))}");
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Candidate anchors: {string.Join(", ", candidateAnchors.Select(a => $"({a.x},{a.y})"))}");
 
-            // 4. Фильтровать: проверить какие anchor points валидны
+            // 4. Get current unit's occupied cells to exclude from walkability checks
+            // This allows the unit to pathfind through positions that overlap with its current location
+            var currentOccupiedCells = _gridManager.GetOccupiedCells(new Vector2Int(currentNode.X, currentNode.Y), unitSize, direction);
+            var excludePositions = new HashSet<Vector2Int>();
+            foreach (var cell in currentOccupiedCells)
+            {
+                excludePositions.Add(new Vector2Int(cell.X, cell.Y));
+            }
+
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Current unit occupied cells (excluded from checks): {string.Join(", ", excludePositions.Select(p => $"({p.x},{p.y})"))}");
+
+            // 5. Фильтровать: проверить какие anchor points валидны
             var validPositions = new List<Vector2Int>();
+            int rejectedByPlacement = 0;
+            int rejectedByOverlap = 0;
+            int rejectedByAdjacency = 0;
+
             foreach (var anchor in candidateAnchors)
             {
-                // First check if unit can be placed (ignoring occupancy for pathfinding purposes)
-                if (!_gridManager.CanPlaceUnit(anchor, unitSize, direction, ignoreOccupied: true))
+                // First check if unit can be placed, excluding its own current cells from walkability check
+                if (!_gridManager.CanPlaceUnit(anchor, unitSize, direction, excludePositions))
                 {
-                    continue; // Can't place (out of bounds, etc.)
+                    rejectedByPlacement++;
+                    Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Rejected anchor: ({anchor.x},{anchor.y}) - CanPlaceUnit returned false");
+                    continue; // Can't place (out of bounds, or occupied by other units)
                 }
 
-                // Check if this anchor would cause overlap with target cells
+                // Get all cells this unit would occupy at this anchor position
                 var occupiedByAnchor = _gridManager.GetOccupiedCells(anchor, unitSize, direction);
-                bool overlapsWithTarget = false;
 
+                // Check if this anchor would cause overlap with target cells
+                bool overlapsWithTarget = false;
                 foreach (var occupiedCell in occupiedByAnchor)
                 {
                     if (targetCells.Any(tc => tc.X == occupiedCell.X && tc.Y == occupiedCell.Y))
@@ -94,11 +112,49 @@ namespace Code.Animals.Movement
                     }
                 }
 
-                if (!overlapsWithTarget)
+                if (overlapsWithTarget)
+                {
+                    rejectedByOverlap++;
+                    Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Rejected anchor: ({anchor.x},{anchor.y}) - overlaps with target");
+                    continue; // Skip if overlapping with enemy
+                }
+
+                // CRITICAL FIX: Verify that at least one occupied cell is adjacent to at least one target cell
+                // This prevents invalid positions like (5,5) when attacking enemy at (4,7)
+                bool hasAdjacentCell = false;
+                foreach (var occupiedCell in occupiedByAnchor)
+                {
+                    foreach (var targetCell in targetCells)
+                    {
+                        // Check adjacency using Chebyshev distance (includes diagonals)
+                        int dx = Mathf.Abs(occupiedCell.X - targetCell.X);
+                        int dy = Mathf.Abs(occupiedCell.Y - targetCell.Y);
+
+                        // Adjacent if Chebyshev distance ≤ 1 (excluding exact overlap which was already checked)
+                        if (Mathf.Max(dx, dy) <= 1 && !(dx == 0 && dy == 0))
+                        {
+                            hasAdjacentCell = true;
+                            break;
+                        }
+                    }
+                    if (hasAdjacentCell) break;
+                }
+
+                // Only add if adjacent to enemy
+                if (hasAdjacentCell)
                 {
                     validPositions.Add(anchor);
+                    Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Valid anchor: ({anchor.x},{anchor.y}) - passed all checks");
+                }
+                else
+                {
+                    rejectedByAdjacency++;
+                    Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Rejected anchor: ({anchor.x},{anchor.y}) - no adjacent cells to enemy");
                 }
             }
+
+            Debug.Log($"[PathfindingDebug][GetPossibleAttackPositions] Validation summary: {candidateAnchors.Count} total, {rejectedByPlacement} rejected by placement, {rejectedByOverlap} rejected by overlap, {rejectedByAdjacency} rejected by adjacency, {validPositions.Count} valid");
+
 
             // 5. Сортировка по приоритету: ближе к врагу, потом ближе к текущей позиции
             var currentPos = new Vector2Int(currentNode.X, currentNode.Y);
@@ -204,7 +260,7 @@ namespace Code.Animals.Movement
             if (unitSize == UnitSize.Small)
             {
                 anchors.Add(targetCell);
-                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Small unit, targetCell: ({targetCell.x},{targetCell.y}), anchor: ({targetCell.x},{targetCell.y})");
+                //Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Small unit, targetCell: ({targetCell.x},{targetCell.y}), anchor: ({targetCell.x},{targetCell.y})");
                 return anchors;
             }
 
@@ -235,7 +291,7 @@ namespace Code.Animals.Movement
                     anchors.Add(targetCell);
                     anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y));
                 }
-                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Medium unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
+                //Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Medium unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
                 return anchors;
             }
 
@@ -244,15 +300,18 @@ namespace Code.Animals.Movement
             {
                 if (unitDirection == Direction.North || unitDirection == Direction.East)
                 {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x+1, anchor.y), (anchor.x, anchor.y+1), (anchor.x+1, anchor.y+1)
-                    anchors.Add(targetCell);                                       // (0,0)
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));   // (1,0)
-                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));   // (0,1)
-                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y - 1)); // (1,1)
+                    // For North/East: unit occupies (anchor+0,anchor+0), (anchor+1,anchor+0),
+                    //                               (anchor+0,anchor+1), (anchor+1,anchor+1)
+                    // To occupy targetCell, anchor could be at:
+                    anchors.Add(targetCell);                                       // targetCell is cell (0,0)
+                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));   // targetCell is cell (1,0)
+                    anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));   // targetCell is cell (0,1)
+                    anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y - 1)); // targetCell is cell (1,1)
                 }
                 else if (unitDirection == Direction.South)
                 {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x+1, anchor.y), (anchor.x, anchor.y-1), (anchor.x+1, anchor.y-1)
+                    // For South: unit occupies (anchor+0,anchor+0), (anchor+1,anchor+0),
+                    //                          (anchor+0,anchor-1), (anchor+1,anchor-1)
                     anchors.Add(targetCell);
                     anchors.Add(new Vector2Int(targetCell.x - 1, targetCell.y));
                     anchors.Add(new Vector2Int(targetCell.x, targetCell.y + 1));
@@ -260,13 +319,14 @@ namespace Code.Animals.Movement
                 }
                 else if (unitDirection == Direction.West)
                 {
-                    // Занимает: (anchor.x, anchor.y), (anchor.x-1, anchor.y), (anchor.x, anchor.y+1), (anchor.x-1, anchor.y+1)
+                    // For West: unit occupies (anchor+0,anchor+0), (anchor-1,anchor+0),
+                    //                         (anchor+0,anchor+1), (anchor-1,anchor+1)
                     anchors.Add(targetCell);
                     anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y));
                     anchors.Add(new Vector2Int(targetCell.x, targetCell.y - 1));
                     anchors.Add(new Vector2Int(targetCell.x + 1, targetCell.y - 1));
                 }
-                Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Large unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
+                //Debug.Log($"[PathfindingDebug][GetAnchorPointsForCell] Large unit ({unitDirection}), targetCell: ({targetCell.x},{targetCell.y}), anchors: {string.Join(", ", anchors.Select(a => $"({a.x},{a.y})"))}");
                 return anchors;
             }
 

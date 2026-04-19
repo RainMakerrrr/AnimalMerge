@@ -139,7 +139,9 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
             gridManager.GridToWorld(0, 0).ReturnsForAnyArgs(Vector3.zero);
             gridManager.GridToWorldCenter(0, 0).ReturnsForAnyArgs(Vector3.zero);
             gridManager.GetUnitWorldPosition(default, default, default).ReturnsForAnyArgs(Vector3.zero);
-            gridManager.CanPlaceUnit(default, default, default, default).ReturnsForAnyArgs(false);
+            // Configure both CanPlaceUnit overloads
+            gridManager.CanPlaceUnit(default(Vector2Int), default(UnitSize), default(Direction), default(bool)).ReturnsForAnyArgs(false);
+            gridManager.CanPlaceUnit(default(Vector2Int), default(UnitSize), default(Direction), default(HashSet<Vector2Int>)).ReturnsForAnyArgs(false);
             gridManager.GetOccupiedCells(default, default, default).ReturnsForAnyArgs(new List<IGridCell>());
             gridManager.GetNeighborCells(default, default, default).ReturnsForAnyArgs(new List<IGridCell>());
 

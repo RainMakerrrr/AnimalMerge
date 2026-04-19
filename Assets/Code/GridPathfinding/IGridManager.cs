@@ -69,6 +69,12 @@ namespace Code.GridPathfinding
         bool CanPlaceUnit(Vector2Int position, UnitSize size, Direction direction, bool ignoreOccupied = false);
 
         /// <summary>
+        /// Checks if a unit of given size and direction can be placed at the position,
+        /// excluding specific cells from the walkability check (useful for pathfinding when unit needs to ignore its own current cells)
+        /// </summary>
+        bool CanPlaceUnit(Vector2Int position, UnitSize size, Direction direction, HashSet<Vector2Int> excludePositions);
+
+        /// <summary>
         /// Gets all cells that a unit would occupy at the given position
         /// </summary>
         List<IGridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction);

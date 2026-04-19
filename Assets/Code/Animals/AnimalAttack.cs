@@ -173,7 +173,7 @@ namespace Code.Animals
             var targetSnapshot = _targetOverride;
 
             // If specific target was set via Attack(ITarget), attack it directly
-            if (targetSnapshot != null)
+            if (targetSnapshot != null && !_isAoE)
             {
                 Debug.Log($"[Attack] Using target override: {targetSnapshot.Damageable}");
                 await targetSnapshot.Damageable.TakeDamageAsync(this);
