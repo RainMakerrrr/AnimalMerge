@@ -53,6 +53,16 @@ namespace Code.Infrastructure.Installers
                 .WithGameObjectName("KeyboardMergeUndoHelper (Debug)")
                 .AsSingle()
                 .NonLazy();
+
+            // Battle debug commands
+            Container.Bind<BattleDebugCommands>()
+                .AsSingle();
+
+            Container.Bind<KeyboardBattleDebugHelper>()
+                .FromNewComponentOnNewGameObject()
+                .WithGameObjectName("KeyboardBattleDebugHelper (Debug)")
+                .AsSingle()
+                .NonLazy();
 #endif
 
             // MonoBehaviour dependencies from scene

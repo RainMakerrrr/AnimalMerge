@@ -36,7 +36,8 @@ namespace Code
                 .Select(c => c.GetComponentInParent<AnimalMovement>())
                 .Where(a => a.GetComponent<IDamageable>().IsDead == false);
 
-            animals = animals.OrderBy(animal => Mathf.Abs(position.x - animal.transform.position.x));
+            // Sort by actual 3D distance (using sqrMagnitude for performance)
+            animals = animals.OrderBy(animal => (position - animal.transform.position).sqrMagnitude);
 
             return animals.FirstOrDefault();
         }
@@ -56,7 +57,8 @@ namespace Code
             int count = targets.Count();
             Debug.Log($"[TargetFinder] Found {count} targets for layer {layerMask} from position {position}");
 
-            targets = targets.OrderBy(target => Mathf.Abs(position.x - target.Transformable.Position.x));
+            // Sort by actual 3D distance (using sqrMagnitude for performance)
+            targets = targets.OrderBy(target => (position - target.Transformable.Position).sqrMagnitude);
 
             return targets.FirstOrDefault();
         }
