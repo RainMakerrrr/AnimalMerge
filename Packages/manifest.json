@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.ivanmurzak.unity.mcp": "0.48.0",
     "com.unity-bridge": "file:C:/Github Projects/animal-merge/advanced-mcp/tools/unity-bridge/unity-extension",
