@@ -16,16 +16,21 @@ namespace Framework.Code.Infrastructure.Services.Analytics
         {
             string stringUserLevel = LevelToString(userLevel);
 
+#if TINY_SAUCE_ENABLED
             TinySauce.OnGameStarted(stringUserLevel);
             TinySauce.TrackCustomEvent($"{LEVEL_LOAD}:{stringUserLevel}");
             Debug.Log($"[Analytics] LevelLoaded: levelId={levelId}, userLevel={stringUserLevel}");
+#endif
+           
         }
 
         public void LevelStarted(string levelId, int userLevel)
         {
+#if TINY_SAUCE_ENABLED
             string stringUserLevel = LevelToString(userLevel);
             TinySauce.TrackCustomEvent($"{LEVEL_START}:{stringUserLevel}");
             Debug.Log($"[Analytics] LevelStarted: levelId={levelId}, userLevel={stringUserLevel}");
+#endif
         }
 
         public void LevelRestarted(string levelId, float timeSpent)
@@ -33,7 +38,9 @@ namespace Framework.Code.Infrastructure.Services.Analytics
             var eventName = $"{LEVEL_RESTART}:{levelId}";
             var eventProperties = new Dictionary<string, object> {{TIME_SPENT, timeSpent}};
 
+#if TINY_SAUCE_ENABLED
             TinySauce.TrackCustomEvent(eventName, eventProperties);
+#endif
         }
 
         public void LevelCompleted(string levelId, int userLevel, bool isFinished, int coinsCollected,
@@ -45,11 +52,13 @@ namespace Framework.Code.Infrastructure.Services.Analytics
             var eventName = $"{condition}:{stringUserLevel}";
             var eventProperties = new Dictionary<string, object> {{TIME_SPENT, timeSpent}};
 
+#if TINY_SAUCE_ENABLED
             TinySauce.OnGameFinished(isFinished, coinsCollected, stringUserLevel);
             TinySauce.TrackCustomEvent(eventName, eventProperties);
 
             Debug.Log($"[Analytics] LevelCompleted: levelId={levelId}, userLevel={stringUserLevel}, " +
                       $"timeSpent={timeSpent}, isFinished={isFinished}");
+#endif
         }
 
         string LevelToString(int level)

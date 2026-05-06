@@ -1,28 +1,22 @@
 apply plugin: 'com.android.application'
 
-buildscript {
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.3'
-    }
-}
-
 dependencies {
     implementation project(':unityLibrary')
     }
 
 android {
-	namespace "**NAMESPACE**"
-	ndkPath "**NDKPATH**"
+    namespace "**NAMESPACE**"
+    ndkPath "**NDKPATH**"
+
     compileSdkVersion **APIVERSION**
     buildToolsVersion '**BUILDTOOLS**'
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     defaultConfig {
-        multiDexEnabled true
         minSdkVersion **MINSDKVERSION**
         targetSdkVersion **TARGETSDKVERSION**
         applicationId '**APPLICATIONID**'
@@ -31,12 +25,11 @@ android {
         }
         versionCode **VERSIONCODE**
         versionName '**VERSIONNAME**'
-        resConfigs "en", "US"
     }
 
     aaptOptions {
-        noCompress = ['.unity3d', '.ress', '.resource', '.obb']+ unityStreamingAssets.tokenize(', ')
-        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
     }**SIGN**
 
     lintOptions {
@@ -46,14 +39,24 @@ android {
     buildTypes {
         debug {
             minifyEnabled **MINIFY_DEBUG**
-            
             proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
             jniDebuggable true
         }
         release {
             minifyEnabled **MINIFY_RELEASE**
-            
             proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
         }
+    }**PACKAGING_OPTIONS****PLAY_ASSET_PACKS****SPLITS**
+**BUILT_APK_LOCATION**
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = true
+        }
     }
-}
+}**SPLITS_VERSION_CODE****LAUNCHER_SOURCE_BUILD_SETUP**

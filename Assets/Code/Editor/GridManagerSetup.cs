@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Code.GridPathfinding;
 using UnityEditor;
 using UnityEngine;
@@ -147,3 +148,5 @@ namespace Code.Editor
         }
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿#if false
+
+using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build;
@@ -24,7 +26,7 @@ namespace Voodoo.Sauce.Internal.Editor
         private static readonly string DestLauncherManifestPath = $"{AndroidFolderPath}/LauncherManifest.xml";
         private static readonly string DestLauncherGradlePath = $"{AndroidFolderPath}/launcherTemplate.gradle";
 
-        private static readonly string AndroidGradleVersion = "3.4.3";
+        private static readonly string AndroidGradleVersion = "7.4.2";
         private static readonly string AndroidBuildToolsGradleClasspath = $"classpath 'com.android.tools.build:gradle:{AndroidGradleVersion}'";
 
         public int callbackOrder => 1;
@@ -138,3 +140,5 @@ namespace Voodoo.Sauce.Internal.Editor
         }
     }
 }
+
+#endif
