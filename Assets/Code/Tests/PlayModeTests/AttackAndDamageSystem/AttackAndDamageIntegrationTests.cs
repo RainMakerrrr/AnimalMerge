@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
@@ -48,7 +48,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             target.gameObject.layer = LayerMask.NameToLayer("Default");
 
             // Act
-            Task attackTask = attack.AttackAnimationHandlerAsync();
+            var attackTask = attack.AttackAnimationHandlerAsync().AsTask();
 
             // Wait for task to complete
             while (!attackTask.IsCompleted)
@@ -80,7 +80,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             health.Died += diedTracker.Track;
 
             // Act
-            Task damageTask = health.TakeDamageAsync(attacker);
+            var damageTask = health.TakeDamageAsync(attacker).AsTask();
 
             while (!damageTask.IsCompleted)
             {
@@ -118,7 +118,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             var dodge = new Code.Abilities.Dodge(transformableMock, colliders, isOwner: true, randomProvider);
 
             // Act
-            Task applyTask = dodge.Apply();
+            var applyTask = dodge.Apply().AsTask();
 
             while (!applyTask.IsCompleted)
             {
@@ -162,7 +162,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             var attacker = CreateMockAttack(damage: 30f);
 
             // Act
-            Task damageTask = foxHealth.TakeDamageAsync(attacker);
+            var damageTask = foxHealth.TakeDamageAsync(attacker).AsTask();
 
             while (!damageTask.IsCompleted)
             {
@@ -195,16 +195,16 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
                 return new List<IGridCell>();
             }
 
-            public Task<bool> Shift()
+            public UniTask<bool> Shift()
             {
                 ShiftCalled = true;
-                return Task.FromResult(true); // Shift successful
+                return UniTask.FromResult(true); // Shift successful
             }
 
-            public Task RetreatFrom(Vector2Int targetPosition, int maxDistance)
+            public UniTask RetreatFrom(Vector2Int targetPosition, int maxDistance)
             {
                 RetreatCalled = true;
-                return Task.CompletedTask;
+                return UniTask.CompletedTask;
             }
         }
 
@@ -315,12 +315,12 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
                 Current = maxHealth;
             }
 
-            public async Task TakeDamageAsync(AnimalAttack attacker)
+            public async UniTask TakeDamageAsync(AnimalAttack attacker)
             {
                 TakeDamageCallCount++;
                 DamageReceived.Add(attacker.Damage);
                 Current -= attacker.Damage;
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
             }
         }
 

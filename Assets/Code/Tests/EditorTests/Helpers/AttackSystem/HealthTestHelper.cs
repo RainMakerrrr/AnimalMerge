@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
 using NSubstitute;
@@ -77,7 +77,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             ability.Apply().Returns(callInfo =>
             {
                 onApply?.Invoke();
-                return Task.CompletedTask;
+                return UniTask.CompletedTask;
             });
 
             return ability;

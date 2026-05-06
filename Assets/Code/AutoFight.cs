@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Animals;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Animals.Movement;
@@ -41,7 +41,7 @@ namespace Code
             // }
         }
 
-        private async void Move()
+        private async UniTask Move()
         {
             Debug.Log("[PathFindDebug] === START PLAYER UNITS MOVE ===");
             await MoveUnits(_spawner.Animals, EnemyLayerMask);
@@ -103,7 +103,7 @@ namespace Code
             return bestCell ?? rootCell;
         }
 
-        private async Task MoveUnits(IEnumerable<AnimalFacade> animals, string layerMask)
+        private async UniTask MoveUnits(IEnumerable<AnimalFacade> animals, string layerMask)
         {
             // Sort units by turn priority using grid positions: rows first, then columns
             // Reading order: complete each row from left to right before moving to next row

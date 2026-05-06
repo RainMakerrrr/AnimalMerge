@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using Zenject;
@@ -116,7 +116,7 @@ namespace Code.Animals.Health
             _abilityManager ??= new AbilityManager();
         }
 
-        public virtual async Task TakeDamageAsync(AnimalAttack attacker)
+        public virtual async UniTask TakeDamageAsync(AnimalAttack attacker)
         {
             Debug.Log($"[TakeDamage] {name} took {attacker.Damage} damage from {attacker.name}");
 
@@ -143,7 +143,7 @@ namespace Code.Animals.Health
             }
         }
 
-        protected virtual async Task<bool> ApplyAbilities(AnimalAttack attacker)
+        protected virtual async UniTask<bool> ApplyAbilities(AnimalAttack attacker)
         {
             // Ensure AbilityManager exists (lazy initialization for edge cases)
             _abilityManager ??= new AbilityManager();

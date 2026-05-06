@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using Code.Animals.Health;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 
@@ -23,7 +23,7 @@ namespace Code.Animals
         /// Override to attack without target (physics-based detection).
         /// Not used by AutoFight, but kept for compatibility.
         /// </summary>
-        public override async Task Attack()
+        public override async UniTask Attack()
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
             if (_isJumping) return;
@@ -45,7 +45,7 @@ namespace Code.Animals
         /// Override to attack specific target.
         /// Used by AutoFight system.
         /// </summary>
-        public override async Task Attack(ITarget target)
+        public override async UniTask Attack(ITarget target)
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
             if (_isJumping) return;
@@ -64,7 +64,7 @@ namespace Code.Animals
         /// Performs the jump attack sequence: jump to target -> deal damage -> jump back to original position.
         /// Jump and damage execution happen in parallel for better performance.
         /// </summary>
-        private async Task PerformJumpAttack(ITarget target)
+        private async UniTask PerformJumpAttack(ITarget target)
         {
             _isJumping = true;
             var originalPosition = transform.position;
@@ -86,7 +86,7 @@ namespace Code.Animals
                 var damageTask = PerformDamageSequence(target, halfDuration);
 
                 // Execute both tasks in parallel
-                await Task.WhenAll(jumpTask, damageTask);
+                await UniTask.WhenAll(jumpTask, damageTask);
 
                 _animator.SetEnableFlappingAnimation(false);
 
@@ -106,7 +106,7 @@ namespace Code.Animals
         /// Performs the jump sequence: jump to target, then jump back to original position.
         /// This is executed synchronously (await each jump).
         /// </summary>
-        private async Task PerformJumpSequence(Vector3 jumpTarget, Vector3 originalPosition)
+        private async UniTask PerformJumpSequence(Vector3 jumpTarget, Vector3 originalPosition)
         {
             // Jump to target
             await transform.DOJump(
@@ -114,7 +114,7 @@ namespace Code.Animals
                 jumpPower: _jumpPower,
                 numJumps: _numJumps,
                 duration: _jumpDuration
-            ).AsyncWaitForCompletion();
+            ).AsyncWaitForCompletion().AsUniTask();
 
             Debug.Log("[ChickenAttack] Jumping back to original position");
 
@@ -124,17 +124,17 @@ namespace Code.Animals
                 jumpPower: _jumpPower,
                 numJumps: _numJumps,
                 duration: _jumpDuration
-            ).AsyncWaitForCompletion();
+            ).AsyncWaitForCompletion().AsUniTask();
         }
 
         /// <summary>
         /// Performs the damage sequence: wait for half duration (peak of jump), then deal damage.
         /// This is executed in parallel with the jump sequence.
         /// </summary>
-        private async Task PerformDamageSequence(ITarget target, float delaySeconds)
+        private async UniTask PerformDamageSequence(ITarget target, float delaySeconds)
         {
             // Wait for half duration (peak of the jump)
-            await Task.Delay((int)(delaySeconds * 1000));
+            await UniTask.Delay((int)(delaySeconds * 1000));
 
             Debug.Log($"[ChickenAttack] Dealing damage to {target}");
 

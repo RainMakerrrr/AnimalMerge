@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle.StateMachine;
 using UnityEngine;
 
@@ -17,7 +17,7 @@ namespace Code.Battle.States
             _stateMachine = stateMachine;
         }
 
-        public Task Enter()
+        public UniTask Enter()
         {
             Debug.Log("[BattleStartState] Battle starting - transitioning to player turn");
 
@@ -25,10 +25,10 @@ namespace Code.Battle.States
             return _stateMachine.ChangeStateAsync<PlayerTurnState>();
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[BattleStartState] Exiting");
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

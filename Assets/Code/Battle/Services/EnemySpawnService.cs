@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Code.Animals.Facades;
+using Cysharp.Threading.Tasks;
 using Code.Battle.Config;
 using Code.GridPathfinding;
 using Code.Pathfinding;
@@ -27,7 +27,7 @@ namespace Code.Battle.Services
             _spawnedEnemies = new List<AnimalFacade>();
         }
 
-        public async Task<List<AnimalFacade>> SpawnEnemiesForStageAsync(
+        public async UniTask<List<AnimalFacade>> SpawnEnemiesForStageAsync(
             LevelStageConfig stageConfig,
             CancellationToken cancellationToken)
         {
@@ -63,7 +63,7 @@ namespace Code.Battle.Services
             Debug.Log($"[EnemySpawnService] Successfully spawned {spawnedUnits.Count} enemies");
 
             // Allow frame to complete spawning
-            await Task.Yield();
+            await UniTask.Yield();
 
             return spawnedUnits;
         }

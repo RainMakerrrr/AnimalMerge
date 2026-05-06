@@ -1,6 +1,6 @@
 using System;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
 using Code.Services.Random;
@@ -55,7 +55,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         public static Dodge CreateDodge(bool isOwner, int initialCounter = 0, IRandomProvider randomProvider = null)
         {
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful by default
+            transformable.Shift().Returns(UniTask.FromResult(true)); // Shift successful by default
 
             var go = new GameObject("DodgeTest");
             var collider = go.AddComponent<BoxCollider>();
@@ -86,7 +86,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             var go = new GameObject("MockDodgeTest");
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful by default
+            transformable.Shift().Returns(UniTask.FromResult(true)); // Shift successful by default
 
             var collider = go.AddComponent<BoxCollider>();
             var colliders = new Collider[] { collider };
@@ -194,7 +194,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             _randomValueProvider = randomValueProvider;
         }
 
-        public async Task Apply()
+        public async UniTask Apply()
         {
             ApplyCallCount++;
 
@@ -275,7 +275,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             _randomValueProvider = randomValueProvider;
         }
 
-        public async Task Apply()
+        public async UniTask Apply()
         {
             ApplyCallCount++;
 
@@ -294,7 +294,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
                 }
             }
 
-            await Task.CompletedTask;
+            await UniTask.CompletedTask;
         }
     }
 }

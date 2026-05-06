@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
@@ -23,7 +23,7 @@ namespace Code.Battle.States
             _victoryChecker = victoryChecker;
         }
 
-        public Task Enter()
+        public UniTask Enter()
         {
             Debug.Log("[BattleEndState] Entering - Finalizing battle");
 
@@ -45,13 +45,13 @@ namespace Code.Battle.States
                 _gameStateMachine.Enter<LoseState>();
             }
 
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[BattleEndState] Exiting");
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

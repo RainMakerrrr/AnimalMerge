@@ -3,8 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Health;
@@ -320,10 +320,10 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         private class TestAnimalMovement : AnimalMovement
         {
             // Override Move to prevent actual execution
-            public override async Task<bool> Move(Vector3 target)
+            public override async UniTask<bool> Move(Vector3 target)
             {
                 // Do nothing - just return completed task
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
 
                 return false;
             }
@@ -335,24 +335,24 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         private class TestAnimalAttack : AnimalAttack
         {
             // Override Attack to prevent actual execution
-            public override async Task Attack()
+            public override async UniTask Attack()
             {
                 // Do nothing - just return completed task
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
             }
 
             // Override Attack with target to prevent actual execution
-            public override async Task Attack(ITarget target)
+            public override async UniTask Attack(ITarget target)
             {
                 // Do nothing - just return completed task
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
             }
 
             // Override AttackAnimationHandlerAsync to prevent actual execution
-            public override async Task AttackAnimationHandlerAsync()
+            public override async UniTask AttackAnimationHandlerAsync()
             {
                 // Do nothing - just return completed task
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
             }
         }
     }

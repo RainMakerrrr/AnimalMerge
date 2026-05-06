@@ -1,4 +1,6 @@
+using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
@@ -94,8 +96,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act
             var method = typeof(AnimalAttack).GetMethod("ExecutePostAttackAbilitiesAsync",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task)method.Invoke(_attack, new object[] { target });
-            await task;
+            var unitask = (UniTask)method.Invoke(_attack, new object[] { target });
+            await unitask;
 
             // Assert
             await transformable.Received(1).RetreatFrom(Arg.Any<Vector2Int>(), Arg.Any<int>());
@@ -116,10 +118,10 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act
             var method = typeof(AnimalAttack).GetMethod("ExecutePostAttackAbilitiesAsync",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task)method.Invoke(_attack, new object[] { target });
+            var unitask = (UniTask)method.Invoke(_attack, new object[] { target });
 
             // Should not throw exception
-            System.Func<Task> action = async () => await task;
+            Func<Task> action = async () => await unitask;
 
             // Assert
             await action.Should().NotThrowAsync();
@@ -139,7 +141,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             mockPostAttackAbility.CanUse(Arg.Any<IAttacker>()).Returns(true);
             mockPostAttackAbility.Priority.Returns(-1);
             mockPostAttackAbility.IsBlockingDamage.Returns(false);
-            mockPostAttackAbility.Apply().Returns(Task.CompletedTask);
+            mockPostAttackAbility.Apply().Returns(UniTask.CompletedTask);
 
             _abilityManager.RegisterAbility(mockPostAttackAbility);
 
@@ -150,8 +152,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act
             var method = typeof(AnimalAttack).GetMethod("ExecutePostAttackAbilitiesAsync",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task)method.Invoke(_attack, new object[] { target });
-            await task;
+            var unitask = (UniTask)method.Invoke(_attack, new object[] { target });
+            await unitask;
 
             // Assert
             mockPostAttackAbility.Received(1).SetAttackTarget(target);
@@ -173,14 +175,14 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             regularAbility.CanUse(Arg.Any<IAttacker>()).Returns(true);
             regularAbility.Priority.Returns(0);
             regularAbility.IsBlockingDamage.Returns(false);
-            regularAbility.Apply().Returns(Task.CompletedTask);
+            regularAbility.Apply().Returns(UniTask.CompletedTask);
 
             // Post-attack ability
             var postAttackAbility = Substitute.For<IPostAttackAbility>();
             postAttackAbility.CanUse(Arg.Any<IAttacker>()).Returns(true);
             postAttackAbility.Priority.Returns(-1);
             postAttackAbility.IsBlockingDamage.Returns(false);
-            postAttackAbility.Apply().Returns(Task.CompletedTask);
+            postAttackAbility.Apply().Returns(UniTask.CompletedTask);
 
             _abilityManager.RegisterAbility(regularAbility);
             _abilityManager.RegisterAbility(postAttackAbility);
@@ -192,8 +194,8 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             // Act
             var method = typeof(AnimalAttack).GetMethod("ExecutePostAttackAbilitiesAsync",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var task = (Task)method.Invoke(_attack, new object[] { target });
-            await task;
+            var unitask = (UniTask)method.Invoke(_attack, new object[] { target });
+            await unitask;
 
             // Assert
             // SetAttackTarget should only be called on IPostAttackAbility
@@ -222,7 +224,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
 
             var target = Substitute.For<ITarget>();
             var targetDamageable = Substitute.For<IDamageable>();
-            targetDamageable.TakeDamageAsync(_attack).Returns(Task.CompletedTask);
+            targetDamageable.TakeDamageAsync(_attack).Returns(UniTask.CompletedTask);
 
             var targetTransformable = Substitute.For<ITransformable>();
             var targetPathNode = Substitute.For<IGridCell>();

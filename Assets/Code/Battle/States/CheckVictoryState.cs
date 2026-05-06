@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
@@ -22,7 +22,7 @@ namespace Code.Battle.States
             _flowController = flowController;
         }
 
-        public Task Enter()
+        public UniTask Enter()
         {
             Debug.Log("[CheckVictoryState] Entering - Checking battle conditions");
 
@@ -43,14 +43,14 @@ namespace Code.Battle.States
                     return _stateMachine.ChangeStateAsync<PlayerTurnState>();
 
                 default:
-                    return Task.CompletedTask;
+                    return UniTask.CompletedTask;
             }
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[CheckVictoryState] Exiting");
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

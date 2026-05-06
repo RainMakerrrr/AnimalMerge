@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Code.Animals;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
 using NSubstitute;
 using UnityEngine;
@@ -141,7 +141,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             public float Max => _mockDamageable.Max;
             public bool IsDead => _mockDamageable.IsDead;
 
-            public Task TakeDamageAsync(AnimalAttack attacker)
+            public UniTask TakeDamageAsync(AnimalAttack attacker)
             {
                 return _mockDamageable.TakeDamageAsync(attacker);
             }
@@ -167,7 +167,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             Current = maxHealth;
         }
 
-        public async Task TakeDamageAsync(AnimalAttack attacker)
+        public async UniTask TakeDamageAsync(AnimalAttack attacker)
         {
             TakeDamageCallCount++;
             DamageReceived.Add(attacker.Damage);
@@ -175,7 +175,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
             Current -= attacker.Damage;
 
-            await Task.CompletedTask;
+            await UniTask.CompletedTask;
         }
 
         public void Reset()

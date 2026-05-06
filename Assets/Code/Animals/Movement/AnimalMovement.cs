@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Facades;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
@@ -317,7 +317,7 @@ namespace Code.Animals.Movement
         /// Executes dodge movement to avoid incoming damage.
         /// Returns true if dodge was successful (valid position found and movement executed), false otherwise.
         /// </summary>
-        public async Task<bool> Shift()
+        public async UniTask<bool> Shift()
         {
             var dodgePositions = GetDodgePositions();
 
@@ -345,7 +345,7 @@ namespace Code.Animals.Movement
             return true;
         }
 
-        public virtual async Task<bool> Move(Vector3 target)
+        public virtual async UniTask<bool> Move(Vector3 target)
         {
             Debug.Log(
                 $"[PathfindingDebug][Move] Input target: {target}, CurrentTarget: {CurrentTarget?.Transformable?.CurrentPathNode?.GridPosition}, Current position: {_currentPathNode?.GridPosition}");
@@ -513,7 +513,7 @@ namespace Code.Animals.Movement
             return path;
         }
 
-        private async Task ExecuteMovement(List<GridCell> path)
+        private async UniTask ExecuteMovement(List<GridCell> path)
         {
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
@@ -549,7 +549,7 @@ namespace Code.Animals.Movement
                     _debugPathPoints = null;
                 });
 
-            await tween.AsyncWaitForCompletion();
+            await tween.AsyncWaitForCompletion().AsUniTask();
         }
 
         private void UpdateNodeOccupancy(GridCell finalCell)
@@ -614,7 +614,7 @@ namespace Code.Animals.Movement
             return validPositions.ToArray();
         }
 
-        private async Task ExecuteDodgeMovement(List<GridCell> path)
+        private async UniTask ExecuteDodgeMovement(List<GridCell> path)
         {
             //_movementAnimator.PlayJumpAnimation();
 
@@ -639,7 +639,7 @@ namespace Code.Animals.Movement
 
             _unitOccupancy.ClearOccupancy();
 
-            await tween.AsyncWaitForCompletion();
+            await tween.AsyncWaitForCompletion().AsUniTask();
         }
 
         /// <summary>
@@ -647,7 +647,7 @@ namespace Code.Animals.Movement
         /// ALWAYS moves backward (opposite to unit's facing direction), only along Z-axis.
         /// Used by Velociraptor's retreat ability.
         /// </summary>
-        public async Task RetreatFrom(Vector2Int targetPosition, int maxDistance)
+        public async UniTask RetreatFrom(Vector2Int targetPosition, int maxDistance)
         {
             var currentPos = _currentPathNode.GridPosition;
 
@@ -701,7 +701,7 @@ namespace Code.Animals.Movement
         /// Executes retreat movement with running animation.
         /// Unit smoothly rotates to face forward direction during retreat.
         /// </summary>
-        private async Task ExecuteRetreatMovement(List<GridCell> path)
+        private async UniTask ExecuteRetreatMovement(List<GridCell> path)
         {
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
@@ -733,7 +733,7 @@ namespace Code.Animals.Movement
                     _debugPathPoints = null;
                 });
 
-            await tween.AsyncWaitForCompletion();
+            await tween.AsyncWaitForCompletion().AsUniTask();
         }
 
         private Vector2Int[] GetRetreatPositions(Vector2Int current, Vector2Int direction, int maxDistance)

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle.Config;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
@@ -35,7 +35,7 @@ namespace Code.Battle
             _stateMachine = stateMachine;
         }
 
-        public async Task StartBattleAsync(ExtendedLevel level)
+        public async UniTask StartBattleAsync(ExtendedLevel level)
         {
             if (level == null)
             {
@@ -122,7 +122,7 @@ namespace Code.Battle
             _isFirstStageOfLevel = false;
         }
 
-        public async Task CleanupAsync()
+        public async UniTask CleanupAsync()
         {
             Debug.Log("[BattleFlowController] Async cleanup - exiting state machine and cleaning up battle");
 

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Abilities
 {
@@ -7,6 +7,6 @@ namespace Code.Abilities
         bool IsBlockingDamage { get; }
         int Priority { get; }
         bool CanUse(IAttacker attacker);
-        Task Apply();
+        UniTask Apply();
     }
 }

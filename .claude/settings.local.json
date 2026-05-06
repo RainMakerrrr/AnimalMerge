@@ -80,7 +80,9 @@
       "mcp__ai-game-developer__script-read",
       "mcp__ai-game-developer__script-update-or-create",
       "mcp__ai-game-developer__gameobject-modify",
-      "mcp__ai-game-developer__gameobject-component-list-all"
+      "mcp__ai-game-developer__gameobject-component-list-all",
+      "Bash(Get-ChildItem -Path \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Packages\" -Directory -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Name)"
     ]
   }
 }

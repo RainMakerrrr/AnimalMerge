@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
 using Code.Services.Physics;
 using UnityEngine;
@@ -116,7 +116,7 @@ namespace Code.Animals
             _isAoE = isAoE;
         }
 
-        public virtual async Task Attack()
+        public virtual async UniTask Attack()
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
 
@@ -129,7 +129,7 @@ namespace Code.Animals
         /// Attacks a specific target. This avoids physics search and directly attacks the provided target.
         /// Used by AutoFight to ensure we attack the same target we're moving towards.
         /// </summary>
-        public virtual async Task Attack(ITarget target)
+        public virtual async UniTask Attack(ITarget target)
         {
             if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
 
@@ -140,7 +140,7 @@ namespace Code.Animals
 
             while (!_isAttackDone)
             {
-                await Task.Yield();
+                await UniTask.Yield();
             }
 
             _isAttackDone = false;
@@ -155,14 +155,14 @@ namespace Code.Animals
         }
 
         // Public method for Animation Events (must be void)
-        public async void AttackAnimationHandler()
+        public void AttackAnimationHandler()
         {
-            await AttackAnimationHandlerAsync();
+            AttackAnimationHandlerAsync().Forget();
         }
 
-        // Internal async method for testing (returns Task)
+        // Internal async method for testing
         // Virtual to allow derived classes to override attack behavior
-        public virtual async Task AttackAnimationHandlerAsync()
+        public virtual async UniTask AttackAnimationHandlerAsync()
         {
             var animal = GetComponent<Animal>();
             if (animal != null && animal.Type == AnimalType.Hedgehog) return;
@@ -261,7 +261,7 @@ namespace Code.Animals
         /// Executes post-attack abilities (like Retreat) after successful attack.
         /// Only executes IPostAttackAbility, not defensive abilities (Dodge, CounterAttack).
         /// </summary>
-        protected virtual async Task ExecutePostAttackAbilitiesAsync(ITarget target)
+        protected virtual async UniTask ExecutePostAttackAbilitiesAsync(ITarget target)
         {
             if (_abilityManager == null)
             {

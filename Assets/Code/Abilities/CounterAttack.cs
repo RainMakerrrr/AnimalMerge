@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
 using Code.Services.Random;
@@ -48,7 +48,7 @@ namespace Code.Abilities
             _randomProvider = randomProvider;
         }
 
-        public async Task Apply()
+        public async UniTask Apply()
         {
             if (_animator != null)
             {

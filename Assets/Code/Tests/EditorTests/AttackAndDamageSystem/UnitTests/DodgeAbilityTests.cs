@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Abilities;
 using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
@@ -97,7 +97,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             transformable.Shift().Returns(callInfo =>
             {
                 shiftCalled = true;
-                return Task.FromResult(true); // Shift successful
+                return UniTask.FromResult(true); // Shift successful
             });
 
             var go = new GameObject("DodgeTest");
@@ -139,7 +139,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         {
             // Arrange
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.FromResult(true)); // Shift successful
+            transformable.Shift().Returns(UniTask.FromResult(true)); // Shift successful
 
             var go = new GameObject("DodgeTest");
             var collider = go.AddComponent<BoxCollider>();
@@ -168,7 +168,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         {
             // Arrange
             var transformable = Substitute.For<ITransformable>();
-            transformable.Shift().Returns(Task.FromResult(false)); // Shift failed - no valid positions
+            transformable.Shift().Returns(UniTask.FromResult(false)); // Shift failed - no valid positions
 
             var go = new GameObject("DodgeTest");
             var collider = go.AddComponent<BoxCollider>();

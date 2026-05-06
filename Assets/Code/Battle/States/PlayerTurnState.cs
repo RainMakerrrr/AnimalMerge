@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
 using UnityEngine;
@@ -18,7 +18,7 @@ namespace Code.Battle.States
             _turnExecutor = turnExecutor;
         }
 
-        public async Task Enter()
+        public async UniTask Enter()
         {
             Debug.Log("[PlayerTurnState] Entering - Executing player turns");
 
@@ -28,10 +28,10 @@ namespace Code.Battle.States
             await _stateMachine.ChangeStateAsync<EnemyTurnState>();
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[PlayerTurnState] Exiting");
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

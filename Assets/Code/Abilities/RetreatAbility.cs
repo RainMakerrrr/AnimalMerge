@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Services.Random;
 using UnityEngine;
@@ -51,7 +51,7 @@ namespace Code.Abilities
             return _randomProvider.Range(0, 100) < 50;
         }
 
-        public async Task Apply()
+        public async UniTask Apply()
         {
             if (_attackTarget == null)
             {

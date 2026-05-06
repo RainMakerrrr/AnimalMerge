@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Code.Animals;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Animals.Movement;
@@ -26,7 +26,7 @@ namespace Code.Battle.Services
             _targetFinder = targetFinder;
         }
 
-        public async Task ExecutePlayerTurnsAsync()
+        public async UniTask ExecutePlayerTurnsAsync()
         {
             Debug.Log("[BattleSystem] === START PLAYER UNITS TURN ===");
 
@@ -46,7 +46,7 @@ namespace Code.Battle.Services
             Debug.Log("[BattleSystem] === PLAYER UNITS TURN COMPLETE ===");
         }
 
-        public async Task ExecuteEnemyTurnsAsync()
+        public async UniTask ExecuteEnemyTurnsAsync()
         {
             Debug.Log("[BattleSystem] === START ENEMY UNITS TURN ===");
 
@@ -66,7 +66,7 @@ namespace Code.Battle.Services
             Debug.Log("[BattleSystem] === ENEMY UNITS TURN COMPLETE ===");
         }
 
-        private async Task ExecuteUnitTurnsAsync(
+        private async UniTask ExecuteUnitTurnsAsync(
             List<AnimalFacade> units,
             string targetLayerMask)
         {
@@ -87,7 +87,7 @@ namespace Code.Battle.Services
             }
         }
 
-        private async Task ExecuteSingleUnitTurnAsync(
+        private async UniTask ExecuteSingleUnitTurnAsync(
             AnimalFacade unit,
             string targetLayerMask)
         {

@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Code.Animals;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.Services;
@@ -46,7 +46,7 @@ namespace Code.Battle.States
             _mergeUndoService = mergeUndoService;
         }
 
-        public async Task Enter()
+        public async UniTask Enter()
         {
             Debug.Log("[PreBattleState] Entering - spawning units and waiting for start confirmation");
 
@@ -141,7 +141,7 @@ namespace Code.Battle.States
             _startBattleService.StartBattleRequested += OnStartBattleRequested;
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[PreBattleState] Exiting");
 
@@ -157,15 +157,15 @@ namespace Code.Battle.States
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
 
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
 
         private void OnStartBattleRequested()
         {
-            StartBattleAsync();
+            StartBattleAsync().Forget();
         }
 
-        private async Task StartBattleAsync()
+        private async UniTask StartBattleAsync()
         {
             Debug.Log("[PreBattleState] Battle start confirmed - transitioning to BattleStartState");
             await _stateMachine.ChangeStateAsync<PlayerTurnState>();

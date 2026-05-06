@@ -1,5 +1,6 @@
 using Code.Battle;
 using Code.Infrastructure;
+using Cysharp.Threading.Tasks;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.States;
 using UnityEngine;
@@ -23,7 +24,12 @@ namespace Code.Infrastructure.States
             _levelFactory = levelFactory;
         }
 
-        public async void Enter()
+        public void Enter()
+        {
+            EnterAsync().Forget();
+        }
+
+        private async UniTask EnterAsync()
         {
             Debug.Log("[BattleLoopState] Entering - Starting battle");
 
@@ -47,7 +53,7 @@ namespace Code.Infrastructure.States
             }
         }
 
-        public async void Exit()
+        public void Exit()
         {
             Debug.Log("[BattleLoopState] Exiting");
             // NOTE: Do NOT call CleanupAsync() here!

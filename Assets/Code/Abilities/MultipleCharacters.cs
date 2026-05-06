@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Movement;
@@ -36,12 +36,12 @@ namespace Code.Abilities
             _additionalCharacters = new AnimalFacade[_additionalCharactersCount];
         }
 
-        public async Task Apply()
+        public async UniTask Apply()
         {
             GridCell currentCell = _movement.CurrentPathNode;
             if (currentCell == null)
             {
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
                 return;
             }
 
@@ -50,12 +50,12 @@ namespace Code.Abilities
             List<GridCell> freeCells = FindFreeCells(possibleNodesPositions);
             if (freeCells == null || freeCells.Count < _additionalCharactersCount)
             {
-                await Task.CompletedTask;
+                await UniTask.CompletedTask;
                 return;
             }
 
             CreateAdditionalCharacters(freeCells);
-            await Task.CompletedTask;
+            await UniTask.CompletedTask;
         }
 
         private void CreateAdditionalCharacters(IReadOnlyList<GridCell> freeCells)

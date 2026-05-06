@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Code.Abilities;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
 using Code.Animals.Merge;
 using Code.Animals.Merge.MergeSkills;
@@ -215,9 +215,9 @@ namespace Code.Animals.Facades
 
         public void ClearNodes() => _movement.ClearNodes();
 
-        public async Task Move() => await _movement.Move(_target.Transformable.Position);
+        public async UniTask Move() => await _movement.Move(_target.Transformable.Position);
 
-        public async Task Attack() => await _attack.Attack();
+        public async UniTask Attack() => await _attack.Attack();
 
         // Getters for same-type merge calculations
         public float GetMaxHealth() => _health.Max;

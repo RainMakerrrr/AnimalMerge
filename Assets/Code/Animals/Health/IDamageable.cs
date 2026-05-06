@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 
 namespace Code.Animals.Health
 {
@@ -7,6 +7,6 @@ namespace Code.Animals.Health
         float Current { get; }
         float Max { get; }
         bool IsDead { get; }
-        Task TakeDamageAsync(AnimalAttack attacker);
+        UniTask TakeDamageAsync(AnimalAttack attacker);
     }
 }

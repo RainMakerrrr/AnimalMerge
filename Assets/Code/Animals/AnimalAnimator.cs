@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Animals
@@ -24,11 +24,11 @@ namespace Code.Animals
                 _animator.SetFloat(TurnDirection, 0f);
         }
 
-        public async Task WaitForAttackAnimation()
+        public async UniTask WaitForAttackAnimation()
         {
             PlayAttackAnimation();
 
-            await Task.Delay(TimeSpan.FromSeconds(_attackClip.length));
+            await UniTask.Delay(TimeSpan.FromSeconds(_attackClip.length));
         }
 
         public void UpdateMovementAnimation(float moveSpeed)

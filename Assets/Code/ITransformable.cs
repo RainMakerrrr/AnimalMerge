@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.GridPathfinding;
 using Code.Pathfinding;
 using UnityEngine;
@@ -23,12 +23,12 @@ namespace Code
         /// Executes dodge movement to avoid incoming damage.
         /// Returns true if dodge was successful (valid position found), false if no valid dodge position exists.
         /// </summary>
-        Task<bool> Shift();
+        UniTask<bool> Shift();
 
         /// <summary>
         /// Retreats from target position by specified distance.
         /// Used by Velociraptor's retreat ability.
         /// </summary>
-        Task RetreatFrom(Vector2Int targetPosition, int maxDistance);
+        UniTask RetreatFrom(Vector2Int targetPosition, int maxDistance);
     }
 }

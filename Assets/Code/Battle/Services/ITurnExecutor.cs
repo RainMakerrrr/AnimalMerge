@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Battle.Services
 {
     public interface ITurnExecutor
     {
-        Task ExecutePlayerTurnsAsync();
-        Task ExecuteEnemyTurnsAsync();
+        UniTask ExecutePlayerTurnsAsync();
+        UniTask ExecuteEnemyTurnsAsync();
     }
 }

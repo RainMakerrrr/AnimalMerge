@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Code.Battle;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
@@ -31,7 +31,7 @@ namespace Code.Battle.States
             _unitRepositioningService = unitRepositioningService;
         }
 
-        public Task Enter()
+        public UniTask Enter()
         {
             Debug.Log("[StageClearState] Entering - Stage complete!");
 
@@ -64,10 +64,10 @@ namespace Code.Battle.States
             }
         }
 
-        public Task Exit()
+        public UniTask Exit()
         {
             Debug.Log("[StageClearState] Exiting");
-            return Task.CompletedTask;
+            return UniTask.CompletedTask;
         }
     }
 }

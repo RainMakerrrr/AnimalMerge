@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Battle.StateMachine
 {
     public interface IBattleState
     {
-        Task Enter();
-        Task Exit();
+        UniTask Enter();
+        UniTask Exit();
     }
 }

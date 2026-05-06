@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Code.Animals;
+using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.Services;
@@ -53,7 +53,7 @@ namespace Code.Battle.StateMachine
             Debug.Log("[BattleStateMachine] Initialized with 7 battle states");
         }
 
-        public async Task ChangeStateAsync<TState>() where TState : class, IBattleState
+        public async UniTask ChangeStateAsync<TState>() where TState : class, IBattleState
         {
             var stateType = typeof(TState);
 
@@ -75,7 +75,7 @@ namespace Code.Battle.StateMachine
             await _activeState.Enter();
         }
 
-        public async Task CleanupAsync()
+        public async UniTask CleanupAsync()
         {
             var currentStateName = _activeState?.GetType().Name ?? "None";
             Debug.Log($"[BattleStateMachine] Cleanup - exiting state: {currentStateName}");

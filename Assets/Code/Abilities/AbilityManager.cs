@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Abilities
@@ -84,7 +84,7 @@ namespace Code.Abilities
         /// </summary>
         /// <param name="context">The context containing information about the damage event.</param>
         /// <returns>True if damage was blocked by any ability, false otherwise.</returns>
-        public async Task<bool> ExecuteAbilitiesAsync(AbilityContext context)
+        public async UniTask<bool> ExecuteAbilitiesAsync(AbilityContext context)
         {
             if (context == null)
             {
@@ -138,7 +138,7 @@ namespace Code.Abilities
         /// <typeparam name="T">The type of abilities to execute (must implement IAbility).</typeparam>
         /// <param name="context">The context containing information about the damage event.</param>
         /// <returns>True if damage was blocked by any ability, false otherwise.</returns>
-        public async Task<bool> ExecuteAbilitiesOfTypeAsync<T>(AbilityContext context) where T : IAbility
+        public async UniTask<bool> ExecuteAbilitiesOfTypeAsync<T>(AbilityContext context) where T : IAbility
         {
             if (context == null)
             {
@@ -190,7 +190,7 @@ namespace Code.Abilities
         /// <typeparam name="T">The type of abilities to exclude (must implement IAbility).</typeparam>
         /// <param name="context">The context containing information about the damage event.</param>
         /// <returns>True if damage was blocked by any ability, false otherwise.</returns>
-        public async Task<bool> ExecuteAbilitiesExceptTypeAsync<T>(AbilityContext context) where T : IAbility
+        public async UniTask<bool> ExecuteAbilitiesExceptTypeAsync<T>(AbilityContext context) where T : IAbility
         {
             if (context == null)
             {
