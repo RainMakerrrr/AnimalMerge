@@ -65,7 +65,7 @@ namespace Code.Abilities
             for (int i = 0; i < freeCells.Count; i++)
             {
                 var animal = _animalFactory.Create(_animalType);
-                AnimalMovement animalMovement = animal.GetComponent<AnimalMovement>();
+                var animalMovement = animal.Movement;
 
                 animalMovement.SetCurrentNode(freeCells[i]);
                 animalMovement.Place(freeCells[i].WorldPosition);
@@ -75,8 +75,8 @@ namespace Code.Abilities
                 _additionalCharacters[i] = animal;
             }
 
-            List<AnimalMovement> allAnimals =
-                new List<AnimalMovement>(_additionalCharacters.Select(animal => animal.GetComponent<AnimalMovement>()))
+            var allAnimals =
+                new List<AnimalMovement>(_additionalCharacters.Select(animal => animal.Movement))
                     {_movement};
 
             foreach (AnimalMovement animal in allAnimals)

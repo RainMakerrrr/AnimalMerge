@@ -180,8 +180,9 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Hedgehog_SkipsExecution_NoPhysicsCall()
         {
             // Arrange
-            var animal = _attackGO.AddComponent<Animal>();
-            SetAnimalType(animal, AnimalType.Hedgehog);
+            var animalTypeField = typeof(AnimalAttack).GetField("_animalType",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            animalTypeField?.SetValue(_attack, AnimalType.Hedgehog);
 
             var target = AttackTestHelper.CreateMockDamageable(100f);
             target.transform.position = _attackPoint.position + Vector3.forward * 0.5f;
@@ -289,26 +290,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             }
 
             return target;
-        }
-
-        private void SetAnimalType(Animal animal, AnimalType type)
-        {
-            var typeField = typeof(Animal).GetField("_type",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            if (typeField == null)
-            {
-                // Try property
-                var typeProp = typeof(Animal).GetProperty("Type");
-                if (typeProp != null && typeProp.CanWrite)
-                {
-                    typeProp.SetValue(animal, type);
-                }
-            }
-            else
-            {
-                typeField.SetValue(animal, type);
-            }
         }
 
         #endregion

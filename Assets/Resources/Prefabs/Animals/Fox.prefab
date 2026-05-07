@@ -318,10 +318,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1655403738057260, guid: 8701839b7c9d5fe4387a46bd8530957f,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 584509776}
-    - targetCorrespondingSourceObject: {fileID: 1655403738057260, guid: 8701839b7c9d5fe4387a46bd8530957f,
-        type: 3}
-      insertIndex: -1
       addedObject: {fileID: 584509777}
     - targetCorrespondingSourceObject: {fileID: 1655403738057260, guid: 8701839b7c9d5fe4387a46bd8530957f,
         type: 3}
@@ -414,25 +410,11 @@ MonoBehaviour:
   _attackPoint: {fileID: 1942944718}
   _radius: 0.4
   _forwardReach: 0.25
-  _damage: 100
   _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 8388608
   _isAoE: 0
---- !u!114 &584509776
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5746118840335119186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 3
 --- !u!114 &584509777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,7 +435,6 @@ MonoBehaviour:
   _animator: {fileID: 584509779}
   _nodes: []
   _raycastOffset: 0.14
-  _tilesPerMove: 3
   _sizeEffectY: 1
   _direction: 0
   _debugDrawPath: 1
@@ -532,7 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 150
   _animator: {fileID: 584509779}
 --- !u!114 &4314258255158836754
 MonoBehaviour:

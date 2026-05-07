@@ -1,5 +1,4 @@
-﻿using System;
-using Code.Animals.Movement;
+﻿using Code.Animals.Facades;
 using Code.Infrastructure.Services.Input;
 using UnityEngine;
 using Zenject;
@@ -11,7 +10,7 @@ namespace Code.Animals
         private IInputService _inputService;
         private Camera _camera;
 
-        private AnimalMovement _current;
+        private AnimalFacade _current;
         private Vector3 _originalPosition;
         private Vector3 _offset;
 
@@ -40,9 +39,9 @@ namespace Code.Animals
             {
                 if (_current == null) return;
 
-                var unitOccupancy = _current.GetComponent<UnitOccupancy>();
+                var unitOccupancy = _current.Occupancy;
 
-                if (_current.TryPlace() == false)
+                if (_current.Movement.TryPlace() == false)
                 {
                     // Placement failed - restore original position and grid occupancy
                     _current.transform.position = _originalPosition;
@@ -64,17 +63,17 @@ namespace Code.Animals
 
             if (hit.collider != null)
             {
-                _current = hit.collider.GetComponentInParent<AnimalMovement>();
+                _current = hit.collider.GetComponentInParent<AnimalFacade>();
                 if (_current != null)
                 {
                     _originalPosition = _current.transform.position;
                     _offset = _current.transform.position - GetMouseAsWorldPoint();
 
                     // Save grid state before clearing
-                    var unitOccupancy = _current.GetComponent<UnitOccupancy>();
+                    var unitOccupancy = _current.Occupancy;
                     unitOccupancy?.SaveState();
 
-                    _current.ClearNodes();
+                    _current.Movement.ClearNodes();
                 }
             }
         }

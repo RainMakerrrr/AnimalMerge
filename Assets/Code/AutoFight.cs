@@ -3,7 +3,6 @@ using System.Linq;
 using Code.Animals;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Facades;
-using Code.Animals.Health;
 using Code.Animals.Movement;
 using Code.GridPathfinding;
 using UnityEngine;
@@ -123,13 +122,13 @@ namespace Code
 
             foreach (AnimalFacade animal in sortedAnimals)
             {
-                if (animal.GetComponent<IDamageable>().IsDead) continue;
+                if (animal.Health.IsDead) continue;
 
                 ITarget closestEnemy = _targetFinder.FindClosestTarget(animal.transform.position, layerMask);
                 Debug.Log(
                     $"[PathFindDebug] {animal.name} searching for target on layer {layerMask}, found: {(closestEnemy != null ? closestEnemy.Transformable.Position.ToString() : "NULL")}");
 
-                var animalMovement = animal.GetComponent<AnimalMovement>();
+                var animalMovement = animal.Movement;
 
                 animalMovement.CurrentTarget ??= closestEnemy;
 

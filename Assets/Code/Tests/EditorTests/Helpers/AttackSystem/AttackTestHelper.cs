@@ -18,15 +18,9 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             var attackGO = new GameObject("MockAttack");
             var attack = attackGO.AddComponent<AnimalAttack>();
 
-            var animal = attackGO.AddComponent<Animal>();
-
-            // Set animal type via reflection since it's read-only
-            var typeField = typeof(Animal).GetField("_type",
+            var animalTypeField = typeof(AnimalAttack).GetField("_animalType",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (typeField != null)
-            {
-                typeField.SetValue(animal, type);
-            }
+            animalTypeField?.SetValue(attack, type);
 
             // Create animator child object
             var animatorGO = new GameObject("Animator");

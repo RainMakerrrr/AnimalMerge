@@ -59,6 +59,8 @@ namespace Code.Animals.Facades
         [SerializeField] protected AnimalHealth _health;
         [SerializeField] protected AnimalMovement _movement;
 
+        private UnitOccupancy _occupancy;
+
         protected IRandomProvider _randomProvider;
         private AbilityManager _abilityManager;
 
@@ -74,6 +76,7 @@ namespace Code.Animals.Facades
         public AnimalHealth Health => _health;
         public AnimalAttack AttackInstance => _attack;
         public AnimalMovement Movement => _movement;
+        public UnitOccupancy Occupancy => _occupancy;
         public Collider[] Colliders => _colliders;
         public AnimalAnimator Animator => _animator;
         
@@ -94,6 +97,8 @@ namespace Code.Animals.Facades
 
         private void Start()
         {
+            _occupancy = GetComponent<UnitOccupancy>();
+
             // Initialize AbilityManager - facade owns it, components use it
             _abilityManager = new AbilityManager();
 
@@ -103,7 +108,7 @@ namespace Code.Animals.Facades
             // Inject AbilityManager into AnimalAttack for post-attack abilities
             if (_attack != null)
             {
-                _attack.Construct(_abilityManager);
+                _attack.Construct(_abilityManager, _type);
             }
 
             _health.Died += NotifyRemoved;

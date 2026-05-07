@@ -28,12 +28,11 @@ namespace Code.Battle
 
             foreach (var unit in players)
             {
-                var health = unit.GetComponent<Animals.Health.AnimalHealth>();
-                if (health != null && !health.IsDead)
+                if (!unit.Health.IsDead)
                 {
-                    var previousHealth = health.Current;
-                    health.Restore(health.Max);
-                    Debug.Log($"[BattleDebug] Healed {unit.name}: {previousHealth:F0} → {health.Current:F0}");
+                    var previousHealth = unit.Health.Current;
+                    unit.Health.Restore(unit.Health.Max);
+                    Debug.Log($"[BattleDebug] Healed {unit.name}: {previousHealth:F0} → {unit.Health.Current:F0}");
                     healedCount++;
                 }
             }

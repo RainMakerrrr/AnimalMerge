@@ -33,7 +33,7 @@ namespace Code.Animals
         /// </summary>
         public override async UniTask Attack()
         {
-            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+            if (_animalType == AnimalType.Hedgehog) return;
             if (_isJumping) return;
 
             Debug.Log("[ChickenAttack] Attack() without target - using physics detection");
@@ -55,7 +55,7 @@ namespace Code.Animals
         /// </summary>
         public override async UniTask Attack(ITarget target)
         {
-            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+            if (_animalType == AnimalType.Hedgehog) return;
             if (_isJumping) return;
 
             if (target == null || target.Damageable == null)

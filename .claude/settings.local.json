@@ -85,7 +85,10 @@
       "Bash(Select-Object Name)",
       "Bash(Get-ChildItem -Path Assets -Recurse -Filter \"*.cs\")",
       "Bash(Select-Object -First 5)",
-      "mcp__ai-game-developer__assets-create-folder"
+      "mcp__ai-game-developer__assets-create-folder",
+      "Bash(Remove-Item \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Animals\\\\Animal.cs\" -ErrorAction SilentlyContinue)",
+      "Bash(Remove-Item \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Animals\\\\Animal.cs.meta\" -ErrorAction SilentlyContinue)",
+      "Bash(Write-Output \"Done\")"
     ]
   }
 }

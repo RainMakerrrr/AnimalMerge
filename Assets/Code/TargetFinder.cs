@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Code.Animals;
-using Code.Animals.Health;
-using Code.Animals.Movement;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Code
 {
@@ -27,19 +23,6 @@ namespace Code
         {
             _colliders = Physics.OverlapSphere(transform.position, _radius,
                 LayerMask.GetMask(AnimalLayerName, EnemyLayerName));
-        }
-
-        public AnimalMovement FindClosestEnemy(Vector3 position, string layerMask)
-        {
-            var animals = _colliders.Where(c =>
-                    c != null && c.gameObject.activeSelf && c.gameObject.layer == LayerMask.NameToLayer(layerMask))
-                .Select(c => c.GetComponentInParent<AnimalMovement>())
-                .Where(a => a.GetComponent<IDamageable>().IsDead == false);
-
-            // Sort by actual 3D distance (using sqrMagnitude for performance)
-            animals = animals.OrderBy(animal => (position - animal.transform.position).sqrMagnitude);
-
-            return animals.FirstOrDefault();
         }
 
         public ITarget FindClosestTarget(Vector3 position, string layerMask)

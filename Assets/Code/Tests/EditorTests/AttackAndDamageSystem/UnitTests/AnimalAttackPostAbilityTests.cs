@@ -76,7 +76,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public async Task ExecutePostAttackAbilitiesAsync_WithAbilityManager_ExecutesAbilities()
         {
             // Arrange
-            _attack.Construct(_abilityManager);
+            _attack.Construct(_abilityManager, AnimalType.Elephant);
 
             var transformable = Substitute.For<ITransformable>();
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
@@ -135,7 +135,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public async Task ExecutePostAttackAbilitiesAsync_SetsTargetForPostAttackAbilities()
         {
             // Arrange
-            _attack.Construct(_abilityManager);
+            _attack.Construct(_abilityManager, AnimalType.Elephant);
 
             var mockPostAttackAbility = Substitute.For<IPostAttackAbility>();
             mockPostAttackAbility.CanUse(Arg.Any<IAttacker>()).Returns(true);
@@ -168,7 +168,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public async Task ExecutePostAttackAbilitiesAsync_WithMixedAbilities_OnlySetsTargetForPostAttackAbilities()
         {
             // Arrange
-            _attack.Construct(_abilityManager);
+            _attack.Construct(_abilityManager, AnimalType.Elephant);
 
             // Regular ability (not IPostAttackAbility)
             var regularAbility = Substitute.For<IAbility>();
@@ -214,7 +214,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public async Task AttackAnimationHandlerAsync_WithTargetOverride_ExecutesPostAttackAbilities()
         {
             // Arrange
-            _attack.Construct(_abilityManager);
+            _attack.Construct(_abilityManager, AnimalType.Elephant);
 
             var transformable = Substitute.For<ITransformable>();
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(2);
@@ -258,7 +258,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Construct_InjectsAbilityManager_CorrectBehavior()
         {
             // Arrange & Act
-            _attack.Construct(_abilityManager);
+            _attack.Construct(_abilityManager, AnimalType.Elephant);
 
             // Assert - verify by checking that abilities can be registered and executed
             var transformable = Substitute.For<ITransformable>();

@@ -255,11 +255,9 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
         {
             var attackGO = new GameObject("MockAttack");
             var attack = attackGO.AddComponent<AnimalAttack>();
-            var animal = attackGO.AddComponent<Animal>();
-
-            var typeField = typeof(Animal).GetField("_type",
+            var animalTypeField = typeof(AnimalAttack).GetField("_animalType",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            typeField?.SetValue(animal, AnimalType.Cheetah);
+            animalTypeField?.SetValue(attack, AnimalType.Cheetah);
 
             var animatorGO = new GameObject("Animator");
             animatorGO.transform.SetParent(attackGO.transform);

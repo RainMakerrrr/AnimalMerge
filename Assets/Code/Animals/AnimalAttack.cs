@@ -28,7 +28,8 @@ namespace Code.Animals
         private AbilityManager _abilityManager;
 
         private bool _isAttackDone;
-        
+        protected AnimalType _animalType;
+
         public float Damage => _damage;
         public bool IsAoE => _isAoE;
 
@@ -78,9 +79,10 @@ namespace Code.Animals
         /// Injects AbilityManager for post-attack ability execution.
         /// Called by AnimalFacade.Awake() after AbilityManager is created.
         /// </summary>
-        public void Construct(AbilityManager abilityManager)
+        public void Construct(AbilityManager abilityManager, AnimalType animalType)
         {
             _abilityManager = abilityManager;
+            _animalType = animalType;
         }
 
         private void Start()
@@ -118,7 +120,7 @@ namespace Code.Animals
 
         public virtual async UniTask Attack()
         {
-            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+            if (_animalType == AnimalType.Hedgehog) return;
 
             // Clear target override for generic attack
             _targetOverride = null;
@@ -131,7 +133,7 @@ namespace Code.Animals
         /// </summary>
         public virtual async UniTask Attack(ITarget target)
         {
-            if (GetComponent<Animal>().Type == AnimalType.Hedgehog) return;
+            if (_animalType == AnimalType.Hedgehog) return;
 
             // Set target override for AttackAnimationHandlerAsync
             _targetOverride = target;
@@ -164,8 +166,7 @@ namespace Code.Animals
         // Virtual to allow derived classes to override attack behavior
         public virtual async UniTask AttackAnimationHandlerAsync()
         {
-            var animal = GetComponent<Animal>();
-            if (animal != null && animal.Type == AnimalType.Hedgehog) return;
+            if (_animalType == AnimalType.Hedgehog) return;
             if (_attackPoint == null) return;
 
             // FIX: Capture target IMMEDIATELY to avoid race condition

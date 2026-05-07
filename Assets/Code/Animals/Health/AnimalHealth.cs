@@ -57,7 +57,7 @@ namespace Code.Animals.Health
             Max = newMaxHealth;
             _max = newMaxHealth;
             Current = Max; // Full heal when setting new maximum
-        }
+    }
 
         /// <summary>
         /// Sets the current health value directly (for undo operations)

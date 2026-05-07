@@ -1927,7 +1927,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7856342109478288664}
   - component: {fileID: 8994306188365062619}
-  - component: {fileID: 7371413107812673445}
   - component: {fileID: 7371413107812673446}
   - component: {fileID: 7371413107812673440}
   - component: {fileID: 7371413107812673441}
@@ -1981,19 +1980,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7371413107812673445
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7371413107812673442}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 4
 --- !u!114 &7371413107812673446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2014,7 +2000,6 @@ MonoBehaviour:
   _animator: {fileID: 7371413107812673441}
   _nodes: []
   _raycastOffset: 0
-  _tilesPerMove: 3
   _sizeEffectY: 1
   _direction: 0
   _debugDrawPath: 1
@@ -2042,7 +2027,6 @@ MonoBehaviour:
   _attackPoint: {fileID: 7856342109478288664}
   _radius: 0.5
   _forwardReach: 0.25
-  _damage: 100
   _maxTargets: 1
   _mask:
     serializedVersion: 2
@@ -2110,7 +2094,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 100
   _animator: {fileID: 7371413107812673441}
 --- !u!114 &4058595004882931749
 MonoBehaviour:

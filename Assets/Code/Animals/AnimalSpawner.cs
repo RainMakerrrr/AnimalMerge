@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Code.Animals.Facades;
-using Code.Animals.Movement;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
@@ -52,7 +51,7 @@ namespace Code.Animals
             // Subscribe to removal event to clean up list when animal is merged/destroyed
             animal.OnRemoved += OnAnimalRemoved;
 
-            _mergeGrid.PlaceOnGrid(animal.GetComponent<AnimalMovement>());
+            _mergeGrid.PlaceOnGrid(animal.Movement);
 
             Debug.Log($"[AnimalSpawner] Spawned {animalType} at {animal.Movement.CurrentPathNode.GridPosition}");
 
