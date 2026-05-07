@@ -2,6 +2,7 @@
 using System.Linq;
 using Code.Animals;
 using Code.Animals.Facades;
+using Code.Data.Animals;
 using Code.GridPathfinding;
 using Framework.Code;
 using Framework.Code.Infrastructure.Services.Assets;
@@ -15,15 +16,17 @@ namespace Code.Infrastructure.Factories.Animals
         private readonly IAssetProvider _assetProvider;
         private readonly DiContainer _container;
         private readonly IGridManager _gridManager;
+        private readonly AnimalDatabase _database;
         private Dictionary<AnimalType, AnimalFacade> _animalPrefabs;
         private IGridManager _mergeGrid;
 
         [Inject]
-        public AnimalFactory(IAssetProvider assetProvider, DiContainer container, [Inject(Id = GridIdentifier.MergeGrid)]IGridManager gridManager)
+        public AnimalFactory(IAssetProvider assetProvider, DiContainer container, [Inject(Id = GridIdentifier.MergeGrid)]IGridManager gridManager, AnimalDatabase database)
         {
             _assetProvider = assetProvider;
             _container = container;
             _gridManager = gridManager;
+            _database = database;
         }
 
         public void Load()
@@ -40,9 +43,8 @@ namespace Code.Infrastructure.Factories.Animals
         
         public AnimalFacade Create(AnimalType type)
         {
-            // Standard creation for all animals
             var animal = _container.InstantiatePrefabForComponent<AnimalFacade>(_animalPrefabs[type]);
-            
+            animal.ApplyStats(_database.GetStats(type));
             return animal;
         }
 
@@ -173,6 +175,7 @@ namespace Code.Infrastructure.Factories.Animals
             if (gridCell != null)
             {
                 chicken.Movement.SetNewNode(gridCell);
+                chicken.ApplyStats(_database.GetStats(AnimalType.Chicken));
                 Debug.Log($"[AnimalFactory] Created chicken at {cell.GridPosition}");
             }
             else

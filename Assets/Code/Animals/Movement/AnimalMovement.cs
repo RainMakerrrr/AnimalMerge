@@ -27,7 +27,7 @@ namespace Code.Animals.Movement
         [SerializeField] private AnimalAnimator _animator;
         [SerializeField] private List<GridCell> _nodes = new List<GridCell>();
         [SerializeField] private float _raycastOffset = 0.4f;
-        [SerializeField] private int _tilesPerMove = 2;
+        private int _tilesPerMove = 2;
         [SerializeField] private int _sizeEffectY;
         [SerializeField] private Direction _direction = Direction.North;
         [SerializeField] private bool _debugDrawPath = true;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Code.Animals.Merge.MergeSkills;
+using Code.Data.Animals;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using UnityEngine;
@@ -29,6 +30,13 @@ namespace Code.Animals.Facades
         {
             _gridManager = gridManager;
             _animalFactory = animalFactory;
+        }
+
+        public override void ApplyStats(AnimalStats stats)
+        {
+            base.ApplyStats(stats);
+            if (stats is ChickenStats chickenStats && AttackInstance is ChickenAttack chickenAttack)
+                chickenAttack.ApplyJumpStats(chickenStats);
         }
 
         public override void InitBehaviours()

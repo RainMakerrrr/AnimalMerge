@@ -1,4 +1,5 @@
 using Code.Animals.Health;
+using Code.Data.Animals;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -11,13 +12,20 @@ namespace Code.Animals
     /// </summary>
     public class ChickenAttack : AnimalAttack
     {
-        [Header("Chicken Jump Settings")]
-        [SerializeField] private float _jumpDuration = 0.5f;
-        [SerializeField] private float _jumpPower = 2f;
-        [SerializeField] private int _numJumps = 1;
-        [SerializeField] private float _jumpDistance = 1.5f;
+        private float _jumpDuration = 0.5f;
+        private float _jumpPower = 2f;
+        private int _numJumps = 1;
+        private float _jumpDistance = 1.5f;
 
         private bool _isJumping;
+
+        public void ApplyJumpStats(ChickenStats stats)
+        {
+            _jumpDuration = stats.JumpDuration;
+            _jumpPower = stats.JumpPower;
+            _numJumps = stats.NumJumps;
+            _jumpDistance = stats.JumpDistance;
+        }
 
         /// <summary>
         /// Override to attack without target (physics-based detection).

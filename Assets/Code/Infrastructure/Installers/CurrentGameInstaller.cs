@@ -1,4 +1,5 @@
-﻿using Code.Infrastructure.Factories.Animals;
+﻿using Code.Data.Animals;
+using Code.Infrastructure.Factories.Animals;
 using Code.Infrastructure.Factories.Nodes;
 using Code.Infrastructure.Services.Input;
 using Code.Pathfinding;
@@ -22,6 +23,7 @@ namespace Code.Infrastructure.Installers
             BindPathfinder();
             BindGrid();
             BindAnimalFactory();
+            BindAnimalDatabase();
             BindCamera();
             BindInputService();
         }
@@ -36,6 +38,10 @@ namespace Code.Infrastructure.Installers
         }
 
         private void BindAnimalFactory() => Container.Bind<IAnimalFactory>().To<AnimalFactory>().AsSingle();
+
+        private void BindAnimalDatabase() => Container.Bind<AnimalDatabase>()
+            .FromScriptableObjectResource("AnimalDatabase")
+            .AsSingle();
         private void BindCamera() => Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
         private void BindInputService() => Container.Bind<IInputService>().To<InputService>().AsSingle();
     }

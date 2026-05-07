@@ -16,7 +16,7 @@ namespace Code.Animals
         [SerializeField] protected Transform _attackPoint;
         [SerializeField] protected float _radius;
         [SerializeField] protected float _forwardReach = 0.25f;
-        [SerializeField] protected float _damage;
+        protected float _damage;
         [SerializeField] protected int _maxTargets;
         [SerializeField] protected LayerMask _mask;
         [SerializeField] protected bool _isAoE;

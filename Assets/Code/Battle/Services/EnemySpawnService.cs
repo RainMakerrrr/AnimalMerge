@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Code.Animals.Facades;
+using Code.Data.Animals;
 using Cysharp.Threading.Tasks;
 using Code.Battle.Config;
 using Code.GridPathfinding;
@@ -15,15 +16,18 @@ namespace Code.Battle.Services
     {
         private readonly DiContainer _container;
         private readonly IGridManager _gridManager;
+        private readonly AnimalDatabase _database;
         private readonly List<AnimalFacade> _spawnedEnemies;
         private int _counter;
 
         public EnemySpawnService(
             DiContainer container,
-            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager)
+            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager,
+            AnimalDatabase database)
         {
             _container = container;
             _gridManager = gridManager;
+            _database = database;
             _spawnedEnemies = new List<AnimalFacade>();
         }
 
@@ -80,13 +84,15 @@ namespace Code.Battle.Services
             }
 
             var enemy = _container.InstantiatePrefabForComponent<AnimalFacade>(enemyConfig.Prefab);
-            enemy.name += $"_{_counter}";
-            
+
             if (enemy == null)
             {
                 Debug.LogError($"[EnemySpawnService] Failed to instantiate enemy prefab");
                 return null;
             }
+
+            enemy.ApplyStats(_database.GetStats(enemy.Type));
+            enemy.name += $"_{_counter}";
 
             var parentName = enemy.transform.parent != null ? enemy.transform.parent.name : "null";
 

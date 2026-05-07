@@ -7,6 +7,7 @@ using Code.Animals.Merge;
 using Code.Animals.Merge.MergeSkills;
 using Code.Animals.Movement;
 using Code.Animals.Upgrade;
+using Code.Data.Animals;
 using Code.Services.Random;
 using UnityEngine;
 using Zenject;
@@ -228,6 +229,14 @@ namespace Code.Animals.Facades
         public void SetHealth(float newMaxHealth) => _health.SetMaxHealth(newMaxHealth);
 
         public void SetDamage(float newDamage) => _attack.SetDamage(newDamage);
+
+        public virtual void ApplyStats(AnimalStats stats)
+        {
+            if (stats == null) return;
+            _health.SetMaxHealth(stats.Health);
+            _attack.SetDamage(stats.Damage);
+            _movement.SetTilesPerMove(stats.TilesPerMove);
+        }
 
         /// <summary>
         /// Notifies subscribers that this animal is about to be removed (merged or destroyed)

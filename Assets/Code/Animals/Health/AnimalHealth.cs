@@ -16,7 +16,7 @@ namespace Code.Animals.Health
         public event Action TakenDamage;
         public event Action Died;
 
-        [SerializeField] private float _max;
+        private float _max;
         [SerializeField] protected AnimalAnimator _animator;
 
         public IAbility Ability { get; protected set; }
@@ -110,9 +110,6 @@ namespace Code.Animals.Health
 
         private void Start()
         {
-            Max = _max;
-            Current = Max;
-            
             _abilityManager ??= new AbilityManager();
         }
 

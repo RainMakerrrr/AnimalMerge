@@ -82,7 +82,10 @@
       "mcp__ai-game-developer__gameobject-modify",
       "mcp__ai-game-developer__gameobject-component-list-all",
       "Bash(Get-ChildItem -Path \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Packages\" -Directory -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path Assets -Recurse -Filter \"*.cs\")",
+      "Bash(Select-Object -First 5)",
+      "mcp__ai-game-developer__assets-create-folder"
     ]
   }
 }
