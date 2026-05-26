@@ -88,7 +88,12 @@
       "mcp__ai-game-developer__assets-create-folder",
       "Bash(Remove-Item \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Animals\\\\Animal.cs\" -ErrorAction SilentlyContinue)",
       "Bash(Remove-Item \"C:\\\\BitbuckerProjects\\\\animal-merge\\\\Assets\\\\Code\\\\Animals\\\\Animal.cs.meta\" -ErrorAction SilentlyContinue)",
-      "Bash(Write-Output \"Done\")"
+      "Bash(Write-Output \"Done\")",
+      "Bash(rm /Users/user/GIthubProjects/AnimalMerge/.claude/skills/update-claude-md.md)",
+      "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/.claude/skills/update-claude-md)",
+      "Bash(claude mcp *)",
+      "Bash(npx ctx7 *)",
+      "Bash(sudo chmod *)"
     ]
   }
 }
