@@ -1,0 +1,5 @@
+[mcp_servers.UnityMCP]
+url = "http://127.0.0.1:8080/mcp"
+
+[mcp_servers.tavily]
+url = "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
