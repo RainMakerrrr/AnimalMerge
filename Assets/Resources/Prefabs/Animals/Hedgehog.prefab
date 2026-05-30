@@ -80,8 +80,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3542b61f2a46baa01b91fdf8881277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attributes:
-  - {fileID: 895290010277412549}
   _target: {fileID: 1165212902779726181}
 --- !u!1 &874650263865961
 GameObject:
@@ -126,6 +124,7 @@ GameObject:
   - component: {fileID: 557688235920923641}
   - component: {fileID: 559826570665660795}
   - component: {fileID: 567470857397591685}
+  - component: {fileID: 6445019847463765888}
   m_Layer: 20
   m_Name: Antlers 02
   m_TagString: Untagged
@@ -198,6 +197,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6445019847463765888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555267246026213457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 222adb018bdba4b1b948634703dc4467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sourceType: 2
 --- !u!1 &700162922000323116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1091,7 +1103,7 @@ GameObject:
   m_Component:
   - component: {fileID: 564087782744325331}
   - component: {fileID: 2427858789388414427}
-  - component: {fileID: 895290010277412549}
+  - component: {fileID: 5499077132253645332}
   m_Layer: 20
   m_Name: Fox Tail
   m_TagString: Untagged
@@ -1202,7 +1214,7 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.38393676, y: 0.000000007450581, z: -0.099293485}
     m_Extent: {x: 0.32356805, y: 0.10235078, z: 0.25956798}
   m_DirtyAABB: 0
---- !u!114 &895290010277412549
+--- !u!114 &5499077132253645332
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1211,10 +1223,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4694057708168263620}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71542ba42de4fe187242a162655da2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 222adb018bdba4b1b948634703dc4467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: 3
+  _sourceType: 3
 --- !u!1 &4773600376250089916
 GameObject:
   m_ObjectHideFlags: 0
@@ -2032,6 +2044,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8388608
   _isAoE: 0
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &7371413107812673441
 MonoBehaviour:
   m_ObjectHideFlags: 0

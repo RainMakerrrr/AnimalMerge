@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Code.Abilities;
 using Code.Animals.Facades;
+using Code.Animals.Merge.MergeAttributes;
 using Code.Animals.Merge.MergeSkills;
 using Code.GridPathfinding;
 using UnityEngine;
@@ -27,6 +28,9 @@ namespace Code.Animals.Merge.Commands
         // Merge skills (reference to the actual skill objects)
         public List<IMergeSkill> MergeSkills { get; set; }
 
+        // Accumulated visual attributes from previous merges
+        public List<VisualMergeAttribute> AccumulatedVisualAttributes { get; set; }
+
         // Grid position - store the actual GridCell reference instead of just position
         // This preserves which grid (MergeGrid vs GameGrid) the animal was on
         public GridCell GridCell { get; set; }
@@ -43,6 +47,7 @@ namespace Code.Animals.Merge.Commands
         {
             Abilities = new List<IAbility>();
             MergeSkills = new List<IMergeSkill>();
+            AccumulatedVisualAttributes = new List<VisualMergeAttribute>();
         }
 
         /// <summary>
@@ -79,7 +84,6 @@ namespace Code.Animals.Merge.Commands
             var abilityManager = animal.AbilityManager;
             if (abilityManager != null)
             {
-                // Get all registered abilities and make a copy of the list
                 snapshot.Abilities = new List<IAbility>(abilityManager.Abilities);
                 Debug.Log($"[MergeStateSnapshot] Captured {snapshot.Abilities.Count} abilities for {animal.name}");
             }
@@ -93,6 +97,13 @@ namespace Code.Animals.Merge.Commands
                 Debug.Log($"[MergeStateSnapshot] Captured {snapshot.MergeSkills.Count} merge skills");
             }
 
+            // Capture accumulated visual attributes
+            if (animal.AccumulatedVisualAttributes != null)
+            {
+                snapshot.AccumulatedVisualAttributes = new List<VisualMergeAttribute>(animal.AccumulatedVisualAttributes);
+                Debug.Log($"[MergeStateSnapshot] Captured {snapshot.AccumulatedVisualAttributes.Count} accumulated visual attributes");
+            }
+
             return snapshot;
         }
     }
@@ -103,12 +114,12 @@ namespace Code.Animals.Merge.Commands
     [Serializable]
     public class VisualStateSnapshot
     {
-        public List<AnimalType> AppliedVisualTypes { get; set; }
+        public List<VisualMergeAttribute> AppliedVisualAttributes { get; set; }
         public Vector3 ScaleBeforeMerge { get; set; }
 
         public VisualStateSnapshot()
         {
-            AppliedVisualTypes = new List<AnimalType>();
+            AppliedVisualAttributes = new List<VisualMergeAttribute>();
         }
     }
 }

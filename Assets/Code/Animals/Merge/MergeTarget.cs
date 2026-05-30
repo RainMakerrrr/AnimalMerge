@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Code.Animals.Facades;
 using Code.Animals.Merge.Commands;
+using Code.Animals.Merge.MergeAttributes;
 using Code.Animals.Merge.Services;
 using Code.Battle.Services;
 using UnityEngine;
@@ -13,10 +13,10 @@ namespace Code.Animals.Merge
     public class MergeTarget : MonoBehaviour, IRaycastable
     {
         [SerializeField] private PlayerAnimalFacade _facade;
-        public event Action<List<AnimalType>> Merge;
+        public event Action<List<VisualMergeAttribute>> Merge;
 
         private IMergeUndoService _mergeUndoService;
-        private IUnitTracker _unitTracker; 
+        private IUnitTracker _unitTracker;
 
         private void Awake()
         {
@@ -66,14 +66,10 @@ namespace Code.Animals.Merge
 
                 var success = _mergeUndoService.ExecuteMerge(command);
 
-                // Note: Visual effects are already invoked by ExecuteMergeDirectly() inside the command
-                // No need to invoke them again here
-
                 return success;
             }
             else
             {
-                // Undo disabled - execute merge directly (original behavior)
                 return ExecuteMergeDirectly(animal);
             }
         }
@@ -84,14 +80,14 @@ namespace Code.Animals.Merge
         /// </summary>
         public bool ExecuteMergeDirectly(PlayerAnimalFacade animal)
         {
-            // Collect types for visual effects
-            var types = animal.MergeSkills.Select(skill => skill.AnimalType).ToList();
-            types.Add(animal.Type);
+            // Collect visual attributes: source's own + accumulated from previous merges
+            var visualAttributes = new List<VisualMergeAttribute>(
+                animal.GetComponentsInChildren<VisualMergeAttribute>(true));
+            visualAttributes.AddRange(animal.AccumulatedVisualAttributes);
 
             // Check: same type or different type?
             if (animal.Type == _facade.Type)
             {
-                // Same-type merge: apply formula (HP1 + HP2) × 0.75
                 var combinedHP = (animal.GetMaxHealth() + _facade.GetMaxHealth()) * 0.75f;
                 var combinedDamage = (animal.GetDamage() + _facade.GetDamage()) * 0.75f;
 
@@ -102,7 +98,6 @@ namespace Code.Animals.Merge
             }
             else
             {
-                // Different-type merge: apply skills as usual
                 if (!animal.MergeSkill.Merge(_facade, animal))
                 {
                     Debug.LogWarning($"[MergeTarget] Merge failed for {animal.Type} into {_facade.Type}. Animal not consumed.");
@@ -110,13 +105,13 @@ namespace Code.Animals.Merge
                 }
             }
 
-            // Visual effects are invoked only if merge succeeded
-            Merge?.Invoke(types);
+            // Fire visual effects
+            Merge?.Invoke(visualAttributes);
 
-            // Notify that animal is being removed (before deactivation)
+            // Accumulate visual attributes on target for future merges
+            _facade.AccumulatedVisualAttributes.AddRange(visualAttributes);
+
             animal.NotifyRemoved();
-
-            // Deactivate merged animal
             animal.gameObject.SetActive(false);
 
             return true;

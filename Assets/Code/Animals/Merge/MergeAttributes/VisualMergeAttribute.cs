@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Code.Animals.Merge.MergeAttributes
 {
@@ -7,20 +7,18 @@ namespace Code.Animals.Merge.MergeAttributes
         [SerializeField] private AnimalType _type;
         public AnimalType Type => _type;
 
-        public virtual void Apply()
+        protected Transform Target { get; private set; }
+
+        public virtual void Apply(Transform target)
         {
-            Debug.Log($"[VisualMergeAttribute] Applying visual for {_type} on {gameObject.name}");
-            gameObject.SetActive(true);
+            Target = target;
+            Debug.Log($"[VisualMergeAttribute] Applying visual for {_type} to {target.name}");
         }
 
-        /// <summary>
-        /// Undoes the visual effect applied by this attribute
-        /// </summary>
         public virtual void Undo()
         {
-            Debug.Log($"[VisualMergeAttribute] Undoing visual for {_type} on {gameObject.name}, was active: {gameObject.activeSelf}");
-            gameObject.SetActive(false);
-            Debug.Log($"[VisualMergeAttribute] Visual {gameObject.name} is now active: {gameObject.activeSelf}");
+            Debug.Log($"[VisualMergeAttribute] Undoing visual for {_type}");
+            Target = null;
         }
     }
 }

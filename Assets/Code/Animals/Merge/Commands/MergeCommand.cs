@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Code.Animals.Facades;
+using Code.Animals.Merge.MergeAttributes;
 using Code.Battle.Services;
 using Code.GridPathfinding;
 using UnityEngine;
@@ -143,16 +144,14 @@ namespace Code.Animals.Merge.Commands
         {
             Debug.Log($"[MergeCommand] Executing merge through MergeTarget.ExecuteMergeDirectly()");
 
-            // Collect types for visual effects tracking (for undo)
-            var types = _sourceAnimal.MergeSkills.Select(skill => skill.AnimalType).ToList();
-            types.Add(_sourceAnimal.Type);
+            // Collect source's visual attributes before merge (for undo tracking)
+            var visualAttributes = new List<VisualMergeAttribute>(
+                _sourceAnimal.GetComponentsInChildren<VisualMergeAttribute>(true));
+            visualAttributes.AddRange(_sourceAnimal.AccumulatedVisualAttributes);
 
-            // Store visual types for undo
-            _visualState.AppliedVisualTypes = new List<AnimalType>(types);
-            Debug.Log($"[MergeCommand] Stored visual types for undo: {string.Join(", ", _visualState.AppliedVisualTypes)}");
+            _visualState.AppliedVisualAttributes = new List<VisualMergeAttribute>(visualAttributes);
+            Debug.Log($"[MergeCommand] Stored {_visualState.AppliedVisualAttributes.Count} visual attributes for undo");
 
-            // Execute merge using MergeTarget's method
-            // Note: ExecuteMergeDirectly will fire the Merge event for visual effects
             return _mergeTarget.ExecuteMergeDirectly(_sourceAnimal);
         }
 
@@ -226,30 +225,25 @@ namespace Code.Animals.Merge.Commands
 
         private void RestoreVisualState()
         {
-            // Restore scale
-            _targetAnimal.transform.localScale = _visualState.ScaleBeforeMerge;
-            Debug.Log($"[MergeCommand] Restored scale to {_visualState.ScaleBeforeMerge}");
+            // Restore transform scale (captured in snapshot)
+            _targetAnimal.transform.localScale = _targetStateBefore.LocalScale;
+            Debug.Log($"[MergeCommand] Restored scale to {_targetStateBefore.LocalScale}");
 
-            // Debug: Check state
-            Debug.Log($"[MergeCommand] RestoreVisualState - MergeView: {(_targetAnimal.MergeView != null ? "Present" : "NULL")}, " +
-                      $"AppliedVisualTypes: {(_visualState.AppliedVisualTypes != null ? _visualState.AppliedVisualTypes.Count.ToString() : "NULL")}");
+            // Undo individual visual attribute effects
+            if (_targetAnimal.MergeView != null && _visualState.AppliedVisualAttributes?.Count > 0)
+            {
+                Debug.Log($"[MergeCommand] Calling UndoVisuals for {_visualState.AppliedVisualAttributes.Count} attributes");
+                _targetAnimal.MergeView.UndoVisuals(_visualState.AppliedVisualAttributes);
+            }
+            else if (_targetAnimal.MergeView == null)
+            {
+                Debug.LogError("[MergeCommand] MergeView is NULL on target animal!");
+            }
 
-            // Undo visual merge attributes (fox tail, elephant size, etc.)
-            if (_targetAnimal.MergeView != null && _visualState.AppliedVisualTypes != null && _visualState.AppliedVisualTypes.Count > 0)
-            {
-                Debug.Log($"[MergeCommand] Calling UndoVisuals for types: {string.Join(", ", _visualState.AppliedVisualTypes)}");
-                _targetAnimal.MergeView.UndoVisuals(_visualState.AppliedVisualTypes);
-                Debug.Log($"[MergeCommand] Undone {_visualState.AppliedVisualTypes.Count} visual effects");
-            }
-            else
-            {
-                if (_targetAnimal.MergeView == null)
-                    Debug.LogError("[MergeCommand] MergeView is NULL on target animal!");
-                if (_visualState.AppliedVisualTypes == null)
-                    Debug.LogError("[MergeCommand] AppliedVisualTypes is NULL!");
-                if (_visualState.AppliedVisualTypes != null && _visualState.AppliedVisualTypes.Count == 0)
-                    Debug.LogError("[MergeCommand] AppliedVisualTypes is empty!");
-            }
+            // Restore accumulated visual attributes list to pre-merge state
+            _targetAnimal.AccumulatedVisualAttributes.Clear();
+            _targetAnimal.AccumulatedVisualAttributes.AddRange(_targetStateBefore.AccumulatedVisualAttributes);
+            Debug.Log($"[MergeCommand] Restored {_targetAnimal.AccumulatedVisualAttributes.Count} accumulated visual attributes");
         }
 
         private void ReactivateSourceAnimal()

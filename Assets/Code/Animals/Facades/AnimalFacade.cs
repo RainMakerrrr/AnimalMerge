@@ -4,6 +4,7 @@ using Code.Abilities;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
 using Code.Animals.Merge;
+using Code.Animals.Merge.MergeAttributes;
 using Code.Animals.Merge.MergeSkills;
 using Code.Animals.Movement;
 using Code.Animals.Upgrade;
@@ -39,6 +40,8 @@ namespace Code.Animals.Facades
         public IMergeSkill MergeSkill { get; protected set; }
 
         public List<IMergeSkill> MergeSkills = new List<IMergeSkill>();
+
+        public List<VisualMergeAttribute> AccumulatedVisualAttributes { get; } = new List<VisualMergeAttribute>();
         
         public void UpgradeHealth(float multiplier) => _upgrade.UpgradeHealth(multiplier);
         public void UpgradeDamage(float multiplier) => _upgrade.UpgradeDamage(multiplier);

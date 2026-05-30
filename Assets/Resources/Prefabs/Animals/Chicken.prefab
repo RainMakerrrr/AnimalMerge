@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 122846367105128242}
   - component: {fileID: 129998749884652976}
   - component: {fileID: 137696087524069966}
+  - component: {fileID: 2092364577052376547}
   m_Layer: 20
   m_Name: Antlers 02
   m_TagString: Untagged
@@ -83,6 +84,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2092364577052376547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 125409188674913434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 222adb018bdba4b1b948634703dc4467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _sourceType: 2
 --- !u!1 &364413483650466905
 GameObject:
   m_ObjectHideFlags: 0
@@ -1637,51 +1651,6 @@ Transform:
   - {fileID: 4648518048726575834}
   m_Father: {fileID: 645610641107678247}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &4144822048493011361
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8276519398936087893}
-  - component: {fileID: 5606044714522510566}
-  m_Layer: 20
-  m_Name: Elephant Merge Attribute
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8276519398936087893
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4144822048493011361}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7076837701454138415}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5606044714522510566
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4144822048493011361}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4b59e0bca4e43958cd8e9a85731dc6d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 0
 --- !u!1 &4237123512913019572
 GameObject:
   m_ObjectHideFlags: 0
@@ -2102,7 +2071,7 @@ GameObject:
   m_Component:
   - component: {fileID: 134321535517697402}
   - component: {fileID: 2862111044596479090}
-  - component: {fileID: 96527933928246293}
+  - component: {fileID: 8777378705679371583}
   m_Layer: 20
   m_Name: Fox Tail
   m_TagString: Untagged
@@ -2213,7 +2182,7 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.38393676, y: 0.000000007450581, z: -0.099293485}
     m_Extent: {x: 0.32356805, y: 0.10235078, z: 0.25956798}
   m_DirtyAABB: 0
---- !u!114 &96527933928246293
+--- !u!114 &8777378705679371583
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2222,10 +2191,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5128925964480736877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71542ba42de4fe187242a162655da2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 222adb018bdba4b1b948634703dc4467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: 3
+  _sourceType: 3
 --- !u!1 &5246058216442431610
 GameObject:
   m_ObjectHideFlags: 0
@@ -2293,7 +2262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a649175c284b3c91d11cbe744be535, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _facade: {fileID: 0}
+  _facade: {fileID: 2625316185218295111}
 --- !u!114 &289849958536558385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2306,9 +2275,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3542b61f2a46baa01b91fdf8881277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attributes:
-  - {fileID: 96527933928246293}
-  - {fileID: 5606044714522510566}
   _target: {fileID: 3604384551903175464}
 --- !u!1 &5246058216650030138
 GameObject:
@@ -3222,7 +3188,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7076837701454138415}
   - component: {fileID: 2959273021189481600}
-  - component: {fileID: 7601560266156037776}
   - component: {fileID: 7601560266156037777}
   - component: {fileID: 7601560266156037780}
   - component: {fileID: 7318313784089339561}
@@ -3254,7 +3219,6 @@ Transform:
   - {fileID: 1593792646267785336}
   - {fileID: 5246058216442431493}
   - {fileID: 5246058216650030277}
-  - {fileID: 8276519398936087893}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &2959273021189481600
@@ -3278,19 +3242,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7601560266156037776
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7601560266156037781}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 5
 --- !u!114 &7601560266156037777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3317,7 +3268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 100
   _animator: {fileID: 7601560266156037777}
 --- !u!114 &7318313784089339561
 MonoBehaviour:
@@ -3389,7 +3339,6 @@ MonoBehaviour:
   _animator: {fileID: 7601560266156037777}
   _nodes: []
   _raycastOffset: 0.4
-  _tilesPerMove: 2
   _sizeEffectY: 0
   _direction: 0
   _debugDrawPath: 1
@@ -3417,16 +3366,12 @@ MonoBehaviour:
   _attackPoint: {fileID: 5246058216650030277}
   _radius: 0.5
   _forwardReach: 0.25
-  _damage: 50
   _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 8388608
   _isAoE: 0
-  _jumpDuration: 0.5
-  _jumpPower: 2
-  _numJumps: 1
-  _jumpDistance: 1.5
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &7896776257376972902
 GameObject:
   m_ObjectHideFlags: 0

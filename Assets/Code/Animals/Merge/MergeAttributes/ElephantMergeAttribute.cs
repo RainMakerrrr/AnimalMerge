@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Code.Animals.Merge.MergeAttributes
 {
@@ -7,27 +7,21 @@ namespace Code.Animals.Merge.MergeAttributes
         private const float ScaleFactor = 1.5f;
         private Vector3 _scaleBeforeApply;
 
-        public override void Apply()
+        public override void Apply(Transform target)
         {
-            // Store scale before applying
-            _scaleBeforeApply = transform.root.localScale;
-
-            // Apply scale increase
-            transform.root.localScale *= ScaleFactor;
-
-            Debug.Log($"[ElephantMergeAttribute] Applied scale {ScaleFactor}x (from {_scaleBeforeApply} to {transform.root.localScale})");
+            base.Apply(target);
+            _scaleBeforeApply = Target.localScale;
+            Target.localScale *= ScaleFactor;
+            Debug.Log($"[ElephantMergeAttribute] Applied scale {ScaleFactor}x to {Target.name} (from {_scaleBeforeApply} to {Target.localScale})");
         }
 
         public override void Undo()
         {
-            // Restore original scale
-            if (_scaleBeforeApply != Vector3.zero)
+            if (_scaleBeforeApply != Vector3.zero && Target != null)
             {
-                transform.root.localScale = _scaleBeforeApply;
-                Debug.Log($"[ElephantMergeAttribute] Restored scale to {_scaleBeforeApply}");
+                Target.localScale = _scaleBeforeApply;
+                Debug.Log($"[ElephantMergeAttribute] Restored scale to {_scaleBeforeApply} on {Target.name}");
             }
-
-            // Call base to deactivate visual GameObject
             base.Undo();
         }
     }
