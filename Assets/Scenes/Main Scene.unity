@@ -3821,12 +3821,12 @@ MonoBehaviour:
   _attackPoint: {fileID: 89810870041068088}
   _radius: 2
   _forwardReach: 0.25
-  _damage: 50
   _maxTargets: 3
   _mask:
     serializedVersion: 2
     m_Bits: 1048576
   _isAoE: 0
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &57357053369636905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3982,7 +3982,6 @@ MonoBehaviour:
   _animator: {fileID: 57357053369636905}
   _nodes: []
   _raycastOffset: 0.4
-  _tilesPerMove: 2
   _sizeEffectY: 2
   _direction: 2
   _debugDrawPath: 1
@@ -6409,7 +6408,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 1000
   _animator: {fileID: 57357053369636905}
 --- !u!114 &2952742400231704769
 MonoBehaviour:

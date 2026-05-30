@@ -8,6 +8,8 @@ namespace Code.GridPathfinding
     /// </summary>
     public interface IGridCell
     {
+        void SetColor(Color color);
+        void UpdateVisual();
         /// <summary>
         /// X coordinate in grid
         /// </summary>

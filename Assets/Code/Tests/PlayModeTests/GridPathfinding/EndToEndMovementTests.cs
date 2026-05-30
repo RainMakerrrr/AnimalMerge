@@ -545,6 +545,9 @@ namespace Code.Tests.PlayModeTests.GridPathfinding
                 Parent = null;
             }
 
+            public void SetColor(Color color) { }
+            public void UpdateVisual() { }
+
             public override string ToString() => $"TestCell({X},{Y})";
             public override int GetHashCode() => (X * 397) ^ Y;
             public override bool Equals(object obj) =>

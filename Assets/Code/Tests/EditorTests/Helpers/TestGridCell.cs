@@ -45,6 +45,9 @@ namespace Code.Tests.EditorTests.Helpers
             Parent = null;
         }
 
+        public void SetColor(Color color) { }
+        public void UpdateVisual() { }
+
         public override string ToString() => $"TestCell({X},{Y}) Walkable:{IsWalkable}";
 
         public override int GetHashCode()

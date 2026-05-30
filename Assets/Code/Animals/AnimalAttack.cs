@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Code.Abilities;
+using Code.GridPathfinding;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
 using Code.Services.Physics;
@@ -20,14 +21,19 @@ namespace Code.Animals
         [SerializeField] protected int _maxTargets;
         [SerializeField] protected LayerMask _mask;
         [SerializeField] protected bool _isAoE;
+        [SerializeField] private Color _aoeHighlightColor = new Color(1f, 0.5f, 0f, 1f);
 
         protected Collider[] _colliders;
         protected IPhysicsService _physicsService;
+        protected IGridManager _gridManager;
         protected IDamageable _damageable;
         protected ITarget _targetOverride; // Specific target set via Attack(ITarget)
         private AbilityManager _abilityManager;
 
         private bool _isAttackDone;
+        private readonly List<IGridCell> _highlightedCells = new List<IGridCell>();
+        private Vector3 _lastAttackOrigin = Vector3.positiveInfinity;
+        private Vector3 _lastForward = Vector3.positiveInfinity;
         protected AnimalType _animalType;
 
         public float Damage => _damage;
@@ -41,6 +47,7 @@ namespace Code.Animals
         protected int MaxTargets => _maxTargets;
         protected LayerMask AttackMask => _mask;
         protected IPhysicsService PhysicsService => _physicsService;
+
         protected ITarget TargetOverride
         {
             get => _targetOverride;
@@ -60,19 +67,24 @@ namespace Code.Animals
                     {
                         _damageable = GetComponentInParent<IDamageable>();
                     }
+
                     if (_damageable == null)
                     {
                         _damageable = GetComponentInChildren<IDamageable>();
                     }
                 }
+
                 return _damageable;
             }
         }
 
         [Inject]
-        private void Construct(IPhysicsService physicsService)
+        private void Construct(
+            IPhysicsService physicsService,
+            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager)
         {
             _physicsService = physicsService;
+            _gridManager = gridManager;
         }
 
         /// <summary>
@@ -95,6 +107,7 @@ namespace Code.Animals
             {
                 _damageable = GetComponentInParent<IDamageable>();
             }
+
             if (_damageable == null)
             {
                 _damageable = GetComponentInChildren<IDamageable>();
@@ -102,7 +115,8 @@ namespace Code.Animals
 
             if (_damageable == null)
             {
-                Debug.LogWarning($"[AnimalAttack] {name} has no IDamageable component in hierarchy. CounterAttack will not work against this attacker.");
+                Debug.LogWarning(
+                    $"[AnimalAttack] {name} has no IDamageable component in hierarchy. CounterAttack will not work against this attacker.");
             }
         }
 
@@ -151,9 +165,34 @@ namespace Code.Animals
         private void OnDrawGizmos()
         {
             if (_attackPoint == null) return;
+
             Gizmos.color = Color.red;
             Vector3 center = _attackPoint.position + transform.forward * _forwardReach;
             Gizmos.DrawWireSphere(center, _radius);
+
+            if (!_isAoE) return;
+
+            // AOE: full capsule from AttackAnimationHandlerAsync
+            var a = _attackPoint.position;
+            var b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
+
+            Gizmos.color = new Color(0f, 1f, 0f, 0.25f);
+            Gizmos.DrawSphere(a, _radius);
+            Gizmos.DrawSphere(b, _radius);
+
+            Gizmos.color = new Color(0f, 1f, 0f, 1f);
+            Gizmos.DrawWireSphere(a, _radius);
+            Gizmos.DrawWireSphere(b, _radius);
+
+            var right = transform.right * _radius;
+            var up = transform.up * _radius;
+            Gizmos.DrawLine(a + right, b + right);
+            Gizmos.DrawLine(a - right, b - right);
+            Gizmos.DrawLine(a + up, b + up);
+            Gizmos.DrawLine(a - up, b - up);
+
+            Gizmos.color = new Color(1f, 1f, 0f, 0.4f);
+            Gizmos.DrawWireSphere(b, _radius);
         }
 
         // Public method for Animation Events (must be void)
@@ -190,18 +229,18 @@ namespace Code.Animals
             if (_colliders == null || _colliders.Length != _maxTargets)
                 _colliders = new Collider[_maxTargets];
 
-            Vector3 a = _attackPoint.position;
-            Vector3 b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
+            var a = _attackPoint.position;
+            var b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
 
             // Fallback to direct Physics if service not injected (backward compatibility for tests)
-            int count = _physicsService != null
+            var count = _physicsService != null
                 ? _physicsService.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask)
                 : Physics.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask);
 
             if (count <= 0)
             {
                 // Fallback to a simple sphere centered slightly forward
-                Vector3 center = _attackPoint.position + transform.forward * _forwardReach;
+                var center = _attackPoint.position + transform.forward * _forwardReach;
                 count = _physicsService != null
                     ? _physicsService.OverlapSphereNonAlloc(center, _radius, _colliders, _mask)
                     : Physics.OverlapSphereNonAlloc(center, _radius, _colliders, _mask);
@@ -211,16 +250,16 @@ namespace Code.Animals
             // FIX: Используем HashSet для дедупликации IDamageable экземпляров
             var damagedTargets = new HashSet<IDamageable>();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                Collider col = _colliders[i];
+                var col = _colliders[i];
                 if (col == null) continue;
 
                 var health = col.GetComponentInParent<IDamageable>();
                 if (health == null) continue;
 
                 Debug.Log($"[Attack] Found collider: {col.name}, IDamageable: {health}");
-                damagedTargets.Add(health);  // HashSet автоматически игнорирует дубликаты
+                damagedTargets.Add(health); // HashSet автоматически игнорирует дубликаты
             }
 
             Debug.Log($"[Attack] Total colliders found: {count}, Unique targets: {damagedTargets.Count}");
@@ -254,6 +293,63 @@ namespace Code.Animals
             _isAttackDone = true;
         }
 
+        private void LateUpdate()
+        {
+            // Temporarily disabled — use Gizmos to verify attack radius first
+            // if (!_isAoE || _gridManager == null || _attackPoint == null) return;
+            // Vector3 currentOrigin = _attackPoint.position;
+            // Vector3 currentForward = transform.forward;
+            // if (currentOrigin == _lastAttackOrigin && currentForward == _lastForward) return;
+            // _lastAttackOrigin = currentOrigin;
+            // _lastForward = currentForward;
+            // HighlightAoeCells();
+        }
+
+        private void OnDisable()
+        {
+            ClearAoeHighlight();
+        }
+
+        private void HighlightAoeCells()
+        {
+            if (!_isAoE || _gridManager == null || _attackPoint == null) return;
+
+            ClearAoeHighlight();
+            var a = _attackPoint.position;
+            var b = a + transform.forward * (_forwardReach + _radius);
+
+            for (var x = 0; x < _gridManager.Width; x++)
+            for (var y = 0; y < _gridManager.Height; y++)
+            {
+                var cell = _gridManager.GetCell(x, y);
+                if (cell != null && IsPointInCapsule(cell.WorldPosition, a, b, _radius))
+                {
+                    Debug.Log($"[AOE] Highlighting cell {cell}");
+                    cell.SetColor(_aoeHighlightColor);
+                    _highlightedCells.Add(cell);
+                }
+            }
+        }
+
+        private void ClearAoeHighlight()
+        {
+            foreach (var cell in _highlightedCells)
+                cell.UpdateVisual();
+            _highlightedCells.Clear();
+        }
+
+        private static bool IsPointInCapsule(Vector3 point, Vector3 a, Vector3 b, float radius)
+        {
+            // Flatten to XZ plane — cells are at y=0, attack point may be elevated
+            point.y = 0f;
+            a.y = 0f;
+            b.y = 0f;
+            var ab = b - a;
+            var lenSq = ab.sqrMagnitude;
+            var t = lenSq > 0f ? Mathf.Clamp01(Vector3.Dot(point - a, ab) / lenSq) : 0f;
+            return (point - (a + t * ab)).sqrMagnitude <= radius * radius;
+        }
+
         private Collider GetClosestCollider() =>
             _colliders.Where(c => c.GetComponentInParent<IDamageable>() != null)
                 .OrderBy(c => Vector3.Distance(transform.position, c.transform.position)).First();
@@ -280,8 +376,8 @@ namespace Code.Animals
 
             // Create context for post-attack abilities
             var context = new AbilityContext(
-                attacker: this,              // Self (attacker)
-                target: target.Damageable,   // Who we attacked
+                attacker: this, // Self (attacker)
+                target: target.Damageable, // Who we attacked
                 damage: _damage
             );
 
