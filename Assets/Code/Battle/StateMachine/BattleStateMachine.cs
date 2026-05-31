@@ -33,6 +33,7 @@ namespace Code.Battle.StateMachine
             Framework.Code.Infrastructure.States.GameStateMachine gameStateMachine,
             AnimalSpawner animalSpawner,
             StartBattleService startBattleService,
+            SpawnAnimalsButton spawnAnimalsButton,
             IMergeUndoService mergeUndoService)
         {
             // Resolve circular dependency: FlowController needs StateMachine, StateMachine needs FlowController
@@ -41,7 +42,7 @@ namespace Code.Battle.StateMachine
             // Create all battle states with their dependencies
             _states = new Dictionary<Type, IBattleState>
             {
-                { typeof(PreBattleState), new PreBattleState(this, flowController, animalSpawner, enemySpawnService, unitTracker, startBattleService, mergeUndoService) },
+                { typeof(PreBattleState), new PreBattleState(this, flowController, animalSpawner, enemySpawnService, unitTracker, startBattleService, spawnAnimalsButton, mergeUndoService) },
                 { typeof(BattleStartState), new BattleStartState(this) },
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },

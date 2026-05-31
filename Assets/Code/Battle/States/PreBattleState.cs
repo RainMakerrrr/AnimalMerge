@@ -24,6 +24,7 @@ namespace Code.Battle.States
         private readonly IEnemySpawnService _enemySpawnService;
         private readonly IUnitTracker _unitTracker;
         private readonly StartBattleService _startBattleService;
+        private readonly SpawnAnimalsButton _spawnAnimalsButton;
         private readonly IMergeUndoService _mergeUndoService;
 
         private CancellationTokenSource _cancellationTokenSource;
@@ -35,6 +36,7 @@ namespace Code.Battle.States
             IEnemySpawnService enemySpawnService,
             IUnitTracker unitTracker,
             StartBattleService startBattleService,
+            SpawnAnimalsButton spawnAnimalsButton,
             IMergeUndoService mergeUndoService)
         {
             _stateMachine = stateMachine;
@@ -43,6 +45,7 @@ namespace Code.Battle.States
             _enemySpawnService = enemySpawnService;
             _unitTracker = unitTracker;
             _startBattleService = startBattleService;
+            _spawnAnimalsButton = spawnAnimalsButton;
             _mergeUndoService = mergeUndoService;
         }
 
@@ -67,16 +70,11 @@ namespace Code.Battle.States
 
                 if (!hasExistingUnits)
                 {
-                    // Very first level - spawn initial units
-                    _animalSpawner.SpawnAnimals();
-
-                    // Register spawned player units with tracker
-                    foreach (var playerUnit in _animalSpawner.Animals)
-                    {
-                        _unitTracker.RegisterPlayerUnit(playerUnit);
-                    }
-
-                    Debug.Log($"[PreBattleState] First Level - Spawned and registered {_animalSpawner.Animals.Count} initial player units");
+                    // Very first entry - player spawns animals via button
+                    _spawnAnimalsButton.Show();
+                    // _animalSpawner.SpawnAnimals();  // moved to SpawnAnimalsButton
+                    // Registration is also handled in SpawnAnimalsButton.OnButtonClick()
+                    Debug.Log("[PreBattleState] First Level - showing Spawn Animals button");
                 }
                 else
                 {

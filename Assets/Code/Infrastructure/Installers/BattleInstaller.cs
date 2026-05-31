@@ -16,6 +16,7 @@ namespace Code.Infrastructure.Installers
     {
         [SerializeField] private TargetFinder _targetFinder;
         [SerializeField] private AnimalSpawner _animalSpawner;
+        [SerializeField] private SpawnAnimalsButton _spawnAnimalsButton;
 
         public override void InstallBindings()
         {
@@ -39,6 +40,7 @@ namespace Code.Infrastructure.Installers
 
             // Battle start input system
             Container.Bind<StartBattleService>().AsSingle();
+            Container.Bind<SpawnAnimalsButton>().FromInstance(_spawnAnimalsButton).AsSingle();
 
             // Debug helpers - only in Unity Editor
 #if UNITY_EDITOR
