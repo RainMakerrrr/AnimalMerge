@@ -31,7 +31,7 @@
       "Bash(Select-String -Pattern \"Test|Pass|Fail|Error\")",
       "Bash(Select-Object -First 50)",
       "Bash(pdftotext:*)",
-    "Bash(timeout:*)",
+      "Bash(timeout:*)",
       "Bash(\"C:\\\\Program Files\\\\Unity\\\\Hub\\\\Editor\\\\2022.3.50f1\\\\Editor\\\\Unity.exe\" -runTests -batchmode -projectPath . -testResults TestResults.xml -testPlatform EditMode -logFile -)",
       "Bash(Select-String -Pattern \"\\(Test run|tests passed|tests failed|errors|warnings|NonAoE_Attack|REG004\\)\" -Context 0,2)",
       "Bash(\"C:\\\\Program Files\\\\Unity\\\\Hub\\\\Editor\\\\2022.3.50f1\\\\Editor\\\\Unity.exe\" -runTests -batchmode -projectPath . -testResults TestResults_EditMode.xml -testPlatform EditMode -logFile TestLog_EditMode.txt)",
@@ -67,7 +67,14 @@
       "mcp__tavily__tavily_search",
       "mcp__tavily__tavily_extract",
       "Bash(python3 -c ' *)",
-      "Bash(unzip -q kenney_ui-pack.zip -d kenney_ui)"
+      "Bash(unzip -q kenney_ui-pack.zip -d kenney_ui)",
+      "Read(//Users/user/.claude/**)",
+      "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/.claude/hooks)",
+      "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/Knowledge/Sessions)",
+      "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/Knowledge/Decisions)",
+      "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/Knowledge/Components)",
+      "Bash(chmod +x /Users/user/GIthubProjects/AnimalMerge/.claude/hooks/load-knowledge.py)",
+      "Bash(obsidian vault *)"
     ]
   }
 }
