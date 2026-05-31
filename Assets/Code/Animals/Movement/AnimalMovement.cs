@@ -9,6 +9,7 @@ using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
 using DG.Tweening;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Zenject;
 
@@ -36,7 +37,10 @@ namespace Code.Animals.Movement
         [SerializeField] private float _turnDirectionSmoothSpeed = 4f;
         [SerializeField] private float _turnAmplification = 1.3f;
         [SerializeField] private float _turnAngleThreshold = 10f;
-        [SerializeField] private float _moveDuration = 0.5f;
+        [SerializeField] private int _tilesPerMoveBaseline = 2;
+        [SerializeField] private float _baseMoveSpeed = 3f;
+        [SerializeField] private float _minAnimSpeed = 0.5f;
+        [SerializeField] private float _maxAnimSpeed = 3f;
 
         private Vector3[] _debugPathPoints;
         private Quaternion _targetRotation;
@@ -111,6 +115,9 @@ namespace Code.Animals.Movement
         /// Gets the tiles per move value
         /// </summary>
         public int TilesPerMove => _tilesPerMove;
+
+        private float MovementTilesPerSec =>
+            _baseMoveSpeed * Mathf.Sqrt((float)_tilesPerMove / _tilesPerMoveBaseline);
 
         /// <summary>
         /// Sets the tiles per move value
@@ -518,13 +525,19 @@ namespace Code.Animals.Movement
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
+            var tilesPerSec = MovementTilesPerSec;
+            var duration = pathPositions.Length / tilesPerSec;
+            var animSpeed = Mathf.Clamp(tilesPerSec / _baseMoveSpeed, _minAnimSpeed, _maxAnimSpeed);
+
             _unitOccupancy.ClearOccupancy();
             _isMoving = true;
             _previousMoveDirection = Vector3.zero;
             _currentTurnDirection = 0f;
             _targetTurnDirection = 0f;
 
-            var tween = transform.DOPath(pathPositions, pathPositions.Length * _moveDuration)
+            _movementAnimator.SetPlaybackSpeed(animSpeed);
+
+            var tween = transform.DOPath(pathPositions, duration)
                 .OnWaypointChange(i =>
                 {
                     var nextIndex = i + 1;
@@ -542,6 +555,7 @@ namespace Code.Animals.Movement
                 .OnComplete(() =>
                 {
                     _isMoving = false;
+                    _movementAnimator.SetPlaybackSpeed(1f);
                     RotateToTarget(DirectionToVector3(_direction));
                     //StartCoroutine(RotateToTargetAsync(DirectionToVector3(_direction)));
                     _movementAnimator.StopMovementAnimation();
@@ -621,9 +635,14 @@ namespace Code.Animals.Movement
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
-            _isMoving = true;
+            var tilesPerSec = MovementTilesPerSec;
+            var duration = pathPositions.Length / (tilesPerSec * 2f);
+            var animSpeed = Mathf.Clamp(tilesPerSec / _baseMoveSpeed, _minAnimSpeed, _maxAnimSpeed);
 
-            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+            _isMoving = true;
+            _movementAnimator.SetPlaybackSpeed(animSpeed);
+
+            var tween = transform.DOPath(pathPositions, duration)
                 .OnWaypointChange(i =>
                 {
                     if (i >= pathPositions.Length) return;
@@ -633,6 +652,7 @@ namespace Code.Animals.Movement
                 .OnComplete(() =>
                 {
                     _isMoving = false;
+                    _movementAnimator.SetPlaybackSpeed(1f);
                     RotateToTarget(Vector3.forward);
                     _debugPathPoints = null;
                 });
@@ -706,28 +726,31 @@ namespace Code.Animals.Movement
             var pathPositions = GetPathPositions(path);
             _debugPathPoints = _debugDrawPath ? pathPositions : null;
 
+            var tilesPerSec = MovementTilesPerSec;
+            var duration = pathPositions.Length / (tilesPerSec * 2f);
+            var animSpeed = Mathf.Clamp(tilesPerSec / _baseMoveSpeed, _minAnimSpeed, _maxAnimSpeed);
+
             _unitOccupancy.ClearOccupancy();
             _isMoving = true;
 
-            // Set target rotation to unit's forward direction (выравниваем по forward)
             var forwardDirection = DirectionToVector3(_direction);
             _targetRotation = Quaternion.LookRotation(forwardDirection);
 
             Debug.Log($"[RetreatMovement] Rotating to forward direction: {_direction} ({forwardDirection})");
 
-            // Use same duration calculation as normal movement (pathLength / 2.0)
-            var tween = transform.DOPath(pathPositions, pathPositions.Length / 2f)
+            _movementAnimator.SetPlaybackSpeed(animSpeed);
+
+            var tween = transform.DOPath(pathPositions, duration)
                 .OnUpdate(() =>
                 {
-                    // Apply rotation to smoothly face forward during retreat
                     ApplyRotation();
-                    _movementAnimator.PlayMovementAnimation(1f); // Running animation
+                    _movementAnimator.PlayMovementAnimation(1f);
                 })
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
                 {
                     _isMoving = false;
-                    // Ensure final rotation is exactly forward
+                    _movementAnimator.SetPlaybackSpeed(1f);
                     RotateToTarget(forwardDirection);
                     _movementAnimator.StopMovementAnimation();
                     _debugPathPoints = null;

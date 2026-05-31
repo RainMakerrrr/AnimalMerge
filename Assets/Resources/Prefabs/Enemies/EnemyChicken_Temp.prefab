@@ -2483,9 +2483,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3542b61f2a46baa01b91fdf8881277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attributes:
-  - {fileID: 3416253172217125159}
-  - {fileID: 5821747375073848704}
   _target: {fileID: 6324000434488831968}
 --- !u!1 &5831635114459329316
 GameObject:
@@ -3550,7 +3547,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6036117876038922085}
   - component: {fileID: 2324763850974134723}
-  - component: {fileID: 3747520247965501549}
   - component: {fileID: 5307709970832339831}
   - component: {fileID: 7824973381928684554}
   - component: {fileID: 1848886815750246794}
@@ -3606,19 +3602,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &3747520247965501549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8317449033629935322}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 5
 --- !u!114 &5307709970832339831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3645,7 +3628,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 20
   _animator: {fileID: 5307709970832339831}
 --- !u!114 &1848886815750246794
 MonoBehaviour:
@@ -3717,7 +3699,6 @@ MonoBehaviour:
   _animator: {fileID: 5307709970832339831}
   _nodes: []
   _raycastOffset: 0.4
-  _tilesPerMove: 2
   _sizeEffectY: 0
   _direction: 2
   _debugDrawPath: 1
@@ -3745,16 +3726,12 @@ MonoBehaviour:
   _attackPoint: {fileID: 6047415302659897568}
   _radius: 0.5
   _forwardReach: 0.25
-  _damage: 50
   _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 1048576
   _isAoE: 0
-  _jumpDuration: 0.5
-  _jumpPower: 2
-  _numJumps: 1
-  _jumpDistance: 1.5
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!1 &8373185213801161463
 GameObject:
   m_ObjectHideFlags: 0

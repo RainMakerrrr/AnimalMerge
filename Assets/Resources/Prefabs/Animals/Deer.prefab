@@ -1179,7 +1179,10 @@ MonoBehaviour:
   _turnDirectionSmoothSpeed: 4
   _turnAmplification: 1.3
   _turnAngleThreshold: 10
-  _moveDuration: 0.7
+  _moveDuration: 0.5
+  _tilesPerMoveBaseline: 2
+  _minAnimSpeed: 0.4
+  _maxAnimSpeed: 3
   _currentPathNode: {fileID: 0}
   _debugTargetCell: {fileID: 0}
 --- !u!114 &6860071423001752281

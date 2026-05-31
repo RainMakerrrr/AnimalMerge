@@ -26,5 +26,10 @@ namespace Code.Animals.Movement
         /// </summary>
         /// <param name="direction">Направление поворота (-1 = влево, 0 = прямо, 1 = вправо)</param>
         void UpdateTurnDirection(float direction);
+
+        /// <summary>
+        /// Установить скорость воспроизведения аниматора (1 = нормально, 2 = вдвое быстрее)
+        /// </summary>
+        void SetPlaybackSpeed(float speed);
     }
 }

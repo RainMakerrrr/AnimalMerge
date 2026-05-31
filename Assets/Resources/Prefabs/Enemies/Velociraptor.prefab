@@ -1653,7 +1653,6 @@ GameObject:
   - component: {fileID: 1264362573372290551}
   - component: {fileID: 4889394934516533505}
   - component: {fileID: 6984691952907765108}
-  - component: {fileID: 658436734604334940}
   - component: {fileID: 3292351431626660745}
   - component: {fileID: 7317574748184024748}
   - component: {fileID: 3583401192464621195}
@@ -1725,19 +1724,6 @@ MonoBehaviour:
   - {fileID: 670883526586799931}
   _health: {fileID: 1218897564777170343}
   _movement: {fileID: 3292351431626660745}
---- !u!114 &658436734604334940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6826076126462958504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 8
 --- !u!114 &3292351431626660745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1758,7 +1744,6 @@ MonoBehaviour:
   _animator: {fileID: 7575039154067824279}
   _nodes: []
   _raycastOffset: 0.4
-  _tilesPerMove: 4
   _sizeEffectY: 0
   _direction: 2
   _debugDrawPath: 1
@@ -1800,12 +1785,12 @@ MonoBehaviour:
   _attackPoint: {fileID: 7248511673806076542}
   _radius: 0.5
   _forwardReach: 0.25
-  _damage: 250
   _maxTargets: 1
   _mask:
     serializedVersion: 2
     m_Bits: 1048576
   _isAoE: 0
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &1218897564777170343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1818,7 +1803,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 150
   _animator: {fileID: 7575039154067824279}
 --- !u!114 &7575039154067824279
 MonoBehaviour:

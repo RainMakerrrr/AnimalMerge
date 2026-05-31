@@ -17,11 +17,15 @@ namespace Code.Animals
 
         [SerializeField] private Animator _animator;
         [SerializeField] private AnimationClip _attackClip;
-
+        [SerializeField] private float _animatorSpeed = 1.5f;
+        
         private void Awake()
         {
             if (_animator != null)
+            {
                 _animator.SetFloat(TurnDirection, 0f);
+                _animator.speed = _animatorSpeed;
+            }
         }
 
         public async UniTask WaitForAttackAnimation()
@@ -81,6 +85,12 @@ namespace Code.Animals
             //Debug.Log($"[TurnAnimation] name - {name}, direction - {direction}");
             var clampedDirection = Mathf.Clamp(direction, -1f, 1f);
             _animator.SetFloat(TurnDirection, clampedDirection);
+        }
+
+        public void SetSpeed(float speed)
+        {
+            if (_animator != null)
+                _animator.speed = speed;
         }
     }
 }

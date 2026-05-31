@@ -3664,9 +3664,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a3542b61f2a46baa01b91fdf8881277, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _attributes:
-  - {fileID: 8769483695860642017}
-  - {fileID: 4890389447033418061}
   _target: {fileID: 2207988601592928383}
 --- !u!1 &7766662550633587886
 GameObject:
@@ -4143,7 +4140,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8679131269451907332}
   - component: {fileID: 2661867235494358015}
-  - component: {fileID: 2973203734360156038}
   - component: {fileID: 1001261181802842221}
   - component: {fileID: 5965974662923546960}
   - component: {fileID: 7945855412088981664}
@@ -4198,19 +4194,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2973203734360156038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8610923829613190915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d7e3a911dea43f0888d76e11889189d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _type: 0
 --- !u!114 &1001261181802842221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4231,7 +4214,6 @@ MonoBehaviour:
   _animator: {fileID: 7945855412088981664}
   _nodes: []
   _raycastOffset: 0.4
-  _tilesPerMove: 2
   _sizeEffectY: 2
   _direction: 2
   _debugDrawPath: 1
@@ -4259,12 +4241,12 @@ MonoBehaviour:
   _attackPoint: {fileID: 1166299915849676703}
   _radius: 1.2
   _forwardReach: 0.25
-  _damage: 50
   _maxTargets: 4
   _mask:
     serializedVersion: 2
     m_Bits: 1048576
   _isAoE: 0
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
 --- !u!114 &7945855412088981664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4291,7 +4273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9da1b6dea7ea4874b9aba36fa1c66821, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _max: 100
   _animator: {fileID: 7945855412088981664}
 --- !u!114 &3607688545502602164
 MonoBehaviour:

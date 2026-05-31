@@ -34,5 +34,10 @@ namespace Code.Animals.Movement
         {
             _animator.UpdateTurnDirection(direction);
         }
+
+        public void SetPlaybackSpeed(float speed)
+        {
+            _animator.SetSpeed(speed);
+        }
     }
 }
