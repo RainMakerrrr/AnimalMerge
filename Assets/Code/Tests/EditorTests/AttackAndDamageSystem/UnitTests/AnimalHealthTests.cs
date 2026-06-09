@@ -49,7 +49,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var health = HealthTestHelper.CreateAnimalHealth(maxHealth: 100f);
             var attacker = AttackTestHelper.CreateMockAttack(damage: 25f);
 
-            var takenDamageTracker = new HealthTestHelper.EventTracker();
+            var takenDamageTracker = new HealthTestHelper.EventTracker<float>();
             health.TakenDamage += takenDamageTracker.Track;
 
             // Act

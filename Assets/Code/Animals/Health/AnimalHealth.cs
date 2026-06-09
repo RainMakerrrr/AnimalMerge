@@ -13,7 +13,8 @@ namespace Code.Animals.Health
     public class AnimalHealth : MonoBehaviour, IDamageable
     {
         // Events for code subscriptions (UI, VFX, sound effects)
-        public event Action TakenDamage;
+        public event Action<float> TakenDamage;
+        public event Action DamageBlocked;
         public event Action HealthChanged;
         public event Action Died;
 
@@ -126,6 +127,7 @@ namespace Code.Animals.Health
             if (isBlockedDamage)
             {
                 Debug.Log($"[AnimaHealth] {name} Damage blocked, return");
+                DamageBlocked?.Invoke();
                 return;
             }
 
@@ -134,7 +136,7 @@ namespace Code.Animals.Health
             Current -= attacker.Damage;
 
             // Fire event when damage is actually applied
-            TakenDamage?.Invoke();
+            TakenDamage?.Invoke(attacker.Damage);
             HealthChanged?.Invoke();
 
             _animator.TakeDamageAnimation();
