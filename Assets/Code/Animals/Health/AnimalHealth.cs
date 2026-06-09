@@ -14,6 +14,7 @@ namespace Code.Animals.Health
     {
         // Events for code subscriptions (UI, VFX, sound effects)
         public event Action TakenDamage;
+        public event Action HealthChanged;
         public event Action Died;
 
         private float _max;
@@ -50,6 +51,7 @@ namespace Code.Animals.Health
             _max *= multiplier;
             Max = _max;      // Update public property
             Current = _max;  // Fully heal to new max
+            HealthChanged?.Invoke();
         }
 
         public void SetMaxHealth(float newMaxHealth)
@@ -57,7 +59,8 @@ namespace Code.Animals.Health
             Max = newMaxHealth;
             _max = newMaxHealth;
             Current = Max; // Full heal when setting new maximum
-    }
+            HealthChanged?.Invoke();
+        }
 
         /// <summary>
         /// Sets the current health value directly (for undo operations)
@@ -65,6 +68,7 @@ namespace Code.Animals.Health
         public void SetCurrentHealth(float value)
         {
             Current = Mathf.Clamp(value, 0f, Max);
+            HealthChanged?.Invoke();
         }
 
         public void SetAbility(IAbility ability)
@@ -131,6 +135,7 @@ namespace Code.Animals.Health
 
             // Fire event when damage is actually applied
             TakenDamage?.Invoke();
+            HealthChanged?.Invoke();
 
             _animator.TakeDamageAnimation();
 
@@ -171,6 +176,7 @@ namespace Code.Animals.Health
         public void Restore(float amount)
         {
             Current = Mathf.Min(Current + amount, Max);
+            HealthChanged?.Invoke();
             Debug.Log($"[AnimalHealth] {name} restored {amount} health, now at {Current}/{Max}");
         }
     }
