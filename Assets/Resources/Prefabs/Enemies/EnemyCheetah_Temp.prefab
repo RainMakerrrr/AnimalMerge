@@ -1191,6 +1191,16 @@ PrefabInstance:
       propertyPath: _health
       value: 
       objectReference: {fileID: 6110950923424416345}
+    - target: {fileID: 641831116942645408, guid: 7348f427308954bc0943d4362801a0e2,
+        type: 3}
+      propertyPath: _target
+      value: 
+      objectReference: {fileID: 3539480814082895111}
+    - target: {fileID: 641831116942645408, guid: 7348f427308954bc0943d4362801a0e2,
+        type: 3}
+      propertyPath: _heightOffset
+      value: 1.7
+      objectReference: {fileID: 0}
     - target: {fileID: 866713279628349587, guid: 7348f427308954bc0943d4362801a0e2,
         type: 3}
       propertyPath: m_Name
@@ -1245,6 +1255,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4505364417675279404, guid: 7348f427308954bc0943d4362801a0e2,
+        type: 3}
+      propertyPath: _heightOffset
+      value: 1.7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

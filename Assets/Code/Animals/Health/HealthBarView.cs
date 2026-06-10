@@ -8,6 +8,12 @@ namespace Code.Animals.Health
         [SerializeField] private AnimalHealth _health;
         [SerializeField] private Image _fillImage;
 
+        private void Awake()
+        {
+            int layer = LayerMask.NameToLayer("HealthBar");
+            SetLayerRecursively(gameObject, layer);
+        }
+
         private void OnEnable()
         {
             if (_health == null) return;
@@ -30,5 +36,12 @@ namespace Code.Animals.Health
         }
 
         private void OnDied() => gameObject.SetActive(false);
+
+        private static void SetLayerRecursively(GameObject go, int layer)
+        {
+            go.layer = layer;
+            foreach (Transform child in go.transform)
+                SetLayerRecursively(child.gameObject, layer);
+        }
     }
 }
