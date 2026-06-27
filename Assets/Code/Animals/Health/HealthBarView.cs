@@ -1,3 +1,4 @@
+using Code.Animals.Movement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,10 +8,11 @@ namespace Code.Animals.Health
     {
         [SerializeField] private AnimalHealth _health;
         [SerializeField] private Image _fillImage;
+        [SerializeField] private float _widthPerGridCell = 100f;
 
         private void Awake()
         {
-            int layer = LayerMask.NameToLayer("HealthBar");
+            var layer = LayerMask.NameToLayer("HealthBar");
             SetLayerRecursively(gameObject, layer);
         }
 
