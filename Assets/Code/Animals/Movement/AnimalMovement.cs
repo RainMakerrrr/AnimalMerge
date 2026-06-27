@@ -41,6 +41,7 @@ namespace Code.Animals.Movement
         [SerializeField] private float _baseMoveSpeed = 3f;
         [SerializeField] private float _minAnimSpeed = 0.5f;
         [SerializeField] private float _maxAnimSpeed = 3f;
+        [SerializeField] private Color _moveRangeColor = new Color(0.2f, 0.5f, 1f, 1f); // Per-unit move-range highlight color
 
         private Vector3[] _debugPathPoints;
         private Quaternion _targetRotation;
@@ -115,6 +116,11 @@ namespace Code.Animals.Movement
         /// Gets the tiles per move value
         /// </summary>
         public int TilesPerMove => _tilesPerMove;
+
+        /// <summary>
+        /// Per-unit color used to highlight this unit's available move range.
+        /// </summary>
+        public Color MoveRangeColor => _moveRangeColor;
 
         private float MovementTilesPerSec =>
             _baseMoveSpeed * Mathf.Sqrt((float)_tilesPerMove / _tilesPerMoveBaseline);
