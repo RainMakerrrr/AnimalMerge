@@ -11,9 +11,20 @@ Full pipeline for AnimalMerge. Takes a task and drives it to a finished implemen
 
 ---
 
+## Execution rules (MANDATORY — read before Step 1)
+
+This skill is an **orchestrator**. The main loop only sequences the pipeline and runs the orchestration calls listed below; all code work — planning, implementing, reviewing, and knowledge updates — is delegated to project-specific subagents. Follow these rules exactly — do not improvise or "improve" the flow:
+
+- **Do NOT explore or read the codebase to understand it.** From the main loop, do not grep/find/Read source files, and do not launch the built-in `Explore` / `Plan` agents to study the code — all code exploration happens *inside* the subagents below, which use CodeGraph (`codegraph_explore`) instead of grep/find/read. Besides invoking the subagents via the Agent tool (which every step below does — that is the whole job of this orchestrator), the only other direct tool calls the main loop makes are the pipeline mechanics: reading the Unity console (Steps 3 and 5) and the `git` file-list commands (Step 4). These are orchestration, not code exploration.
+- **Use ONLY these custom subagents, by exact `subagent_type`:** `planner`, `implementer`, `game-reviewer`, `knowledge-updater`. Never substitute the built-in `Explore`, `Plan`, `general-purpose`, or `claude` agents — they lack this project's CodeGraph and CLAUDE.md rules.
+- **Run steps strictly in order**, passing each step's output to the next. Do not reorder or merge steps, and do not skip a step — except where the step itself defines a skip condition (Step 5 is skipped when findings are SUGGESTION-only; Step 3's fix branch runs only when the console has errors).
+- If a `subagent_type` does not resolve, STOP and tell the user the agent is missing — do not fall back to a built-in agent.
+
+> For a fully deterministic run (guaranteed agent order, no improvisation), use the Workflow version instead: `Workflow({ name: "feature-pipeline", args: "<task>" })`.
+
 ## Step 1 — Planning
 
-Spawn agent `planner` with the following prompt:
+Use the Agent tool with **`subagent_type: planner`** (never the built-in `Explore`/`Plan` agents). Prompt:
 
 ```
 Task: <original task text from user>
@@ -28,7 +39,7 @@ Save the resulting plan — it is needed in the next step.
 
 ## Step 2 — Implementation
 
-Spawn agent `implementer` with the following prompt:
+Use the Agent tool with **`subagent_type: implementer`** (never a built-in agent). Prompt:
 
 ```
 Task: <original task text>
@@ -46,7 +57,7 @@ Implement the plan strictly following CLAUDE.md rules.
 Read the Unity Console via `mcp__UnityMCP__read_console`.
 
 **If there are compile errors:**
-Spawn agent `implementer` with the following prompt:
+Use the Agent tool with **`subagent_type: implementer`** (never a built-in agent). Prompt:
 
 ```
 Task: fix compile errors.
@@ -67,7 +78,7 @@ Collect the full list of changed and new files using both commands:
 - `git diff --name-only HEAD` — modified tracked files
 - `git ls-files --others --exclude-standard` — new untracked files
 
-Merge both lists and spawn agent `game-reviewer` with the following prompt:
+Merge both lists. Use the Agent tool with **`subagent_type: game-reviewer`** (never a built-in agent). Prompt:
 
 ```
 Original task: <task text>
@@ -87,7 +98,7 @@ Save the findings.
 
 If findings contain **[CRITICAL]** or **[WARNING]**:
 
-Spawn agent `implementer` with the following prompt:
+Use the Agent tool with **`subagent_type: implementer`** (never a built-in agent). Prompt:
 
 ```
 Task: apply review findings.
@@ -106,7 +117,7 @@ If findings are **[SUGGESTION]** only — skip this step.
 
 ## Step 6 — Update knowledge base
 
-Spawn agent `knowledge-updater` with the following prompt:
+Use the Agent tool with **`subagent_type: knowledge-updater`**. Prompt:
 
 ```
 Completed feature: <task text>

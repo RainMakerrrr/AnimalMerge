@@ -74,7 +74,8 @@
       "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/Knowledge/Decisions)",
       "Bash(mkdir -p /Users/user/GIthubProjects/AnimalMerge/Knowledge/Components)",
       "Bash(chmod +x /Users/user/GIthubProjects/AnimalMerge/.claude/hooks/load-knowledge.py)",
-      "Bash(obsidian vault *)"
+      "Bash(obsidian vault *)",
+      "Bash(codegraph node *)"
     ]
   }
 }

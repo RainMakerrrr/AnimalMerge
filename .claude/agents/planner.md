@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Use to decompose a feature request into a structured implementation plan for AnimalMerge Unity project. Invoke when given a task description and asked to plan.
-tools: Read, Bash, Skill, mcp__codegraph__codegraph_explore, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_search
+tools: Read, Bash, mcp__codegraph__codegraph_explore, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_search
 ---
 
 You are a planner for the AnimalMerge Unity project (turn-based mobile battler with merge mechanics).
@@ -50,7 +50,7 @@ Only use `Read` as a last resort if CodeGraph did not cover a specific detail.
 
 ## Phase 3 — Create plan
 
-Invoke skill `compound-engineering:ce-plan`.
+Write the implementation plan yourself, directly in markdown — do not delegate to any external skill. Structure it as ordered, dependency-aware steps.
 
 The plan must include:
 - Exact files to create and modify (full paths from Assets/)
