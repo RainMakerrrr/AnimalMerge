@@ -76,7 +76,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _type: 1
-  _cheetahMaterial: {fileID: 2100000, guid: 866e7d886320c452db977f141fc8807f, type: 2}
+  _cheetahMaterial: {fileID: 2100000, guid: 1db765f5b60f74aa398ae039021d39a3, type: 2}
 --- !u!1 &6996565362490014304
 GameObject:
   m_ObjectHideFlags: 0
@@ -774,6 +774,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 5687730468975841999}
+    - targetCorrespondingSourceObject: {fileID: 1453192181831816, guid: 6b01070fd8f783c47bb18bfab5a0959d,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1641572567853243770}
   m_SourcePrefab: {fileID: 100100000, guid: 6b01070fd8f783c47bb18bfab5a0959d, type: 3}
 --- !u!4 &3892271069238637796 stripped
 Transform:
@@ -949,6 +953,23 @@ MonoBehaviour:
   _popupPrefab: {fileID: 4303683443857365212, guid: 218430e33257d452686359023d70b261,
     type: 3}
   _spawnOffsetY: 1.5
+  _randomXRange: 0.3
+--- !u!114 &1641572567853243770
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3895256424223697870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38798bb72c91446d9b92fb0cfa04c29b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 8218644382616542876}
+  _popupPrefab: {fileID: 4303683443857365212, guid: e3f9c47a1b6d4e2f8a05c1b9d7e6f3a2,
+    type: 3}
+  _spawnOffsetY: 2
   _randomXRange: 0.3
 --- !u!4 &3898623585405119032 stripped
 Transform:

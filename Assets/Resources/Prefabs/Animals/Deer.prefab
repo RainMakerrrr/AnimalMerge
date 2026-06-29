@@ -1266,7 +1266,7 @@ MonoBehaviour:
   _health: {fileID: -7386555830971594686}
   _popupPrefab: {fileID: 4303683443857365212, guid: 218430e33257d452686359023d70b261,
     type: 3}
-  _spawnOffsetY: 1.5
+  _spawnOffsetY: 2
   _randomXRange: 0.3
 --- !u!1 &2103935806931381597
 GameObject:

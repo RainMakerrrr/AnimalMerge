@@ -3196,6 +3196,7 @@ GameObject:
   - component: {fileID: 2268602994252335252}
   - component: {fileID: 7262354583359878077}
   - component: {fileID: 4420228989422793037}
+  - component: {fileID: 2381942456775014410}
   m_Layer: 20
   m_Name: Chicken
   m_TagString: Untagged
@@ -3393,7 +3394,24 @@ MonoBehaviour:
   _health: {fileID: 7601560266156037780}
   _popupPrefab: {fileID: 4303683443857365212, guid: 218430e33257d452686359023d70b261,
     type: 3}
-  _spawnOffsetY: 1.5
+  _spawnOffsetY: 2
+  _randomXRange: 0.3
+--- !u!114 &2381942456775014410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7601560266156037781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38798bb72c91446d9b92fb0cfa04c29b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 3604384551903175464}
+  _popupPrefab: {fileID: 4303683443857365212, guid: e3f9c47a1b6d4e2f8a05c1b9d7e6f3a2,
+    type: 3}
+  _spawnOffsetY: 2
   _randomXRange: 0.3
 --- !u!1 &7896776257376972902
 GameObject:

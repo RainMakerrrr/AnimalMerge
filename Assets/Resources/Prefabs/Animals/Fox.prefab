@@ -527,6 +527,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3013282138973040513}
+    - targetCorrespondingSourceObject: {fileID: 1655403738057260, guid: 8701839b7c9d5fe4387a46bd8530957f,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1812985377132152345}
   m_SourcePrefab: {fileID: 100100000, guid: 8701839b7c9d5fe4387a46bd8530957f, type: 3}
 --- !u!136 &5645289041827211190 stripped
 CapsuleCollider:
@@ -737,4 +741,21 @@ MonoBehaviour:
   _popupPrefab: {fileID: 4303683443857365212, guid: 218430e33257d452686359023d70b261,
     type: 3}
   _spawnOffsetY: 1.5
+  _randomXRange: 0.3
+--- !u!114 &1812985377132152345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5746118840335119186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38798bb72c91446d9b92fb0cfa04c29b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 2403141128309201055}
+  _popupPrefab: {fileID: 4303683443857365212, guid: e3f9c47a1b6d4e2f8a05c1b9d7e6f3a2,
+    type: 3}
+  _spawnOffsetY: 2
   _randomXRange: 0.3

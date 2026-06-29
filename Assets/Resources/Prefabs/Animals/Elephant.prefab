@@ -2235,6 +2235,7 @@ GameObject:
   - component: {fileID: 5201212615172606138}
   - component: {fileID: 6375875760433076691}
   - component: {fileID: 1865420751508485375}
+  - component: {fileID: 2646471438501839073}
   m_Layer: 20
   m_Name: Elephant
   m_TagString: Animal
@@ -2441,7 +2442,24 @@ MonoBehaviour:
   _health: {fileID: -5345208149981297111}
   _popupPrefab: {fileID: 4303683443857365212, guid: 218430e33257d452686359023d70b261,
     type: 3}
-  _spawnOffsetY: 1.5
+  _spawnOffsetY: 2
+  _randomXRange: 0.3
+--- !u!114 &2646471438501839073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2153842122831812291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38798bb72c91446d9b92fb0cfa04c29b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _target: {fileID: 7916706815544139106}
+  _popupPrefab: {fileID: 4303683443857365212, guid: e3f9c47a1b6d4e2f8a05c1b9d7e6f3a2,
+    type: 3}
+  _spawnOffsetY: 2
   _randomXRange: 0.3
 --- !u!1 &2153842122843693113
 GameObject:
