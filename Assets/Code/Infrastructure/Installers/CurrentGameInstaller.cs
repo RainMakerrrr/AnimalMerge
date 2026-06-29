@@ -1,4 +1,5 @@
-﻿using Code.Data.Animals;
+﻿using Code.Animals.Movement;
+using Code.Data.Animals;
 using Code.Infrastructure.Factories.Animals;
 using Code.Infrastructure.Factories.Nodes;
 using Code.Infrastructure.Services.Input;
@@ -16,6 +17,7 @@ namespace Code.Infrastructure.Installers
 
         [SerializeField] private Grid _grid;
         [SerializeField] private Grid _mergeGrid;
+        [SerializeField] private Canvas _uiCanvas;
 
         public override void InstallBindings()
         {
@@ -25,7 +27,9 @@ namespace Code.Infrastructure.Installers
             BindAnimalFactory();
             BindAnimalDatabase();
             BindCamera();
+            BindCanvas();
             BindInputService();
+            BindMoveRangeHighlighter();
         }
 
 
@@ -43,6 +47,10 @@ namespace Code.Infrastructure.Installers
             .FromScriptableObjectResource("AnimalDatabase")
             .AsSingle();
         private void BindCamera() => Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
+        private void BindCanvas() => Container.Bind<Canvas>().FromInstance(_uiCanvas).AsSingle();
         private void BindInputService() => Container.Bind<IInputService>().To<InputService>().AsSingle();
+
+        private void BindMoveRangeHighlighter() =>
+            Container.Bind<IMoveRangeHighlighter>().To<MoveRangeHighlighter>().AsSingle();
     }
 }

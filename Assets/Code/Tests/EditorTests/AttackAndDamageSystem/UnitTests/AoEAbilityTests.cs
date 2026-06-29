@@ -18,7 +18,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Dodge_AgainstAoE_ReturnsFalse()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50, initialCounter: 0);
 
             var attackerGO = new GameObject("AoEAttacker");
             var aoeAttack = attackerGO.AddComponent<AnimalAttack>();
@@ -42,7 +42,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Dodge_AgainstNonAoE_ReturnsNormalBehavior()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50, initialCounter: 0);
 
             var attackerGO = new GameObject("NonAoEAttacker");
             var normalAttack = attackerGO.AddComponent<AnimalAttack>();
@@ -66,7 +66,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Dodge_AgainstNull_ReturnsNormalBehavior()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50, initialCounter: 0);
 
             // Act
             var canUse = dodge.CanUse(null);
@@ -83,7 +83,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void InheritedDodge_AgainstAoE_ReturnsFalse()
         {
             // Arrange
-            var inheritedDodge = AbilityTestMocks.CreateDodge(isOwner: false, initialCounter: 1);
+            var inheritedDodge = AbilityTestMocks.CreateDodge(successChance: 30, initialCounter: 1);
 
             var attackerGO = new GameObject("AoEAttacker");
             var aoeAttack = attackerGO.AddComponent<AnimalAttack>();
@@ -242,7 +242,6 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         {
             // Arrange
             var mockDodge = AbilityTestMocks.CreateMockDodgeWithRNG(
-                isOwner: true,
                 initialCounter: 0,
                 randomValueProvider: () => 0); // Always succeed if allowed
 

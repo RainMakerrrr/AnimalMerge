@@ -3259,6 +3259,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _grid: {fileID: 0}
   _mergeGrid: {fileID: 0}
+  _uiCanvas: {fileID: 5768777438919379485}
 --- !u!114 &2088146937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7452,6 +7453,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e49a47f140f9f354eaa3b0b8caee95e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!223 &5768777438919379485 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 5768777438628208642, guid: 768e4870db1957049a512fa378486d4e,
+    type: 3}
+  m_PrefabInstance: {fileID: 5768777438919379477}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5800739360513122139
 Transform:
   m_ObjectHideFlags: 0

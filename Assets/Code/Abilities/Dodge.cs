@@ -8,7 +8,7 @@ namespace Code.Abilities
     {
         private readonly ITransformable _transformable;
         private readonly Collider[] _colliders;
-        private readonly bool _isOwner;
+        private readonly int _successChance;
         private readonly IRandomProvider _randomProvider;
         private int _counter;
         private bool _blockDamage;
@@ -32,16 +32,15 @@ namespace Code.Abilities
             // First use: always 100%
             if (_counter == 0) return true;
 
-            // Subsequent uses: 80% for owner, 50% for inherited
-            int successThreshold = _isOwner ? 80 : 50;
-            return _randomProvider.Range(0, 100) < successThreshold;
+            // Subsequent uses: success chance is configured per animal (e.g. Fox owner/inherited)
+            return _randomProvider.Range(0, 100) < _successChance;
         }
 
-        public Dodge(ITransformable transformable, Collider[] colliders, bool isOwner, IRandomProvider randomProvider)
+        public Dodge(ITransformable transformable, Collider[] colliders, int successChance, IRandomProvider randomProvider)
         {
             _transformable = transformable;
             _colliders = colliders;
-            _isOwner = isOwner;
+            _successChance = successChance;
             _randomProvider = randomProvider;
         }
 

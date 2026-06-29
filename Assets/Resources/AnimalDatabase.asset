@@ -15,19 +15,28 @@ MonoBehaviour:
   _configs:
   - Type: 1
     Stats: {fileID: 11400000, guid: f3295a88dfb7bee4794a78fbffa625ac, type: 2}
+    MergeInfo: Speed Up
   - Type: 2
     Stats: {fileID: 11400000, guid: 8ce5bff9668665347b23f610c308844b, type: 2}
+    MergeInfo: Damage Up
   - Type: 0
     Stats: {fileID: 11400000, guid: fa691ed4013ac864cb51f0f6ef822cdc, type: 2}
+    MergeInfo: Health Up
   - Type: 3
     Stats: {fileID: 11400000, guid: 3e14d4c6dcf0d8343a4876fff7b636c9, type: 2}
+    MergeInfo: Dodge Skill
   - Type: 4
     Stats: {fileID: 11400000, guid: 733dcf3f5e3f25a498ab175590454999, type: 2}
+    MergeInfo: Counter Attack
   - Type: 6
     Stats: {fileID: 11400000, guid: 483eecca6e481cf4ca88574404b5d0a3, type: 2}
+    MergeInfo: 
   - Type: 8
     Stats: {fileID: 11400000, guid: 290c398e42ff92e488697bc5955b43e0, type: 2}
+    MergeInfo: 
   - Type: 7
     Stats: {fileID: 11400000, guid: ebeb3736349326349a3f67b28213c463, type: 2}
+    MergeInfo: 
   - Type: 5
     Stats: {fileID: 11400000, guid: 3b993b7b7b2a00a4db45a0ed56877f60, type: 2}
+    MergeInfo: Clone

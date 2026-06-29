@@ -14,6 +14,7 @@ namespace Code.Animals.Merge
     {
         [SerializeField] private PlayerAnimalFacade _facade;
         public event Action<List<VisualMergeAttribute>> Merge;
+        public event Action<PlayerAnimalFacade> Merged;
 
         private IMergeUndoService _mergeUndoService;
         private IUnitTracker _unitTracker;
@@ -86,6 +87,7 @@ namespace Code.Animals.Merge
             visualAttributes.AddRange(animal.AccumulatedVisualAttributes);
 
             // Check: same type or different type?
+            var grantedNewSkill = false;
             if (animal.Type == _facade.Type)
             {
                 var combinedHP = (animal.GetMaxHealth() + _facade.GetMaxHealth()) * 0.75f;
@@ -103,10 +105,17 @@ namespace Code.Animals.Merge
                     Debug.LogWarning($"[MergeTarget] Merge failed for {animal.Type} into {_facade.Type}. Animal not consumed.");
                     return false;
                 }
+
+                grantedNewSkill = true;
             }
 
             // Fire visual effects
             Merge?.Invoke(visualAttributes);
+
+            // Same-type merges only combine stats; the popup must report a real balance gain,
+            // so notify only when the source actually granted a new skill/upgrade.
+            if (grantedNewSkill)
+                Merged?.Invoke(animal);
 
             // Accumulate visual attributes on target for future merges
             _facade.AccumulatedVisualAttributes.AddRange(visualAttributes);

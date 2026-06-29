@@ -152,9 +152,16 @@ namespace Code.Animals.Merge.MergeSkills
     {
         public AnimalType AnimalType => AnimalType.Fox;
 
+        private readonly int _inheritedChance;
+
+        public FoxMergeSkill(int inheritedChance)
+        {
+            _inheritedChance = inheritedChance;
+        }
+
         public bool Merge(PlayerAnimalFacade animal)
         {
-            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, isOwner: false, animal.RandomProvider));
+            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, _inheritedChance, animal.RandomProvider));
 
             Debug.Log(animal.gameObject.name);
             animal.MergeSkills.ForEach(Debug.Log);
@@ -169,7 +176,7 @@ namespace Code.Animals.Merge.MergeSkills
             if (animal == null)
                 return false;
 
-            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, isOwner: false, animal.RandomProvider));
+            animal.AddAbility(new Dodge(animal.Movement, animal.Colliders, _inheritedChance, animal.RandomProvider));
 
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);

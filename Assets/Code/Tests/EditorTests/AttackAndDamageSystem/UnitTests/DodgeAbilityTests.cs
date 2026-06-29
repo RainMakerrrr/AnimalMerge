@@ -20,7 +20,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void FirstUse_Always100Percent_CanUseAlwaysTrue()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: false, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 30, initialCounter: 0);
 
             // Act & Assert - test multiple times to ensure it's always true
             for (int i = 0; i < 10; i++)
@@ -31,55 +31,53 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         }
 
         /// <summary>
-        /// UT-DODGE-002: Owner_80Percent
-        /// Verifies that owner dodge has 80% success rate after first use
+        /// UT-DODGE-002: Owner_50Percent
+        /// Verifies that owner dodge has a 50% success rate after first use.
+        /// Exercises the real Dodge.CanUse with a stubbed IRandomProvider.
         /// </summary>
         [Test]
-        public void Owner_80Percent_CanUse_CorrectThreshold()
+        public void Owner_50Percent_CanUse_CorrectThreshold()
         {
-            // Arrange
-            var successCount = 0;
-            var failCount = 0;
+            // Arrange - boundary: 49 < 50 succeeds, 50 >= 50 fails (owner threshold = 50)
+            var randomSuccess = Substitute.For<IRandomProvider>();
+            randomSuccess.Range(0, 100).Returns(49);
 
-            // Act - test with controlled RNG values
-            // Test boundary: 79 should succeed, 80 should fail
-            var dodgeSuccess = AbilityTestMocks.CreateMockDodgeWithRNG(
-                isOwner: true,
-                initialCounter: 1,
-                randomValueProvider: () => 79);
+            var randomFail = Substitute.For<IRandomProvider>();
+            randomFail.Range(0, 100).Returns(50);
 
-            var dodgeFail = AbilityTestMocks.CreateMockDodgeWithRNG(
-                isOwner: true,
-                initialCounter: 1,
-                randomValueProvider: () => 80);
+            var dodgeSuccess = AbilityTestMocks.CreateDodge(
+                successChance: 50, initialCounter: 1, randomProvider: randomSuccess);
+            var dodgeFail = AbilityTestMocks.CreateDodge(
+                successChance: 50, initialCounter: 1, randomProvider: randomFail);
 
-            // Assert
-            dodgeSuccess.CanUse(null).Should().BeTrue("79 < 80, should succeed");
-            dodgeFail.CanUse(null).Should().BeFalse("80 >= 80, should fail");
+            // Act & Assert
+            dodgeSuccess.CanUse(null).Should().BeTrue("49 < 50, owner dodge should succeed");
+            dodgeFail.CanUse(null).Should().BeFalse("50 >= 50, owner dodge should fail");
         }
 
         /// <summary>
-        /// UT-DODGE-003: Inherited_50Percent
-        /// Verifies that inherited dodge has 50% success rate
+        /// UT-DODGE-003: Inherited_30Percent
+        /// Verifies that inherited dodge has a 30% success rate after first use.
+        /// Exercises the real Dodge.CanUse with a stubbed IRandomProvider.
         /// </summary>
         [Test]
-        public void Inherited_50Percent_CanUse_CorrectThreshold()
+        public void Inherited_30Percent_CanUse_CorrectThreshold()
         {
-            // Arrange & Act - test with controlled RNG values
-            // Test boundary: 49 should succeed, 50 should fail
-            var dodgeSuccess = AbilityTestMocks.CreateMockDodgeWithRNG(
-                isOwner: false,
-                initialCounter: 1,
-                randomValueProvider: () => 49);
+            // Arrange - boundary: 29 < 30 succeeds, 30 >= 30 fails (inherited threshold = 30)
+            var randomSuccess = Substitute.For<IRandomProvider>();
+            randomSuccess.Range(0, 100).Returns(29);
 
-            var dodgeFail = AbilityTestMocks.CreateMockDodgeWithRNG(
-                isOwner: false,
-                initialCounter: 1,
-                randomValueProvider: () => 50);
+            var randomFail = Substitute.For<IRandomProvider>();
+            randomFail.Range(0, 100).Returns(30);
 
-            // Assert
-            dodgeSuccess.CanUse(null).Should().BeTrue("49 < 50, should succeed");
-            dodgeFail.CanUse(null).Should().BeFalse("50 >= 50, should fail");
+            var dodgeSuccess = AbilityTestMocks.CreateDodge(
+                successChance: 30, initialCounter: 1, randomProvider: randomSuccess);
+            var dodgeFail = AbilityTestMocks.CreateDodge(
+                successChance: 30, initialCounter: 1, randomProvider: randomFail);
+
+            // Act & Assert
+            dodgeSuccess.CanUse(null).Should().BeTrue("29 < 30, inherited dodge should succeed");
+            dodgeFail.CanUse(null).Should().BeFalse("30 >= 30, inherited dodge should fail");
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             collider2.enabled = true;
 
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
-            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
+            var dodge = new Dodge(transformable, colliders, successChance: 50, randomProvider);
 
             // Act
             dodge.Apply().GetAwaiter().GetResult();
@@ -146,7 +144,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var colliders = new UnityEngine.Collider[] { collider };
 
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
-            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
+            var dodge = new Dodge(transformable, colliders, successChance: 50, randomProvider);
 
             // Act
             dodge.Apply().GetAwaiter().GetResult();
@@ -175,7 +173,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
             var colliders = new UnityEngine.Collider[] { collider };
 
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
-            var dodge = new Dodge(transformable, colliders, isOwner: true, randomProvider);
+            var dodge = new Dodge(transformable, colliders, successChance: 50, randomProvider);
 
             // Act
             dodge.Apply().GetAwaiter().GetResult();
@@ -196,7 +194,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
         public void Priority_Is1_CorrectValue()
         {
             // Arrange
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50);
 
             // Assert
             dodge.Priority.Should().Be(1,

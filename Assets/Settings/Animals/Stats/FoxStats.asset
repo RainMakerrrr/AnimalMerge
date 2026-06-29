@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02a40683236b4589b4586295be012ec9, type: 3}
+  m_Script: {fileID: 11500000, guid: 97b3a2ae85c1743b2ba7cc12efc71c60, type: 3}
   m_Name: FoxStats
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   _health: 150
   _damage: 100
   _tilesPerMove: 3
+  _ownerDodgeChance: 50
+  _inheritedDodgeChance: 30

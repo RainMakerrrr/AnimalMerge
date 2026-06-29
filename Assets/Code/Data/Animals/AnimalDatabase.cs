@@ -10,6 +10,7 @@ namespace Code.Data.Animals
     {
         public AnimalType Type;
         public AnimalStats Stats;
+        [TextArea] public string MergeInfo;
     }
 
     [CreateAssetMenu(fileName = "AnimalDatabase", menuName = "Data/Animal Database")]
@@ -27,6 +28,18 @@ namespace Code.Data.Animals
 
             Debug.LogWarning($"[AnimalDatabase] No stats found for {type}");
             return null;
+        }
+
+        public string GetMergeInfo(AnimalType type)
+        {
+            foreach (var config in _configs)
+            {
+                if (config.Type == type)
+                    return config.MergeInfo;
+            }
+
+            Debug.LogWarning($"[AnimalDatabase] No merge info found for {type}");
+            return string.Empty;
         }
     }
 }

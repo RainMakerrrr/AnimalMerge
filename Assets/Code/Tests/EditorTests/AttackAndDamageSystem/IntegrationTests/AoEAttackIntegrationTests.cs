@@ -47,7 +47,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
         public void AoE_Attack_BypassesDodge_DamageApplied()
         {
             // Arrange - Fox with Dodge ability (first use = 100% normally)
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50, initialCounter: 0);
             var foxHealth = HealthTestHelper.CreateAnimalHealth(
                 maxHealth: 100f,
                 ownAbility: dodge);
@@ -141,7 +141,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
         public void NonAoE_Attack_AllowsDodge_DamageBlocked()
         {
             // Arrange - Fox with Dodge (first use = 100%)
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: true, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 50, initialCounter: 0);
             var foxHealth = HealthTestHelper.CreateAnimalHealth(
                 maxHealth: 100f,
                 ownAbility: dodge);
@@ -249,7 +249,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
 
             var transformable = new GameObject("Transformable").AddComponent<AnimalMovement>();
             var randomProvider = AbilityTestMocks.CreateMockRandomProvider(0);
-            var dodge = new Dodge(transformable, new Collider[0], isOwner: true, randomProvider);
+            var dodge = new Dodge(transformable, new Collider[0], successChance: 50, randomProvider);
             foxHealth.SetAbility(dodge);
 
             // Arrange - AoE attacker
@@ -334,7 +334,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.IntegrationTests
         public void MultipleAbilities_AoE_AllBypass()
         {
             // Arrange - Unit with both Dodge (merged) and CounterAttack (merged)
-            var dodge = AbilityTestMocks.CreateDodge(isOwner: false, initialCounter: 0);
+            var dodge = AbilityTestMocks.CreateDodge(successChance: 30, initialCounter: 0);
             var counterAttack = AbilityTestMocks.CreateMockCounterAttack(isOwner: false);
 
             var unitHealth = HealthTestHelper.CreateAnimalHealth(

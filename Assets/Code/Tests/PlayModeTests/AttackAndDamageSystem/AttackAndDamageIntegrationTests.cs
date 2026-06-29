@@ -115,7 +115,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
 
             var transformableMock = new TestTransformable();
             var randomProvider = new TestRandomProvider(0);
-            var dodge = new Code.Abilities.Dodge(transformableMock, colliders, isOwner: true, randomProvider);
+            var dodge = new Code.Abilities.Dodge(transformableMock, colliders, successChance: 50, randomProvider);
 
             // Act
             var applyTask = dodge.Apply().AsTask();
@@ -284,7 +284,7 @@ namespace Code.Tests.PlayModeTests.AttackAndDamageSystem
             var go = new GameObject("DodgeMock");
             var collider = go.AddComponent<BoxCollider>();
             var randomProvider = new TestRandomProvider(0);
-            var dodge = new Code.Abilities.Dodge(transformable, new[] { collider }, isOwner: true, randomProvider);
+            var dodge = new Code.Abilities.Dodge(transformable, new[] { collider }, successChance: 50, randomProvider);
             return dodge;
         }
 

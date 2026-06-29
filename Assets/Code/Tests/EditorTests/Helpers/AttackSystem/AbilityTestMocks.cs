@@ -52,7 +52,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         /// <summary>
         /// Creates a real Dodge ability with mocked dependencies
         /// </summary>
-        public static Dodge CreateDodge(bool isOwner, int initialCounter = 0, IRandomProvider randomProvider = null)
+        public static Dodge CreateDodge(int successChance, int initialCounter = 0, IRandomProvider randomProvider = null)
         {
             var transformable = Substitute.For<ITransformable>();
             transformable.Shift().Returns(UniTask.FromResult(true)); // Shift successful by default
@@ -63,7 +63,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
             randomProvider ??= CreateMockRandomProvider(0);
 
-            var dodge = new Dodge(transformable, colliders, isOwner, randomProvider);
+            var dodge = new Dodge(transformable, colliders, successChance, randomProvider);
 
             // Set counter via reflection if needed
             if (initialCounter > 0)
@@ -80,7 +80,6 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         /// Creates a Dodge ability with controlled random behavior
         /// </summary>
         public static MockDodge CreateMockDodgeWithRNG(
-            bool isOwner,
             int initialCounter = 0,
             Func<int> randomValueProvider = null)
         {
@@ -91,7 +90,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             var collider = go.AddComponent<BoxCollider>();
             var colliders = new Collider[] { collider };
 
-            var mockDodge = new MockDodge(transformable, colliders, isOwner, initialCounter, randomValueProvider);
+            var mockDodge = new MockDodge(transformable, colliders, initialCounter, randomValueProvider);
 
             return mockDodge;
         }
@@ -150,7 +149,6 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
     {
         private readonly ITransformable _transformable;
         private readonly Collider[] _colliders;
-        private readonly bool _isOwner;
         private int _counter;
         private readonly Func<int> _randomValueProvider;
         private bool _blockDamage;
@@ -175,21 +173,21 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
             if (_counter == 0) return true;
 
-            int successThreshold = _isOwner ? 80 : 50;
+            // Owner/inherited probability thresholds are verified against the real Dodge in
+            // DodgeAbilityTests; this mock only drives the controllable RNG and intentionally
+            // does not mirror those production values to avoid duplicated logic drifting.
             int randomValue = _randomValueProvider?.Invoke() ?? UnityEngine.Random.Range(0, 100);
-            return randomValue < successThreshold;
+            return randomValue < 50;
         }
 
         public MockDodge(
             ITransformable transformable,
             Collider[] colliders,
-            bool isOwner,
             int initialCounter = 0,
             Func<int> randomValueProvider = null)
         {
             _transformable = transformable;
             _colliders = colliders;
-            _isOwner = isOwner;
             _counter = initialCounter;
             _randomValueProvider = randomValueProvider;
         }
