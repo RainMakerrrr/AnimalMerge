@@ -34,6 +34,7 @@ Turn-based mobile battler с механикой merge. Unity 2022.3.62f3 · C# �
 ## Последние изменения
 _Обновляй при каждой сессии._
 
+- [2026-07-30] Размеры игровых полей (`MergeGrid` 8×2 / `GameGrid` 8×10) вынесены из хардкода `GridManager` в ScriptableObject-конфиги `GridConfig` (`Code/GridPathfinding/Config/`, ассеты в `Settings/GridConfigs/`) — `IGridManager` не менялся
 - [2026-06-27] Вероятности Dodge для Fox вынесены из хардкода в данные — подкласс `FoxStats : AnimalStats` (Owner 50% / Inherited 30%, `[Range(0,100)]`), ассет `FoxStats.asset` сконвертирован на новый тип; `Dodge` теперь принимает `int successChance` вместо `bool isOwner`
 - [2026-06-27] Текстовая анимация (popup) при кросс-тайп мердже животных — `MergePopupView`/`MergePopupController` (Code/Animals/UI/), событие `MergeTarget.Merged`, строки per-animal в `AnimalConfig.MergeInfo`
 - [2026-06-27] Подсветка доступных ходов животного при удержании клика/тапа (BFS-радиус по TilesPerMove) — новая сущность `MoveRangeHighlighter`
@@ -45,21 +46,27 @@ _Обновляй при каждой сессии._
 ## Текущее состояние
 _Что сейчас в работе._
 
-Ветка `iteration_2/Alexandr/Develop` активна. Последняя задача завершена и проверена в Unity (0 ошибок компиляции; 26 EditMode тестов Dodge/AoE зелёные): вероятности срабатывания Dodge для Fox вынесены из хардкода `Dodge.CanUse` в данные.
-- Создан подкласс `FoxStats : AnimalStats` (`Code/Data/Animals/FoxStats.cs`) с `_ownerDodgeChance`/`_inheritedDodgeChance` (геттеры `OwnerDodgeChance`/`InheritedDodgeChance`, константы `DefaultOwnerDodgeChance=50`/`DefaultInheritedDodgeChance=30`, `[Range(0,100)]`).
-- Ассет `Assets/Settings/Animals/Stats/FoxStats.asset` сконвертирован in-place с типа `AnimalStats` на `FoxStats` (сменён `m_Script` GUID → `97b3a2ae85c1743b2ba7cc12efc71c60`, добавлены `_ownerDodgeChance:50`/`_inheritedDodgeChance:30`; Health/Damage/Tiles сохранены).
-- `Dodge` теперь принимает `int successChance` вместо `bool isOwner` (магические 50/30 удалены). `FoxFacade` инжектит `AnimalDatabase`, читает `GetStats(Type) as FoxStats` (фоллбэк на дефолтные константы + LogWarning), передаёт ownerChance в `Dodge`, inheritedChance в `new FoxMergeSkill(inheritedChance)`. `FoxMergeSkill` хранит `_inheritedChance` и использует в обоих `Merge`-перегрузках.
-- Изначально пробовал хранить данные в `AnimalConfig` (`DodgeSettings` + `GetDodgeSettings`), по просьбе пользователя переделал на подкласс `FoxStats` как более чистое решение — `AnimalDatabase.cs` возвращён в исходное состояние.
+Ветка `iteration_2/Alexandr/Develop` активна. Последняя задача завершена и проверена в Unity (0 ошибок компиляции; 5 новых EditMode + 3 новых PlayMode теста зелёные): размеры игровых полей вынесены из хардкода `GridManager` в ScriptableObject-конфиги.
+- `GridConfig : ScriptableObject` (`Code/GridPathfinding/Config/GridConfig.cs`, `[CreateAssetMenu("Game/Grid Config")]`) — `_width` `[Min(1)]` / `_height` `[Min(2)]` / `_cellSize` `[Min(0.01f)]`, read-only `Width`/`Height`/`CellSize`, константы дефолтов `8`/`10`/`1f`.
+- Ассеты `Assets/Settings/GridConfigs/MergeGridConfig.asset` (8×2) и `GameGridConfig.asset` (8×10) — значения идентичны прежним из сцены, поведение игры не изменилось. Тюнить размеры теперь можно прямо в Inspector на ассетах.
+- `GridManager`: три поля заменены ссылкой `_config`, размеры лениво засеваются через `EnsureDimensions()`/`ApplyConfig()`; `Rebuild(int,int,float)` сохранил сигнатуру и защищён флагом `_hasRuntimeOverride`. `IGridManager` не менялся → ноль правок в 29 зависимых файлах и во всех существующих тестах.
+- `Main Scene.unity`: `_config` проставлен на `MergeGrid` и `GameGrid`. `Code/Editor/GridManagerSetup.cs` починен (иначе NRE на `FindProperty("_width")`), новый хелпер `LoadOrCreateGridConfig` не перезаписывает существующие ассеты.
 
-Новые/изменённые файлы пока НЕ закоммичены: `FoxStats.cs` (+`.meta`) новый, `FoxStats.asset`, `Dodge.cs`, `FoxFacade.cs`, `IMergeSkill.cs`, тестовые файлы. Тюнить вероятности можно прямо в Inspector на ассете Fox Stats.
+Не закоммичено: новые `GridConfig.cs`, оба `.asset`, `GridConfigTests.cs`, `GridConfigRuntimeTests.cs` (+ `.meta`); изменённые `GridManager.cs`, `GridManagerSetup.cs`, `Main Scene.unity`.
 
-Предыдущая задача (merge popup, `MergePopupView`/`MergePopupController`, событие `MergeTarget.Merged`, `AnimalConfig.MergeInfo`) — код на месте; могла остаться ручная настройка в Inspector (префаб `MergePopupView.prefab`, навеска `MergePopupController` на player-префабы, заполнение `MergeInfo`).
+Открытые вопросы:
+- В диффе `Main Scene.unity` помимо двух блоков `_config` удалены GameObject `bg_cell_lvl5` и PrefabInstance `Assets/Cells.prefab` — вероятно, собственная работа пользователя в редакторе, зафиксированная MCP-save сцены. Не откатывалось, **нужно подтверждение пользователя**.
+- Предсуществующие (НЕ регрессии этой задачи) падения тестов: ~24 в `TargetPositionCalculatorTests` (`GridTestHelper.CreateMockGrid` стабит только перегрузку `CanPlaceUnit(pos, size, dir, bool)`, а `TargetPositionCalculator` зовёт перегрузку с `HashSet<Vector2Int>`); ~9 «Method has non-void return value» в `AnimalAttackPostAbilityTests`/`RetreatAbilityTests`; NRE в `GridManager.GetCell` при спавне врагов из-за race порядка `Awake` между `GameBootstrapper` и `GridManager` (`_cells` по-прежнему аллоцируется только в `Awake`).
+- В рабочем дереве лежит незакоммиченная предшествующая работа пользователя: `GridCell.cs`, `IGridManager.cs` (`Rebuild`/`ClearCells`/`SetSize`), `GridCellMaterial.mat`, `GridCell.prefab`, новый `Assets/Shaders/GridCellBorder.shader`.
+
+Предыдущие задачи (Fox dodge → `FoxStats`, merge popup, подсветка радиуса хода) — код на месте; по merge popup могла остаться ручная настройка в Inspector (префаб `MergePopupView.prefab`, навеска `MergePopupController` на player-префабы, заполнение `MergeInfo`).
 
 ## Ключевые решения
 Подробности в `Knowledge/Decisions/`. Краткий список:
 - [2026-06-27] Merge popup показывается ТОЛЬКО при cross-type мердже (когда реально выдан новый скилл) и ключуется по типу SOURCE (потреблённого) животного; событие `Merged` гейтится флагом `grantedNewSkill` в `ExecuteMergeDirectly`, минует undo → `Decisions/2026-06-27-merge-popup.md`
 - [2026-06-27] Подсветка хода вынесена в отдельную сущность (SRP) — `AnimalMovement` не нагружали; drag vs hold различается порогом смещения в пикселях, IInputService не трогали → `Decisions/2026-06-27-move-range-highlighter.md`
 - [2026-06-27] Per-animal тюнинг-данные способностей (вероятности Dodge для Fox) хранятся в подклассе `AnimalStats` (`FoxStats`), а НЕ в общем `AnimalConfig` — данные живут со статами животного и не «протекают» в конфиги остальных; `Dodge` стал value-agnostic (`int successChance`), owner/inherited решается на стороне вызова → `Decisions/2026-06-27-fox-dodge-stats.md`
+- [2026-07-30] `GridConfig` доставляется в `GridManager` ссылкой в Inspector, а НЕ через Zenject-инжект — размеры нужны в `OnDrawGizmos` в edit-mode, до `Awake` и до создания DI-контейнера; `IGridManager` намеренно не расширялся (blast radius 3 файла вместо 29) → Decisions/2026-07-30-grid-config.md
 - CLAUDE.md ≤70 строк — детали в AgentsDocs/
 - No Singleton — только Zenject bindings
 - UniTask — новый async код только на UniTask

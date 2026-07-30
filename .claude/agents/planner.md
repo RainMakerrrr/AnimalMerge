@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Use to decompose a feature request into a structured implementation plan for AnimalMerge Unity project. Invoke when given a task description and asked to plan.
-tools: Read, Bash, mcp__codegraph__codegraph_explore, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_search
+tools: Read, Bash, mcp__codegraph__codegraph_explore, mcp__codegraph__codegraph_node, mcp__codegraph__codegraph_callers, mcp__codegraph__codegraph_search, mcp__UnityMCP__read_console, mcp__UnityMCP__find_gameobjects, mcp__UnityMCP__unity_reflect
 ---
 
 You are a planner for the AnimalMerge Unity project (turn-based mobile battler with merge mechanics).
@@ -47,6 +47,13 @@ Returns verbatim source of all relevant symbols grouped by file. This single cal
 - Callers of any code you plan to modify (blast radius)
 
 Only use `Read` as a last resort if CodeGraph did not cover a specific detail.
+
+**Scene state — read-only Unity MCP.** CodeGraph indexes code, not scenes or prefabs. When the task
+depends on how objects are wired in the editor, inspect it rather than guessing:
+`mcp__UnityMCP__find_gameobjects` (locate objects and their components),
+`mcp__UnityMCP__unity_reflect` (type and member details), `mcp__UnityMCP__read_console` (existing
+errors the plan must account for). These are read-only — the plan must not change anything. If the
+editor is not running, note in the plan which parts rest on assumptions about scene wiring.
 
 ## Phase 3 — Create plan
 
