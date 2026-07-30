@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using Code.GridPathfinding;
+using Code.GridPathfinding.Config;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,13 +14,13 @@ namespace Code.Editor
         [MenuItem("Tools/Pathfinding/Create Game Grid")]
         public static void CreateGameGrid()
         {
-            CreateGridManager("Game Grid", new Vector3(0, 0, 0), 8, 10, 1f, "GameGrid");
+            CreateGridManager("Game Grid", new Vector3(0, 0, 0), "GameGridConfig", 8, 10, 1f, "GameGrid");
         }
 
         [MenuItem("Tools/Pathfinding/Create Merge Grid")]
         public static void CreateMergeGrid()
         {
-            CreateGridManager("Merge Grid", new Vector3(0, 0, 0), 8, 2, 1f, "MergeGrid");
+            CreateGridManager("Merge Grid", new Vector3(0, 0, 0), "MergeGridConfig", 8, 2, 1f, "MergeGrid");
         }
 
         [MenuItem("Tools/Pathfinding/Create Both Grids")]
@@ -29,7 +30,7 @@ namespace Code.Editor
             CreateMergeGrid();
         }
 
-        private static void CreateGridManager(string name, Vector3 position, int width, int height, float cellSize, string tag)
+        private static void CreateGridManager(string name, Vector3 position, string configAssetName, int width, int height, float cellSize, string tag)
         {
             // Check if object already exists
             GameObject existing = GameObject.Find(name);
@@ -57,9 +58,8 @@ namespace Code.Editor
 
             // Set private fields via SerializedObject
             SerializedObject serializedObject = new SerializedObject(gridManager);
-            serializedObject.FindProperty("_width").intValue = width;
-            serializedObject.FindProperty("_height").intValue = height;
-            serializedObject.FindProperty("_cellSize").floatValue = cellSize;
+            serializedObject.FindProperty("_config").objectReferenceValue =
+                LoadOrCreateGridConfig(configAssetName, width, height, cellSize);
             serializedObject.FindProperty("_showDebugGizmos").boolValue = true;
             serializedObject.ApplyModifiedProperties();
 
@@ -80,6 +80,45 @@ namespace Code.Editor
             Selection.activeGameObject = gridObject;
 
             Debug.Log($"[GridManagerSetup] Created {name} at {position} with size {width}x{height}");
+        }
+
+        /// <summary>
+        /// Returns the GridConfig asset with the given name, creating it with the supplied
+        /// dimensions when it does not exist yet. An existing asset is never overwritten so
+        /// that hand-tuned sizes survive re-running the menu item.
+        /// </summary>
+        private static GridConfig LoadOrCreateGridConfig(string assetName, int width, int height, float cellSize)
+        {
+            const string configFolder = "Assets/Settings/GridConfigs";
+            string assetPath = $"{configFolder}/{assetName}.asset";
+
+            var existingConfig = AssetDatabase.LoadAssetAtPath<GridConfig>(assetPath);
+            if (existingConfig != null)
+                return existingConfig;
+
+            if (!AssetDatabase.IsValidFolder("Assets/Settings"))
+            {
+                AssetDatabase.CreateFolder("Assets", "Settings");
+            }
+
+            if (!AssetDatabase.IsValidFolder(configFolder))
+            {
+                AssetDatabase.CreateFolder("Assets/Settings", "GridConfigs");
+            }
+
+            var config = ScriptableObject.CreateInstance<GridConfig>();
+            AssetDatabase.CreateAsset(config, assetPath);
+
+            var serializedConfig = new SerializedObject(config);
+            serializedConfig.FindProperty("_width").intValue = width;
+            serializedConfig.FindProperty("_height").intValue = height;
+            serializedConfig.FindProperty("_cellSize").floatValue = cellSize;
+            serializedConfig.ApplyModifiedProperties();
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[GridManagerSetup] Created GridConfig at {assetPath} ({width}x{height})");
+
+            return config;
         }
 
         private static void CreateCellPrefabIfNeeded(SerializedObject gridManagerSerializedObject)

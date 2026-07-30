@@ -100,5 +100,12 @@ namespace Code.GridPathfinding
         /// Sets the walkability of a cell
         /// </summary>
         void SetWalkable(int x, int y, bool walkable);
+
+        /// <summary>
+        /// Rebuilds the grid with new dimensions at runtime.
+        /// WARNING: destroys every existing cell, invalidating any external IGridCell reference.
+        /// Only safe to call while no units are placed on the grid.
+        /// </summary>
+        void Rebuild(int width, int height, float cellSize);
     }
 }

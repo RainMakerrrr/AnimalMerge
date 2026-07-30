@@ -3,6 +3,7 @@ using System.Linq;
 using Code;
 using Code.Animals;
 using Code.Animals.Movement;
+using Code.GridPathfinding.Config;
 using Code.Pathfinding;
 using UnityEngine;
 
@@ -13,12 +14,14 @@ namespace Code.GridPathfinding
     /// Handles grid initialization, coordinate conversion, and occupancy tracking
     /// Spawns GridCell prefabs for each cell
     /// </summary>
+    // Runs ahead of the default order so the grid exists before GameBootstrapper.Awake()
+    // drives the whole bootstrap — enemy spawning included — in one synchronous pass.
+    // Still after Zenject's SceneContext, which sits far lower.
+    [DefaultExecutionOrder(-100)]
     public class GridManager : MonoBehaviour, IGridManager
     {
         [Header("Grid Configuration")]
-        [SerializeField] private int _width = 10;
-        [SerializeField] private int _height = 10;
-        [SerializeField] private float _cellSize = 1f;
+        [SerializeField] private GridConfig _config;
 
         [Header("Visual Cells")]
         [SerializeField] private GridCell _cellPrefab;
@@ -31,14 +34,93 @@ namespace Code.GridPathfinding
         [SerializeField] private float _gizmoHeight = 0.1f;
 
         private GridCell[,] _cells;
+        private int _runtimeWidth;
+        private int _runtimeHeight;
+        private float _runtimeCellSize;
+        private bool _dimensionsInitialized;
 
-        public int Width => _width;
-        public int Height => _height;
-        public float CellSize => _cellSize;
+        // Set by Rebuild(): the caller-supplied dimensions must win over the assigned config
+        // until the next Awake, otherwise the edit-mode branch of EnsureDimensions() would
+        // silently restore the asset values while the grid is being built.
+        private bool _hasRuntimeOverride;
+
+        public int Width
+        {
+            get
+            {
+                EnsureDimensions();
+                return _runtimeWidth;
+            }
+        }
+
+        public int Height
+        {
+            get
+            {
+                EnsureDimensions();
+                return _runtimeHeight;
+            }
+        }
+
+        public float CellSize
+        {
+            get
+            {
+                EnsureDimensions();
+                return _runtimeCellSize;
+            }
+        }
 
         private void Awake()
         {
+            if (_config == null)
+                Debug.LogError($"[GridManager] GridConfig is not assigned on '{name}', falling back to default grid size", this);
+
+            _hasRuntimeOverride = false;
+            ApplyConfig();
+            EnsureGridInitialized();
+        }
+
+        private void EnsureGridInitialized()
+        {
+            if (_cells != null)
+                return;
+
+            if (!Application.isPlaying)
+                return;
+
             InitializeGrid();
+        }
+
+        /// <summary>
+        /// Seeds the runtime dimensions from the config before they are read.
+        /// </summary>
+        private void EnsureDimensions()
+        {
+#if UNITY_EDITOR
+            // OnDrawGizmos runs in edit mode long before Awake, and the config asset can be
+            // tweaked while the scene is open, so outside play mode the values are re-read on
+            // every access to keep the drawn grid in sync with the asset.
+            // Dimensions supplied through Rebuild() are the one exception: they replace the
+            // asset for this session, so re-reading the config would both report and build the
+            // wrong size (InitializeGrid consumes these very properties).
+            if (!Application.isPlaying && !_hasRuntimeOverride)
+            {
+                ApplyConfig();
+                return;
+            }
+#endif
+
+            if (!_dimensionsInitialized)
+                ApplyConfig();
+        }
+
+        private void ApplyConfig()
+        {
+            _runtimeWidth = _config != null ? _config.Width : GridConfig.DefaultWidth;
+            _runtimeHeight = _config != null ? _config.Height : GridConfig.DefaultHeight;
+            _runtimeCellSize = _config != null ? _config.CellSize : GridConfig.DefaultCellSize;
+            _dimensionsInitialized = true;
         }
 
         /// <summary>
@@ -46,7 +128,7 @@ namespace Code.GridPathfinding
         /// </summary>
         private void InitializeGrid()
         {
-            _cells = new GridCell[_width, _height];
+            _cells = new GridCell[Width, Height];
 
             // Create parent for cells if not assigned
             if (_cellsParent == null)
@@ -57,25 +139,70 @@ namespace Code.GridPathfinding
                 _cellsParent = parentObj.transform;
             }
 
-            for (int x = 0; x < _width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < _height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     // Create cell if prefab is assigned
                     if (_cellPrefab != null)
                     {
                         Vector3 worldPos = transform.position + new Vector3(
-                            x * _cellSize,
+                            x * CellSize,
                             0,
-                            y * _cellSize);
+                            y * CellSize);
                         GridCell cell = Instantiate(_cellPrefab, worldPos, Quaternion.identity, _cellsParent);
+                        cell.SetSize(CellSize);
                         cell.Initialize(x, y, this, true);
                         _cells[x, y] = cell;
                     }
                 }
             }
 
-            Debug.Log($"[GridPathfinding] Grid initialized: {_width}x{_height}, CellSize: {_cellSize}");
+            Debug.Log($"[GridPathfinding] Grid initialized: {Width}x{Height}, CellSize: {CellSize}");
+        }
+
+        /// <summary>
+        /// Rebuilds the grid with new dimensions at runtime.
+        /// WARNING: destroys every existing cell, so any external reference to an IGridCell
+        /// becomes invalid — AnimalMovement.CurrentPathNode, the nodes passed to FillNodes(),
+        /// and MoveRangeHighlighter's cached cells all dangle afterwards.
+        /// Only safe to call while no units are placed on the grid; otherwise the caller
+        /// is responsible for re-placing them.
+        /// The new dimensions override the assigned GridConfig for this session only —
+        /// they are never written back to the asset, and the next Awake drops the override.
+        /// </summary>
+        public void Rebuild(int width, int height, float cellSize)
+        {
+            ClearCells();
+
+            _runtimeWidth = width;
+            _runtimeHeight = height;
+            _runtimeCellSize = cellSize;
+            _dimensionsInitialized = true;
+            _hasRuntimeOverride = true;
+
+            InitializeGrid();
+        }
+
+        /// <summary>
+        /// Destroys all spawned cell instances and drops the grid array
+        /// </summary>
+        private void ClearCells()
+        {
+            if (_cells == null) return;
+
+            foreach (var cell in _cells)
+            {
+                if (cell == null) continue;
+
+                // Destroy() is deferred to the end of the frame, so the old colliders would stay
+                // live for one more frame and could be picked up by AnimalMovement.TryPlace's
+                // raycast. Deactivating first takes them out of the physics scene immediately.
+                cell.gameObject.SetActive(false);
+                Destroy(cell.gameObject);
+            }
+
+            _cells = null;
         }
 
         public IGridCell GetCell(int x, int y)
@@ -83,7 +210,11 @@ namespace Code.GridPathfinding
             if (!IsInBounds(x, y))
                 return null;
 
-            return _cells[x, y];
+            EnsureGridInitialized();
+
+            // Still null in edit mode, where cells are deliberately never spawned — callers
+            // already treat null as "no cell here", so return it instead of throwing.
+            return _cells?[x, y];
         }
 
         public IGridCell GetCell(Vector2Int position)
@@ -93,7 +224,7 @@ namespace Code.GridPathfinding
 
         public bool IsInBounds(int x, int y)
         {
-            return x >= 0 && x < _width && y >= 0 && y < _height;
+            return x >= 0 && x < Width && y >= 0 && y < Height;
         }
 
         public bool IsInBounds(Vector2Int position)
@@ -104,17 +235,17 @@ namespace Code.GridPathfinding
         public Vector2Int WorldToGrid(Vector3 worldPosition)
         {
             Vector3 localPosition = worldPosition - transform.position;
-            int x = Mathf.FloorToInt(localPosition.x / _cellSize);
-            int y = Mathf.FloorToInt(localPosition.z / _cellSize);
+            int x = Mathf.FloorToInt(localPosition.x / CellSize);
+            int y = Mathf.FloorToInt(localPosition.z / CellSize);
             return new Vector2Int(x, y);
         }
 
         public Vector3 GridToWorld(int x, int y)
         {
             return transform.position + new Vector3(
-                x * _cellSize,
+                x * CellSize,
                 0,
-                y * _cellSize
+                y * CellSize
             );
         }
 
@@ -129,9 +260,9 @@ namespace Code.GridPathfinding
         public Vector3 GridToWorldCenter(int x, int y)
         {
             return transform.position + new Vector3(
-                x * _cellSize + _cellSize * 0.5f,  // Add half cell to X
+                x * CellSize + CellSize * 0.5f,  // Add half cell to X
                 0,
-                y * _cellSize + _cellSize * 0.5f   // Add half cell to Z
+                y * CellSize + CellSize * 0.5f   // Add half cell to Z
             );
         }
 
@@ -275,9 +406,9 @@ namespace Code.GridPathfinding
             if (xDirection > 0)
             {
                 // Positive direction: check if extends beyond right boundary
-                if (position.x + xExtent > _width)
+                if (position.x + xExtent > Width)
                 {
-                    adjustedX = _width - xExtent;
+                    adjustedX = Width - xExtent;
                 }
             }
             else
@@ -293,9 +424,9 @@ namespace Code.GridPathfinding
             if (zDirection > 0)
             {
                 // Positive direction: check if extends beyond top boundary
-                if (position.y + yExtent > _height)
+                if (position.y + yExtent > Height)
                 {
-                    adjustedY = _height - yExtent;
+                    adjustedY = Height - yExtent;
                 }
             }
             else
@@ -308,8 +439,8 @@ namespace Code.GridPathfinding
             }
 
             // Final clamp to ensure position is within valid range
-            adjustedX = Mathf.Clamp(adjustedX, 0, _width - 1);
-            adjustedY = Mathf.Clamp(adjustedY, 0, _height - 1);
+            adjustedX = Mathf.Clamp(adjustedX, 0, Width - 1);
+            adjustedY = Mathf.Clamp(adjustedY, 0, Height - 1);
 
             return new Vector2Int(adjustedX, adjustedY);
         }
@@ -456,9 +587,9 @@ namespace Code.GridPathfinding
         {
             if (_cells == null) return;
 
-            for (int x = 0; x < _width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < _height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     _cells[x, y]?.UpdateVisual();
                 }
@@ -480,9 +611,9 @@ namespace Code.GridPathfinding
             }
 
             // Draw actual grid with cell states
-            for (int x = 0; x < _width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < _height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     var cell = _cells[x, y];
                     if (cell == null) continue;
@@ -496,11 +627,11 @@ namespace Code.GridPathfinding
                     Gizmos.color = cellColor;
 
                     // Draw cell cube
-                    Gizmos.DrawCube(worldPos + Vector3.up * _gizmoHeight, new Vector3(_cellSize * 0.9f, 0.01f, _cellSize * 0.9f));
+                    Gizmos.DrawCube(worldPos + Vector3.up * _gizmoHeight, new Vector3(CellSize * 0.9f, 0.01f, CellSize * 0.9f));
 
                     // Draw cell border
                     Gizmos.color = Color.white * 0.5f;
-                    DrawCellBorder(worldPos, _cellSize);
+                    DrawCellBorder(worldPos, CellSize);
                 }
             }
         }
@@ -509,17 +640,17 @@ namespace Code.GridPathfinding
         {
             Gizmos.color = Color.white * 0.3f;
 
-            for (int x = 0; x < _width; x++)
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < _height; y++)
+                for (int y = 0; y < Height; y++)
                 {
                     Vector3 worldPos = transform.position + new Vector3(
-                        x * _cellSize + _cellSize * 0.5f,
+                        x * CellSize + CellSize * 0.5f,
                         _gizmoHeight,
-                        y * _cellSize + _cellSize * 0.5f
+                        y * CellSize + CellSize * 0.5f
                     );
 
-                    DrawCellBorder(worldPos, _cellSize);
+                    DrawCellBorder(worldPos, CellSize);
                 }
             }
         }
@@ -570,7 +701,7 @@ namespace Code.GridPathfinding
 
             for (int y = 0; y <= 1; y++)
             {
-                for (int x = 0; x < _width; x++)
+                for (int x = 0; x < Width; x++)
                 {
                     Vector2Int position = new Vector2Int(x, y);
 
@@ -606,7 +737,7 @@ namespace Code.GridPathfinding
             GridCell targetCell = null;
             for (int y = 0; y <= 1 && targetCell == null; y++)
             {
-                for (int x = 0; x < _width && targetCell == null; x++)
+                for (int x = 0; x < Width && targetCell == null; x++)
                 {
                     Vector2Int position = new Vector2Int(x, y);
                     if (CanPlaceUnit(position, unitSize, direction))
@@ -651,9 +782,9 @@ namespace Code.GridPathfinding
             if (_cells == null) return freeCells;
 
             // Collect all cells from the grid
-            for (int y = 0; y < _height; y++)
+            for (int y = 0; y < Height; y++)
             {
-                for (int x = 0; x < _width; x++)
+                for (int x = 0; x < Width; x++)
                 {
                     GridCell cell = _cells[x, y];
                     if (cell != null && cell.IsWalkable && cell.CanPlace &&
