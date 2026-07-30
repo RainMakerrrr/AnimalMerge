@@ -14,7 +14,7 @@ Read in this order:
 - `Knowledge/Index.md` — active work, recent changes, key decisions
 
 **Rules and architecture:**
-- `CLAUDE.md` — project rules, repository structure, forbidden patterns
+- `.claude/CLAUDE.md` — project rules, repository structure, forbidden patterns
 - `AgentsDocs/ProjectArchitecture.md` — modules, layers, patterns
 - `AgentsDocs/ZenjectPatterns.md` — DI and SignalBus patterns
 - `AgentsDocs/CodeStyle.md` — coding conventions

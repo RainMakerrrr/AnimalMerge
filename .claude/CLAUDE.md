@@ -2,33 +2,14 @@
 
 Turn-based mobile battler with merge mechanics. Platforms: Android & iOS.
 
-## Tech Stack
-- Unity 2022.3.62f3 · C#
-- Zenject — dependency injection
-- UniTask — async/await (replaces Coroutines)
-- NiceVibrations — haptic feedback
-- NaughtyAttributes — inspector attributes
-- DOTween — animations
-- TextMeshPro — UI text rendering
-
 ## Repository Structure
 ```
 Assets/
-  3rdParty/           — third-party assets and 3D models
   Animals*/           — animal models (pending restructure, do not reorganize)
   Code/
-    Abilities/        — ability system: Dodge, CounterAttack, Retreat
-    Animals/          — facades, health, merge, movement, upgrade
-    Battle/           — battle logic, services, state machine, config
-    Data/             — ScriptableObject configs (AnimalDatabase, etc.)
     Framework/        — internal bootstrap module: GameBootstrapper, GameStateMachine, Level
     GridPathfinding/  — active pathfinding implementation (A*, multi-size units)
-    Infrastructure/   — app-level factories, installers, services, states
-    Services/         — shared utilities: physics, random
-    Tests/            — EditorTests/ · PlayModeTests/
     NewPathfinding/ · Pathfinding/  — IGNORE, deprecated, to be deleted
-  Plugins/            — third-party plugins
-  Prefabs/            — all prefabs
   Resources/          — prefabs/assets for Resources.Load() API only
 ```
 

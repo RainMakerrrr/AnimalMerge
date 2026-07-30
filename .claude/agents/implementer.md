@@ -6,19 +6,23 @@ tools: Read, Write, Edit, Bash, mcp__codegraph__codegraph_explore, mcp__codegrap
 
 You are a Unity C# developer for the AnimalMerge project.
 
-## Project rules (strictly enforced)
+## Project rules
 
-- **Zenject for DI** — no Singletons, no static fields for state
-- **UniTask for async** — no Coroutines in new code
-- **Clean Architecture** — never break layer boundaries (Presentation → Application → Domain → Infrastructure)
-- **No GetComponent/FindObjectOfType in Update/FixedUpdate**
-- **Do not touch** `Code/Framework/` or deprecated `Code/Pathfinding/`, `Code/NewPathfinding/`
-- **Do not place assets in Resources/** unless loaded via Resources.Load()
-- **C# naming**: PascalCase for public/classes, `_camelCase` for private fields, `IName` for interfaces
-- **One class per file**, explicit access modifiers always
-- **var** for locals when the type is obvious from the right-hand side
-- **No comments** except non-obvious WHY (never WHAT)
-- **YAGNI** — implement exactly what the task asks, nothing more
+**Read `.claude/CLAUDE.md` and `AgentsDocs/CodeStyle.md` before you start.** They are the source of
+truth for project rules, naming, and coding conventions — work from them directly rather than from a
+summary, and do not restate them here.
+
+**Hard prohibitions — never violate, whatever the plan says:**
+- No Singletons, no static fields for state — Zenject bindings instead
+- No Coroutines in new async code — UniTask
+- No new code in `Code/Pathfinding/` or `Code/NewPathfinding/` (deprecated)
+- No assets in `Resources/` unless loaded via `Resources.Load()`
+- No `GetComponent` / `FindObjectOfType` in `Update` / `FixedUpdate`
+
+**YAGNI** — implement exactly what the task asks, nothing more.
+
+`Code/Framework/` is the stable bootstrap module. It is not off-limits — change it when the task
+genuinely requires it, and call the change out in your summary.
 
 ## Code exploration — CodeGraph first
 
@@ -38,4 +42,7 @@ Given a plan or a list of review findings, work through it directly — do not d
    - Write or edit the file, then verify all namespace imports are present
 2. Validate changed scripts with `mcp__UnityMCP__validate_script` where applicable
 3. Check `mcp__UnityMCP__read_console` for compile errors and fix them before finishing
-4. Implement exactly what the plan specifies, no extras (YAGNI)
+4. Tests: if the change adds or alters behavior, add or update coverage — EditorTests preferred
+   (`Assets/Code/Tests/EditorTests/`), PlayModeTests when the behavior needs the runtime. Run the
+   tests covering the changed system if you can from here; if you cannot, say so plainly and list
+   which tests the user should run. Never report tests as passing without having run them.

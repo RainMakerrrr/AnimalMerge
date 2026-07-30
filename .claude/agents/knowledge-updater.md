@@ -14,7 +14,7 @@ Invoke skill `update-knowledge`.
 
 It will update the "Recent changes" and "Current state" sections in `Knowledge/Index.md` and optionally create a session log at `Knowledge/Sessions/YYYY-MM-DD.md`.
 
-**2. Record architectural decisions in Obsidian (if applicable)**
+**2. Record the architectural decision (if applicable)**
 
 If the feature introduced:
 - A new pattern or architectural decision
@@ -22,7 +22,20 @@ If the feature introduced:
 - A module structure change
 - A non-trivial problem solution
 
-→ Use skill `obsidian:obsidian-cli` to write to the Obsidian vault.
+→ Write a decision file at `Knowledge/Decisions/YYYY-MM-DD-<slug>.md` — get the date with
+`date +%F`, slug in lowercase latin (e.g. `2026-06-27-fox-dodge-stats.md`). Match the structure of
+the files already in that folder:
+
+`# Решение: <кратко>` · `**Дата:**` · `**Статус:**` · `## Контекст` ·
+`## Рассмотренные варианты` · `## Принятое решение` · `## Почему так` · `## Проверка` ·
+`## Затронутые файлы`
+
+`Knowledge/` **is** the Obsidian vault, so a plain `Write` is all that is needed — there is no
+Obsidian CLI in this environment, do not try to invoke one. Use skill `obsidian:obsidian-markdown`
+for Obsidian-flavoured syntax (wikilinks, callouts, properties) when the note needs it.
+
+Then add a one-line entry to the "Ключевые решения" list in `Knowledge/Index.md`, ending with
+`→ Decisions/<filename>.md`, matching the existing entries.
 
 **3. Update references**
 
