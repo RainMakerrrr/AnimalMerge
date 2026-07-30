@@ -1032,6 +1032,7 @@ MonoBehaviour:
   _baseMoveSpeed: 3
   _minAnimSpeed: 0.5
   _maxAnimSpeed: 3
+  _moveRangeColor: {r: 0.2, g: 0.5, b: 1, a: 1}
   _currentPathNode: {fileID: 0}
   _debugTargetCell: {fileID: 0}
 --- !u!114 &6110950923424416345
@@ -1095,7 +1096,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1048576
   _isAoE: 0
-  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 1}
+  _aoeHighlightColor: {r: 1, g: 0.5, b: 0, a: 0.4}
 --- !u!114 &3475214280411212220
 MonoBehaviour:
   m_ObjectHideFlags: 0
