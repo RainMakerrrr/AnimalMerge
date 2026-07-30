@@ -11,17 +11,20 @@ namespace Code.GridPathfinding
     /// Unified grid cell combining model and view in a single MonoBehaviour
     /// Handles A* pathfinding properties, visual representation, and raycasting
     /// </summary>
-    [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(Collider))]
     public class GridCell : MonoBehaviour, IRaycastable, IGridCell
     {
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+
         [Header("Colors")]
-        [SerializeField] private Color _walkableColor = new Color(0.7f, 0.7f, 0.7f, 1f);  // Neutral gray
-        [SerializeField] private Color _blockedColor = new Color(0.8f, 0.2f, 0.2f, 1f);   // Red
-        [SerializeField] private Color _highlightColor = new Color(0.2f, 0.8f, 0.2f, 1f); // Green (for hover/selection)
+        // Alpha drives the fill opacity of the GridCellBorder shader; the border color itself
+        // is a shared material property and is deliberately not affected by these.
+        [SerializeField] private Color _walkableColor = new Color(0.7f, 0.7f, 0.7f, 0.15f);  // Neutral gray, barely visible
+        [SerializeField] private Color _blockedColor = new Color(0.8f, 0.2f, 0.2f, 0.35f);   // Red
+        [SerializeField] private Color _highlightColor = new Color(0.2f, 0.8f, 0.2f, 0.35f); // Green (for hover/selection)
 
         private MeshRenderer _meshRenderer;
-        private Material _material;
+        private MaterialPropertyBlock _propertyBlock;
         private IGridManager _gridManager;
 
         // Grid position
@@ -55,13 +58,20 @@ namespace Code.GridPathfinding
 
         private void Awake()
         {
-            _meshRenderer = GetComponent<MeshRenderer>();
-            // Create instance of material to avoid modifying shared material
-            if (_meshRenderer.sharedMaterial != null)
-            {
-                _material = new Material(_meshRenderer.sharedMaterial);
-                _meshRenderer.material = _material;
-            }
+            // The renderer lives on the "Visual" child (a Quad rotated to lie flat), because
+            // GridManager instantiates cells with Quaternion.identity and would discard any
+            // rotation baked into the prefab root.
+            _meshRenderer = GetComponentInChildren<MeshRenderer>();
+            _propertyBlock = new MaterialPropertyBlock();
+        }
+
+        /// <summary>
+        /// Scales the cell to match the grid's cell size. The border shader keeps line
+        /// thickness in world units, so lines stay the same width at any cell size.
+        /// </summary>
+        public void SetSize(float cellSize)
+        {
+            transform.localScale = new Vector3(cellSize, 1f, cellSize);
         }
 
         /// <summary>
@@ -94,7 +104,7 @@ namespace Code.GridPathfinding
         /// </summary>
         public void UpdateVisual()
         {
-            if (_material == null) return;
+            if (_meshRenderer == null) return;
 
             Color targetColor = IsWalkable ? _walkableColor : _blockedColor;
 
@@ -106,7 +116,7 @@ namespace Code.GridPathfinding
         /// </summary>
         public void Highlight(bool highlighted)
         {
-            if (_material == null) return;
+            if (_meshRenderer == null) return;
 
             if (highlighted && IsWalkable)
             {
@@ -119,25 +129,17 @@ namespace Code.GridPathfinding
         }
 
         /// <summary>
-        /// Sets the cell color
+        /// Sets the cell's fill color. Alpha controls fill opacity; the cell border keeps
+        /// the constant color defined on the shared material.
+        /// Uses a MaterialPropertyBlock so all cells share one material and GPU-instance.
         /// </summary>
         public void SetColor(Color color)
         {
-            if (_material == null) return;
+            if (_meshRenderer == null) return;
 
-            // Try common shader color property names
-            if (_material.HasProperty("_Color"))
-            {
-                _material.SetColor("_Color", color);
-            }
-            else if (_material.HasProperty("_BaseColor"))
-            {
-                _material.SetColor("_BaseColor", color);
-            }
-            else
-            {
-                _material.color = color;
-            }
+            _meshRenderer.GetPropertyBlock(_propertyBlock);
+            _propertyBlock.SetColor(ColorId, color);
+            _meshRenderer.SetPropertyBlock(_propertyBlock);
         }
 
         /// <summary>
@@ -277,15 +279,6 @@ namespace Code.GridPathfinding
         public override bool Equals(object obj)
         {
             return obj is GridCell other && other.X == X && other.Y == Y;
-        }
-
-        private void OnDestroy()
-        {
-            // Clean up instanced material
-            if (_material != null)
-            {
-                Destroy(_material);
-            }
         }
 
         private void OnDrawGizmosSelected()

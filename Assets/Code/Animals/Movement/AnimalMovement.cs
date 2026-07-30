@@ -41,7 +41,7 @@ namespace Code.Animals.Movement
         [SerializeField] private float _baseMoveSpeed = 3f;
         [SerializeField] private float _minAnimSpeed = 0.5f;
         [SerializeField] private float _maxAnimSpeed = 3f;
-        [SerializeField] private Color _moveRangeColor = new Color(0.2f, 0.5f, 1f, 1f); // Per-unit move-range highlight color
+        [SerializeField] private Color _moveRangeColor = new Color(0.2f, 0.5f, 1f, 0.35f); // Per-unit move-range highlight color; alpha = cell fill opacity
 
         private Vector3[] _debugPathPoints;
         private Quaternion _targetRotation;

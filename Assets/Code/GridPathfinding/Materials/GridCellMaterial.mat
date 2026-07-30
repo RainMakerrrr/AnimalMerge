@@ -8,13 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GridCellMaterial
-  m_Shader: {fileID: 4800000, guid: 630b07f1142b0473fbb4a366f4ac637c, type: 3}
+  m_Shader: {fileID: 4800000, guid: deecbc503c52e4aef8d58f2fe8a7eeef, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -29,11 +29,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _LineWidth: 0.04
     - _RampSmooth: 0.1
     - _RampThreshold: 0.5
+    - _Softness: 1
     - __dummy__: 0
     m_Colors:
-    - _Color: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+    - _Color: {r: 0.7, g: 0.7, b: 0.7, a: 0.15}
     - _HColor: {r: 0.785, g: 0.785, b: 0.785, a: 1}
+    - _LineColor: {r: 1, g: 1, b: 1, a: 0.75}
     - _SColor: {r: 0.195, g: 0.195, b: 0.195, a: 1}
   m_BuildTextureStacks: []

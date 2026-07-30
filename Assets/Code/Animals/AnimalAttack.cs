@@ -21,7 +21,7 @@ namespace Code.Animals
         [SerializeField] protected int _maxTargets;
         [SerializeField] protected LayerMask _mask;
         [SerializeField] protected bool _isAoE;
-        [SerializeField] private Color _aoeHighlightColor = new Color(1f, 0.5f, 0f, 1f);
+        [SerializeField] private Color _aoeHighlightColor = new Color(1f, 0.5f, 0f, 0.4f); // Alpha = cell fill opacity
 
         protected Collider[] _colliders;
         protected IPhysicsService _physicsService;
