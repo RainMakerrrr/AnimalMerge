@@ -263,6 +263,8 @@ namespace Code.Animals.Merge.Commands
             {
                 Debug.LogWarning($"[MergeCommand] No grid cell saved for source animal - cannot restore position");
             }
+
+            _unitTracker.RegisterPlayerUnit(_sourceAnimal);
         }
 
         private void DetectChickenClone(List<AnimalFacade> unitsBeforeMerge)

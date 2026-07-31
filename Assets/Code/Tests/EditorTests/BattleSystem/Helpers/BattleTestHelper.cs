@@ -9,7 +9,9 @@ using Code.Animals;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Animals.Movement;
+using Code.Battle.Config;
 using Code.Battle.Services;
+using Code.Battle.Signals;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
 using Code.Pathfinding;
@@ -17,6 +19,7 @@ using Code.Services.Physics;
 using Code.Services.Random;
 using NSubstitute;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Tests.EditorTests.BattleSystem.Helpers
 {
@@ -45,6 +48,38 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         }
 
         /// <summary>
+        public static SignalBus CreatePreBattleSignalBus()
+        {
+            var container = new DiContainer();
+            SignalBusInstaller.Install(container);
+
+            container.DeclareSignal<PreBattlePhaseStartedSignal>().OptionalSubscriber();
+            container.DeclareSignal<PreBattlePhaseEndedSignal>().OptionalSubscriber();
+            container.DeclareSignal<AllySpawnedSignal>().OptionalSubscriber();
+            container.DeclareSignal<BattleReadinessChangedSignal>().OptionalSubscriber();
+
+            return container.Resolve<SignalBus>();
+        }
+
+        public static IAnimalSpawner CreateMockAnimalSpawner()
+        {
+            var spawner = Substitute.For<IAnimalSpawner>();
+            spawner.Animals.Returns(new List<AnimalFacade>());
+            spawner.DefaultTypes.Returns(new List<AnimalType>());
+            spawner.HasFreeCellFor(default).ReturnsForAnyArgs(true);
+            spawner.Spawn(default).ReturnsForAnyArgs(new List<AnimalFacade>());
+            spawner.SpawnRandom().ReturnsForAnyArgs(new List<AnimalFacade>());
+            return spawner;
+        }
+
+        public static PreBattleConfig CreatePreBattleConfig(int minAlliesToStart, params AnimalType[] startingPool)
+        {
+            var config = ScriptableObject.CreateInstance<PreBattleConfig>();
+            SetPrivateField(config, "_startingPool", startingPool ?? new AnimalType[0]);
+            SetPrivateField(config, "_minAlliesToStart", minAlliesToStart);
+            return config;
+        }
+
         /// Creates a mock VictoryConditionChecker
         /// </summary>
         public static IVictoryConditionChecker CreateMockVictoryChecker()

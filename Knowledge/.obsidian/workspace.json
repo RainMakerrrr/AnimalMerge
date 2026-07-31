@@ -25,14 +25,10 @@
             "id": "f66210432b7861f6",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Курсы.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Курсы"
+              "title": "Новая вкладка"
             }
           },
           {
@@ -46,7 +42,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -208,15 +204,18 @@
       "bases:Создать новую базу": false
     }
   },
-  "active": "de16c3670cb6bc3d",
+  "active": "f66210432b7861f6",
   "lastOpenFiles": [
+    "Decisions/2026-07-31-min-ally-count-high-water-mark.md",
+    "Decisions/2026-07-31-pre-battle-phase-architecture.md",
+    "Sessions/2026-07-31.md",
+    "Index.md",
     "Sessions/2026-07-30.md",
     "Decisions/2026-07-30-grid-config.md",
     "Полезные референсы для vibe coding.md",
     "Курсы.md",
     "Без названия.md",
     "Sessions/2026-06-27.md",
-    "Index.md",
     "Decisions/2026-06-27-fox-dodge-stats.md",
     "Decisions/2026-06-27-merge-popup.md",
     "Decisions/2026-06-27-move-range-highlighter.md"

@@ -56,7 +56,6 @@ namespace Code.Animals.Merge.MergeSkills
 
         private readonly int _multiplier;
 
-
         public CheetahMergeSkill(int multiplier)
         {
             _multiplier = multiplier;
@@ -204,13 +203,18 @@ namespace Code.Animals.Merge.MergeSkills
     {
         private readonly Code.GridPathfinding.IGridManager _gridManager;
         private readonly Code.Infrastructure.Factories.Animals.IAnimalFactory _animalFactory;
+        private readonly Code.Battle.Services.IUnitTracker _unitTracker;
 
         public AnimalType AnimalType => AnimalType.Chicken;
 
-        public ChickenMergeSkill(Code.GridPathfinding.IGridManager gridManager, Code.Infrastructure.Factories.Animals.IAnimalFactory animalFactory)
+        public ChickenMergeSkill(
+            Code.GridPathfinding.IGridManager gridManager,
+            Code.Infrastructure.Factories.Animals.IAnimalFactory animalFactory,
+            Code.Battle.Services.IUnitTracker unitTracker)
         {
             _gridManager = gridManager;
             _animalFactory = animalFactory;
+            _unitTracker = unitTracker;
         }
 
         public bool Merge(PlayerAnimalFacade animal)
@@ -270,6 +274,15 @@ namespace Code.Animals.Merge.MergeSkills
             if (neighbourCells.Count > 0)
             {
                 clone.Movement.FillNodes(neighbourCells.ConvertAll(cell => cell as Code.GridPathfinding.GridCell));
+            }
+
+            if (_unitTracker != null)
+            {
+                _unitTracker.RegisterPlayerUnit(clone);
+            }
+            else
+            {
+                Debug.LogWarning("[ChickenMergeSkill] No unit tracker - clone stays untracked");
             }
 
             // 5. Downgrade clone to 75% stats

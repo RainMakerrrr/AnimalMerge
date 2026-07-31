@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Code.Animals.Facades;
 
@@ -5,6 +6,8 @@ namespace Code.Battle.Services
 {
     public interface IUnitTracker
     {
+        event Action PlayerUnitsChanged;
+
         void RegisterPlayerUnit(AnimalFacade unit);
         void RegisterEnemyUnit(AnimalFacade unit);
         void Reset();

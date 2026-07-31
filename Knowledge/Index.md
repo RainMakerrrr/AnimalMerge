@@ -16,6 +16,7 @@ Turn-based mobile battler с механикой merge. Unity 2022.3.62f3 · C# �
 | Модуль | Путь | Статус |
 |---|---|---|
 | Battle State Machine | Code/Battle/StateMachine/ | Активен |
+| Pre-Battle фаза | Code/Battle/PreBattle/ · UI/ · Signals/ | Активен — спавн союзников, readiness-правила |
 | GridPathfinding (A*) | Code/GridPathfinding/ | Активен — multi-size units |
 | Animal System | Code/Animals/ | Активен |
 | Ability System | Code/Abilities/ | Активен (Dodge, CounterAttack, Retreat) |
@@ -34,6 +35,7 @@ Turn-based mobile battler с механикой merge. Unity 2022.3.62f3 · C# �
 ## Последние изменения
 _Обновляй при каждой сессии._
 
+- [2026-07-31] Массовый спавн союзников заменён на кнопки **AddAnimal** (одно животное за клик) и **Battle** с пульсацией; логика спавна вынесена из UI в прикладной слой — новые модули `Code/Battle/PreBattle/`, `Code/Battle/UI/`, `Code/Battle/Signals/`, конфиг `PreBattleConfig`
 - [2026-07-30] Размеры игровых полей (`MergeGrid` 8×2 / `GameGrid` 8×10) вынесены из хардкода `GridManager` в ScriptableObject-конфиги `GridConfig` (`Code/GridPathfinding/Config/`, ассеты в `Settings/GridConfigs/`) — `IGridManager` не менялся
 - [2026-06-27] Вероятности Dodge для Fox вынесены из хардкода в данные — подкласс `FoxStats : AnimalStats` (Owner 50% / Inherited 30%, `[Range(0,100)]`), ассет `FoxStats.asset` сконвертирован на новый тип; `Dodge` теперь принимает `int successChance` вместо `bool isOwner`
 - [2026-06-27] Текстовая анимация (popup) при кросс-тайп мердже животных — `MergePopupView`/`MergePopupController` (Code/Animals/UI/), событие `MergeTarget.Merged`, строки per-animal в `AnimalConfig.MergeInfo`
@@ -46,20 +48,22 @@ _Обновляй при каждой сессии._
 ## Текущее состояние
 _Что сейчас в работе._
 
-Ветка `iteration_2/Alexandr/Develop` активна. Последняя задача завершена и проверена в Unity (0 ошибок компиляции; 5 новых EditMode + 3 новых PlayMode теста зелёные): размеры игровых полей вынесены из хардкода `GridManager` в ScriptableObject-конфиги.
-- `GridConfig : ScriptableObject` (`Code/GridPathfinding/Config/GridConfig.cs`, `[CreateAssetMenu("Game/Grid Config")]`) — `_width` `[Min(1)]` / `_height` `[Min(2)]` / `_cellSize` `[Min(0.01f)]`, read-only `Width`/`Height`/`CellSize`, константы дефолтов `8`/`10`/`1f`.
-- Ассеты `Assets/Settings/GridConfigs/MergeGridConfig.asset` (8×2) и `GameGridConfig.asset` (8×10) — значения идентичны прежним из сцены, поведение игры не изменилось. Тюнить размеры теперь можно прямо в Inspector на ассетах.
-- `GridManager`: три поля заменены ссылкой `_config`, размеры лениво засеваются через `EnsureDimensions()`/`ApplyConfig()`; `Rebuild(int,int,float)` сохранил сигнатуру и защищён флагом `_hasRuntimeOverride`. `IGridManager` не менялся → ноль правок в 29 зависимых файлах и во всех существующих тестах.
-- `Main Scene.unity`: `_config` проставлен на `MergeGrid` и `GameGrid`. `Code/Editor/GridManagerSetup.cs` починен (иначе NRE на `FindProperty("_width")`), новый хелпер `LoadOrCreateGridConfig` не перезаписывает существующие ассеты.
+Ветка `iteration_2/Alexandr/Develop` активна. Последняя задача завершена и проверена в Unity (0 ошибок компиляции, 0 варнингов; EditMode `BattleSystem` 51/51 зелёные, PlayMode `UI` 9/12 — 3 падения `DamagePopup*` предсуществующие): массовый спавн союзников заменён на пошаговую пре-батл фазу с кнопками.
+- Слои: тупые View (`AddAnimalButtonView`, `BattleButtonView`, `UiPulseAnimator`) → `PreBattleHudPresenter` (единственный клей) → прикладной слой (`IAllySpawnService`, `IAllySpawnPool`, `IBattleReadinessService`, `IBattleReadinessRule[]`) → домен (`IAnimalSpawner`, `IUnitTracker`, `IAnimalFactory`). Команды идут внутрь через интерфейсы, факты наружу через `SignalBus` (4 новых сигнала, все `.OptionalSubscriber()`).
+- Поведение: клик по AddAnimal ставит одно животное из пула (все созданные фасады регистрируются в `IUnitTracker` — курица порождает 3 дополнительных); пул исчерпан → AddAnimal гаснет, Battle загорается и пульсирует (DOTween). На поздних уровнях Battle гейтится `MinAllyCountRule`.
+- Новое условие старта боя = один класс `IBattleReadinessRule` + одна строка биндинга. Стартовый пул вынесен в данные: `PreBattleConfig` (`Code/Battle/Config/`, меню `Game/Pre Battle Config`), ассет `Settings/BattleConfigs/PreBattleConfig.asset` (`Cheetah, Fox, Elephant`, `MinAlliesToStart = 2`). `AnimalSpawner._animalTypes` теперь — только пул подкреплений для `SpawnRandom()`.
+- `IUnitTracker` получил `event Action PlayerUnitsChanged` (реактивная переоценка readiness вместо поллинга). Удалены `Code/Battle/Input/SpawnAnimalsButton.cs` и `StartBattleButton.cs`.
+- Попутно исправлены предсуществующие баги: `ChickenMergeSkill` не регистрировал клона в трекере; `MergeCommand.ReactivateSourceAnimal` (undo) не перерегистрировал юнита; `AnimalSpawner` получил ленивый `EnsureFactoryReady()`; `PreBattleState` защищён флагом `_isStarting` от двойного тапа; хоткей **P** теперь тоже гейтится readiness.
 
-Не закоммичено: новые `GridConfig.cs`, оба `.asset`, `GridConfigTests.cs`, `GridConfigRuntimeTests.cs` (+ `.meta`); изменённые `GridManager.cs`, `GridManagerSetup.cs`, `Main Scene.unity`.
+**НЕ СДЕЛАНО — обвязка сцены на пользователе.** `Main Scene.unity` намеренно не редактировалась (общий Unity Editor между параллельными сессиями). Нужно: снять missing script с `Spawn Animals Button` → повесить `AddAnimalButtonView`; на `Start Battle button` → `UiPulseAnimator` (Scale 1.08, Duration 0.5) + `BattleButtonView`; в `SceneContext → BattleInstaller` заполнить `Pre Battle Config`, `Add Animal Button`, `Battle Button`; разложить кнопки по макету. `ValidateSceneReferences()` логирует ошибку на каждый незаполненный слот. Полный чек-лист — `Sessions/2026-07-31.md`.
+
+Не закоммичено: все новые файлы `Code/Battle/{PreBattle,UI,Signals,Config}/`, `Code/Animals/IAnimalSpawner.cs`, `Settings/BattleConfigs/`, 5 новых тестов; изменённые `AnimalSpawner.cs`, `ChickenFacade.cs`, `IMergeSkill.cs`, `MergeCommand.cs`, `IUnitTracker.cs`/`UnitTracker.cs`, `PreBattleState.cs`, `BattleStateMachine.cs`, `BattleInstaller.cs`. Плюс незакоммиченная предшествующая работа: `GridConfig` и оба `.asset` (задача 2026-07-30).
 
 Открытые вопросы:
-- В диффе `Main Scene.unity` помимо двух блоков `_config` удалены GameObject `bg_cell_lvl5` и PrefabInstance `Assets/Cells.prefab` — вероятно, собственная работа пользователя в редакторе, зафиксированная MCP-save сцены. Не откатывалось, **нужно подтверждение пользователя**.
-- Предсуществующие (НЕ регрессии этой задачи) падения тестов: ~24 в `TargetPositionCalculatorTests` (`GridTestHelper.CreateMockGrid` стабит только перегрузку `CanPlaceUnit(pos, size, dir, bool)`, а `TargetPositionCalculator` зовёт перегрузку с `HashSet<Vector2Int>`); ~9 «Method has non-void return value» в `AnimalAttackPostAbilityTests`/`RetreatAbilityTests`; NRE в `GridManager.GetCell` при спавне врагов из-за race порядка `Awake` между `GameBootstrapper` и `GridManager` (`_cells` по-прежнему аллоцируется только в `Awake`).
-- В рабочем дереве лежит незакоммиченная предшествующая работа пользователя: `GridCell.cs`, `IGridManager.cs` (`Rebuild`/`ClearCells`/`SetSize`), `GridCellMaterial.mat`, `GridCell.prefab`, новый `Assets/Shaders/GridCellBorder.shader`.
-
-Предыдущие задачи (Fox dodge → `FoxStats`, merge popup, подсветка радиуса хода) — код на месте; по merge popup могла остаться ручная настройка в Inspector (префаб `MergePopupView.prefab`, навеска `MergePopupController` на player-префабы, заполнение `MergeInfo`).
+- Тесты: в `.claude/CLAUDE.md` действует политика **TESTS PAUSED** — новые тесты после её появления не добавлялись. Нет теста на `PreBattleHudPresenter`.
+- Не применённые SUGGESTION из ревью: `BattleButtonView._hideUntilReady` по умолчанию `false`; `PreBattleHudPresenter` берёт конкретный `StartBattleService`, а не интерфейс; `AllySpawnService.RequestSpawn` делает dequeue до получения результата спавна (безопасно из-за пред-проверки `HasFreeCellFor`).
+- Дублирование стартового пула (`PreBattleConfig.StartingPool`) и пула подкреплений (`AnimalSpawner._animalTypes`) — намеренное, объединение вне скоупа.
+- Предсуществующие красные тесты (НЕ регрессии): ~16 `TargetPositionCalculatorTests`, ~9 `AnimalAttackPostAbility`/`Retreat`, 4 `HealthBarViewTests`, 3 `DamagePopup*`.
 
 ## Ключевые решения
 Подробности в `Knowledge/Decisions/`. Краткий список:
@@ -67,6 +71,8 @@ _Что сейчас в работе._
 - [2026-06-27] Подсветка хода вынесена в отдельную сущность (SRP) — `AnimalMovement` не нагружали; drag vs hold различается порогом смещения в пикселях, IInputService не трогали → `Decisions/2026-06-27-move-range-highlighter.md`
 - [2026-06-27] Per-animal тюнинг-данные способностей (вероятности Dodge для Fox) хранятся в подклассе `AnimalStats` (`FoxStats`), а НЕ в общем `AnimalConfig` — данные живут со статами животного и не «протекают» в конфиги остальных; `Dodge` стал value-agnostic (`int successChance`), owner/inherited решается на стороне вызова → `Decisions/2026-06-27-fox-dodge-stats.md`
 - [2026-07-30] `GridConfig` доставляется в `GridManager` ссылкой в Inspector, а НЕ через Zenject-инжект — размеры нужны в `OnDrawGizmos` в edit-mode, до `Awake` и до создания DI-контейнера; `IGridManager` намеренно не расширялся (blast radius 3 файла вместо 29) → Decisions/2026-07-30-grid-config.md
+- [2026-07-31] Пре-батл фаза разложена по слоям: команды идут внутрь через интерфейсы (view → `PreBattleHudPresenter` → `IAllySpawnService`), факты наружу через `SignalBus`; новое условие старта боя = один класс `IBattleReadinessRule` + одна строка биндинга; стартовый пул вынесен в `PreBattleConfig` → Decisions/2026-07-31-pre-battle-phase-architecture.md
+- [2026-07-31] Гейт старта боя считается по high-water mark союзников за фазу, а не по живому счётчику — иначе мердж двух союзников в одного (ядро механики) вешал софт-лок с обеими мёртвыми кнопками; `IUnitTracker` стал реактивным (`PlayerUnitsChanged`) → Decisions/2026-07-31-min-ally-count-high-water-mark.md
 - CLAUDE.md ≤70 строк — детали в AgentsDocs/
 - No Singleton — только Zenject bindings
 - UniTask — новый async код только на UniTask

@@ -11,6 +11,8 @@ namespace Code.Battle.Services
         private readonly List<AnimalFacade> _playerUnits;
         private readonly List<AnimalFacade> _enemyUnits;
 
+        public event Action PlayerUnitsChanged;
+
         public bool WasBossRegistered { get; private set; }
 
         public UnitTracker()
@@ -27,8 +29,10 @@ namespace Code.Battle.Services
             if (!_playerUnits.Contains(unit))
             {
                 _playerUnits.Add(unit);
-                unit.Health.Died += OnUnitDied;
+                unit.Health.Died += OnPlayerUnitDied;
                 unit.OnRemoved += OnUnitRemoved;
+
+                PlayerUnitsChanged?.Invoke();
             }
         }
 
@@ -40,7 +44,6 @@ namespace Code.Battle.Services
             if (!_enemyUnits.Contains(unit))
             {
                 _enemyUnits.Add(unit);
-                unit.Health.Died += OnUnitDied;
                 unit.OnRemoved += OnUnitRemoved;
 
                 // Track if a boss was registered
@@ -51,9 +54,9 @@ namespace Code.Battle.Services
             }
         }
 
-        private void OnUnitDied()
+        private void OnPlayerUnitDied()
         {
-            // Event notification - counts are updated via properties
+            PlayerUnitsChanged?.Invoke();
         }
 
         private void OnUnitRemoved(AnimalFacade unit)
@@ -65,11 +68,16 @@ namespace Code.Battle.Services
             if (removedFromPlayers || removedFromEnemies)
             {
                 // Unsubscribe from events to prevent memory leaks
-                if (unit.Health != null)
+                if (removedFromPlayers && unit.Health != null)
                 {
-                    unit.Health.Died -= OnUnitDied;
+                    unit.Health.Died -= OnPlayerUnitDied;
                 }
                 unit.OnRemoved -= OnUnitRemoved;
+            }
+
+            if (removedFromPlayers)
+            {
+                PlayerUnitsChanged?.Invoke();
             }
         }
 
@@ -96,19 +104,20 @@ namespace Code.Battle.Services
             // Unsubscribe from all events
             foreach (var unit in _playerUnits.Where(u => u != null && u.Health != null))
             {
-                unit.Health.Died -= OnUnitDied;
+                unit.Health.Died -= OnPlayerUnitDied;
                 unit.OnRemoved -= OnUnitRemoved;
             }
 
-            foreach (var unit in _enemyUnits.Where(u => u != null && u.Health != null))
+            foreach (var unit in _enemyUnits.Where(u => u != null))
             {
-                unit.Health.Died -= OnUnitDied;
                 unit.OnRemoved -= OnUnitRemoved;
             }
 
             _playerUnits.Clear();
             _enemyUnits.Clear();
             WasBossRegistered = false;
+
+            PlayerUnitsChanged?.Invoke();
 
             Debug.LogWarning("[UnitTracker] Reset complete - all units cleared");
         }

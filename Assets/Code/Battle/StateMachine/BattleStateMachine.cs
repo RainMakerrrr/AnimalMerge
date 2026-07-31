@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Code.Animals;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
 using Code.Battle.Input;
+using Code.Battle.PreBattle;
 using Code.Battle.Services;
 using Code.Battle.States;
 using UnityEngine;
@@ -31,10 +31,12 @@ namespace Code.Battle.StateMachine
             IHealthRestorationService healthRestoration,
             IUnitRepositioningService unitRepositioning,
             Framework.Code.Infrastructure.States.GameStateMachine gameStateMachine,
-            AnimalSpawner animalSpawner,
             StartBattleService startBattleService,
-            SpawnAnimalsButton spawnAnimalsButton,
-            IMergeUndoService mergeUndoService)
+            IMergeUndoService mergeUndoService,
+            IAllySpawnPool allySpawnPool,
+            IAllySpawnService allySpawnService,
+            IBattleReadinessService battleReadiness,
+            SignalBus signalBus)
         {
             // Resolve circular dependency: FlowController needs StateMachine, StateMachine needs FlowController
             flowController.SetStateMachine(this);
@@ -42,7 +44,7 @@ namespace Code.Battle.StateMachine
             // Create all battle states with their dependencies
             _states = new Dictionary<Type, IBattleState>
             {
-                { typeof(PreBattleState), new PreBattleState(this, flowController, animalSpawner, enemySpawnService, unitTracker, startBattleService, spawnAnimalsButton, mergeUndoService) },
+                { typeof(PreBattleState), new PreBattleState(this, flowController, enemySpawnService, unitTracker, startBattleService, mergeUndoService, allySpawnPool, allySpawnService, battleReadiness, signalBus) },
                 { typeof(BattleStartState), new BattleStartState(this) },
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },

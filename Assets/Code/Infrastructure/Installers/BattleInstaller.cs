@@ -1,9 +1,14 @@
 using Code.Animals;
 using Code.Animals.Merge.Services;
 using Code.Battle;
+using Code.Battle.Config;
 using Code.Battle.Input;
+using Code.Battle.PreBattle;
+using Code.Battle.PreBattle.Rules;
 using Code.Battle.Services;
+using Code.Battle.Signals;
 using Code.Battle.StateMachine;
+using Code.Battle.UI;
 using UnityEngine;
 using Zenject;
 
@@ -16,13 +21,27 @@ namespace Code.Infrastructure.Installers
     {
         [SerializeField] private TargetFinder _targetFinder;
         [SerializeField] private AnimalSpawner _animalSpawner;
-        [SerializeField] private SpawnAnimalsButton _spawnAnimalsButton;
+        [SerializeField] private PreBattleConfig _preBattleConfig;
+        [SerializeField] private AddAnimalButtonView _addAnimalButton;
+        [SerializeField] private BattleButtonView _battleButton;
 
         public override void InstallBindings()
         {
+            ValidateSceneReferences();
+
+            DeclareSignals();
             BindServices();
+            BindPreBattle();
             BindBattleStateMachine();
             BindBattleFlowController();
+        }
+
+        private void DeclareSignals()
+        {
+            Container.DeclareSignal<PreBattlePhaseStartedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<PreBattlePhaseEndedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<AllySpawnedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<BattleReadinessChangedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()
@@ -40,7 +59,6 @@ namespace Code.Infrastructure.Installers
 
             // Battle start input system
             Container.Bind<StartBattleService>().AsSingle();
-            Container.Bind<SpawnAnimalsButton>().FromInstance(_spawnAnimalsButton).AsSingle();
 
             // Debug helpers - only in Unity Editor
 #if UNITY_EDITOR
@@ -69,7 +87,24 @@ namespace Code.Infrastructure.Installers
 
             // MonoBehaviour dependencies from scene
             Container.Bind<TargetFinder>().FromInstance(_targetFinder).AsSingle();
-            Container.Bind<AnimalSpawner>().FromInstance(_animalSpawner).AsSingle();
+            Container.BindInterfacesAndSelfTo<AnimalSpawner>().FromInstance(_animalSpawner).AsSingle();
+        }
+
+        private void BindPreBattle()
+        {
+            Container.Bind<PreBattleConfig>().FromInstance(_preBattleConfig).AsSingle();
+
+            Container.Bind<IAllySpawnPool>().To<AllySpawnPool>().AsSingle();
+            Container.Bind<IAllySpawnService>().To<AllySpawnService>().AsSingle();
+
+            Container.Bind<IBattleReadinessRule>().To<PoolExhaustedRule>().AsSingle();
+
+            Container.BindInterfacesTo<MinAllyCountRule>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<BattleReadinessService>().AsSingle();
+
+            Container.Bind<AddAnimalButtonView>().FromInstance(_addAnimalButton).AsSingle();
+            Container.Bind<BattleButtonView>().FromInstance(_battleButton).AsSingle();
+            Container.BindInterfacesAndSelfTo<PreBattleHudPresenter>().AsSingle().NonLazy();
         }
 
         private void BindBattleStateMachine()
@@ -81,6 +116,18 @@ namespace Code.Infrastructure.Installers
         private void BindBattleFlowController()
         {
             Container.Bind<BattleFlowController>().AsSingle().NonLazy();
+        }
+
+        private void ValidateSceneReferences()
+        {
+            if (_preBattleConfig == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_preBattleConfig)} is not assigned - assign Assets/Settings/BattleConfigs/PreBattleConfig.asset", this);
+
+            if (_addAnimalButton == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_addAnimalButton)} is not assigned - assign the Add Animal button from the scene", this);
+
+            if (_battleButton == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_battleButton)} is not assigned - assign the Battle button from the scene", this);
         }
     }
 }

@@ -40,8 +40,13 @@ namespace Framework.Code.Infrastructure.States
         {
             UpdateUI();
             InitLevel();
+            
+            if (currentLevel != null)
+                analyticsService.LevelStarted(currentLevel.Id, progressService.Progress.Level);
 
-            LeanTouch.OnFingerDown += OnFingerDown;
+            windowPool.DisableWindows(WindowType.Tutorial);
+            stateMachine.Enter<BattleLoopState>();
+            //LeanTouch.OnFingerDown += OnFingerDown;
         }
 
         public void Exit()
@@ -63,7 +68,7 @@ namespace Framework.Code.Infrastructure.States
         void UpdateUI()
         {
             windowPool.DisableAllWindows();
-            windowPool.EnableWindows(WindowType.Tutorial);
+            //windowPool.EnableWindows(WindowType.Tutorial);
 
             foreach (IViewUpdatable updater in uiRoot.ViewUpdaters)
             {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Code.Animals.Merge.MergeSkills;
+using Code.Battle.Services;
 using Code.Data.Animals;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
@@ -18,6 +19,7 @@ namespace Code.Animals.Facades
     {
         private IGridManager _gridManager;
         private IAnimalFactory _animalFactory;
+        private IUnitTracker _unitTracker;
 
         /// <summary>
         /// References to neighboring chickens spawned together with this one.
@@ -26,10 +28,14 @@ namespace Code.Animals.Facades
         private List<ChickenFacade> _neighborChickens = new List<ChickenFacade>();
 
         [Inject]
-        private void ConstructChicken([Inject(Id = GridIdentifier.MergeGrid)] IGridManager gridManager, IAnimalFactory animalFactory)
+        private void ConstructChicken(
+            [Inject(Id = GridIdentifier.MergeGrid)] IGridManager gridManager,
+            IAnimalFactory animalFactory,
+            IUnitTracker unitTracker)
         {
             _gridManager = gridManager;
             _animalFactory = animalFactory;
+            _unitTracker = unitTracker;
         }
 
         public override void ApplyStats(AnimalStats stats)
@@ -42,7 +48,7 @@ namespace Code.Animals.Facades
         public override void InitBehaviours()
         {
             // ChickenMergeSkill - duplicates merged animal with 75% stats
-            MergeSkill = new ChickenMergeSkill(_gridManager, _animalFactory);
+            MergeSkill = new ChickenMergeSkill(_gridManager, _animalFactory, _unitTracker);
 
             // MultipleCharacters - this is a MERGE SKILL, NOT auto-spawn!
             // It will be added when this chicken is merged with another animal.
