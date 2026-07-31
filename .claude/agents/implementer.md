@@ -66,7 +66,8 @@ Given a plan or a list of review findings, work through it directly — do not d
    - Write or edit the file, then verify all namespace imports are present
 2. Validate changed scripts with `manage_script` (action `validate`)
 3. Check `read_console` for compile errors and fix them before finishing
-4. Tests: if the change adds or alters behavior, add or update coverage — EditorTests preferred
-   (`Assets/Code/Tests/EditorTests/`), PlayModeTests when the behavior needs the runtime. Run them
-   with `run_tests` (`mode: EditMode` or `PlayMode`), polling `get_test_job` for the result. Report
-   the actual outcome — never report tests as passing without having run them.
+4. Tests — **TESTS PAUSED**: do not write new tests and do not add coverage for new behavior, even
+   if the plan asks for it; say in your summary that you skipped it. If the system you changed is
+   already covered by existing tests, run those with `run_tests` (`mode: EditMode` or `PlayMode`),
+   polling `get_test_job`, and report the real outcome — never report tests as passing without
+   having run them. Never delete or disable an existing test to make it pass.

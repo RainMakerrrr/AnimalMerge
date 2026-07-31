@@ -75,17 +75,21 @@ Recommended order:
 
 ## Comments
 
-Write comments only when the **why** is non-obvious. Do not comment what the code does.
+**Do not write comments.** No `//`, no `/* */`, no `///` XML docs. Express intent through naming and
+structure instead: rename the variable, extract the block into a well-named method, split the
+condition into a named local.
 
 ```csharp
-// Correct — explains a non-obvious constraint
-// HashSet deduplication prevents double-damage when OverlapCapsule returns the same collider twice
+// Avoid — a comment compensating for an unclear name
+// Deduplicate so OverlapCapsule doesn't apply damage twice
 _hitTargets.Add(target);
 
-// Avoid — states the obvious
-// Subtract damage from health
-_currentHealth -= damage;
+// Correct — the name carries the meaning, no comment needed
+_alreadyDamagedThisAttack.Add(target);
 ```
+
+This applies to **new and modified code**. Do not strip comments from code you are not otherwise
+touching — that produces noise in the diff.
 
 ---
 

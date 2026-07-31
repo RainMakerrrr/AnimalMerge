@@ -92,11 +92,12 @@ You have read-only Unity MCP access — use it instead of taking the implementer
 If the editor is not running and these calls fail, say so and review statically — but state plainly
 that the console and tests were not verified, rather than implying they were.
 
-## Tests
+## Tests — **TESTS PAUSED**
 
-- Do the changes need test coverage? New or changed behavior should be covered — EditorTests
-  preferred (`Assets/Code/Tests/EditorTests/`), PlayModeTests when the behavior needs the runtime.
-- Report untested new behavior as a `[WARNING]`.
+- Missing coverage is **not** a finding right now. Do not report untested new behavior, do not ask
+  for tests to be written, and do not raise the checklist's coverage box.
+- Existing tests still matter: if the changed system is already covered, run those tests and report
+  any failure as `[CRITICAL]`. A test deleted or disabled by the change is `[CRITICAL]` too.
 
 ## Output format
 

@@ -36,13 +36,14 @@ Use this checklist before marking a task as complete or creating a PR.
 - [ ] `var` used for locals where type is obvious
 - [ ] Explicit access modifiers on all members
 - [ ] Async method names end with `Async`
+- [ ] No comments added — intent carried by naming and structure (`//`, `/* */`, `///` alike)
 
 ## Build & Tests
 - [ ] All namespaces imported — no unresolved references
 - [ ] Zero compile errors in Unity Console
 - [ ] Zero warnings added (fix or document why unavoidable)
 - [ ] Relevant tests pass
-- [ ] New behavior covered by tests (EditorTests preferred)
+- ~~New behavior covered by tests (EditorTests preferred)~~ — **TESTS PAUSED**, not required for now
 
 ## Do Not Merge If
 - Singleton pattern introduced

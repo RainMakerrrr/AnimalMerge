@@ -28,6 +28,9 @@ Assets/
 - Full details: [CodeStyle.md](../AgentsDocs/CodeStyle.md)
 
 ## Testing
+- **TESTS PAUSED** — do not write new tests and do not require coverage for new behavior. Existing
+  tests still run: if the changed system is already covered, run those tests and report failures.
+  Temporary; to re-enable, `grep -rn "TESTS PAUSED"` and revert each spot.
 - NUnit · NSubstitute (mocks) · FluentAssertions
 - EditorTests → `Assets/Code/Tests/EditorTests/`
 - PlayModeTests → `Assets/Code/Tests/PlayModeTests/`
@@ -44,6 +47,7 @@ Assets/
 - No Coroutines for new async code — use UniTask
 - No new code in `NewPathfinding/` or `Pathfinding/` (deprecated)
 - Do not place assets in `Resources/` unless loaded via `Resources.Load()`
+- No comments in code — `//`, `/* */` and `///` alike; carry intent in names and structure instead
 
 ## References
 - [Architecture](../AgentsDocs/ProjectArchitecture.md)
