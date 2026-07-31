@@ -8,6 +8,7 @@
 /[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
+/Assets/Screenshots/
 /[Mm]emoryCaptures/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
@@ -66,3 +67,6 @@ crashlytics-build.properties
 /Assets/Voodoo/VoodooStore/
 /Assets/Voodoo/VoodooStore.meta
 /Assets/Voodoo/RemoteClassExporter/
+
+# Claude Code personal/local settings (not for the repo)
+.claude/settings.local.json
