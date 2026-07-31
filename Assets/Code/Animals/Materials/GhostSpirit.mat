@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GhostSpirit
+  m_Shader: {fileID: 4800000, guid: b8949689f06354abea53cfdffe9d68ed, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Alpha: 0.75
+    - _Fade: 1
+    - _IridescenceAmount: 0.5
+    - _IridescenceCycles: 1
+    - _IridescenceViewShift: 0.6
+    - _PhaseOffset: 0
+    - _RimAlphaBoost: 0.5
+    - _RimGlow: 1.1
+    - _RimPower: 2.5
+    - _RimStrength: 0.35
+    - _RimWeight: 2.2
+    - _SurfaceWeight: 0.22
+    - _SweepAxisExtent: 0.7467074
+    - _SweepIntensity: 0.8
+    - _SweepSpeed: 0.7
+    - _SweepTiling: 1
+    - _SweepWidth: 0.35
+    - _WorldSweepBlend: 0
+    m_Colors:
+    - _BaseColor: {r: 0.24, g: 0.62, b: 0.88, a: 1}
+    - _IridescenceA: {r: 0.15, g: 0.85, b: 1, a: 1}
+    - _IridescenceB: {r: 0.62, g: 0.42, b: 1, a: 1}
+    - _RimColor: {r: 0.7, g: 0.94, b: 1, a: 1}
+    - _SweepAxis: {r: 0, g: 1, b: 0, a: 0}
+    - _SweepColor: {r: 0.62, g: 0.88, b: 1, a: 1}
+    - _SweepColorA: {r: 0.3, g: 0.9, b: 1, a: 1}
+    - _SweepColorB: {r: 0.72, g: 0.52, b: 1, a: 1}
+  m_BuildTextureStacks: []
