@@ -1,5 +1,8 @@
 ﻿using Code.Abilities;
 using Code.Animals.Facades;
+using Code.Animals.Vfx;
+using Code.Animals.Vfx.Config;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Animals.Merge.MergeSkills
@@ -204,17 +207,20 @@ namespace Code.Animals.Merge.MergeSkills
         private readonly Code.GridPathfinding.IGridManager _gridManager;
         private readonly Code.Infrastructure.Factories.Animals.IAnimalFactory _animalFactory;
         private readonly Code.Battle.Services.IUnitTracker _unitTracker;
+        private readonly MergeAnimationConfig _animationConfig;
 
         public AnimalType AnimalType => AnimalType.Chicken;
 
         public ChickenMergeSkill(
             Code.GridPathfinding.IGridManager gridManager,
             Code.Infrastructure.Factories.Animals.IAnimalFactory animalFactory,
-            Code.Battle.Services.IUnitTracker unitTracker)
+            Code.Battle.Services.IUnitTracker unitTracker,
+            MergeAnimationConfig animationConfig)
         {
             _gridManager = gridManager;
             _animalFactory = animalFactory;
             _unitTracker = unitTracker;
+            _animationConfig = animationConfig;
         }
 
         public bool Merge(PlayerAnimalFacade animal)
@@ -310,6 +316,8 @@ namespace Code.Animals.Merge.MergeSkills
                 clone.MergeSkills.Add(this);
             }
 
+            PlayCloneAppearAnimation(clone);
+
             Debug.Log($"[ChickenMergeSkill] Clone created successfully! Original and clone both have 75% stats.");
             return true;
         }
@@ -341,6 +349,19 @@ namespace Code.Animals.Merge.MergeSkills
                 }
             }
             return true;
+        }
+
+        private void PlayCloneAppearAnimation(PlayerAnimalFacade clone)
+        {
+            if (_animationConfig == null)
+                return;
+
+            var appearAnimation = MergeAppearAnimation.Begin(
+                clone.transform,
+                clone.transform.localScale,
+                _animationConfig);
+
+            appearAnimation.PlayAsync(clone.GetCancellationTokenOnDestroy()).Forget();
         }
 
         /// <summary>

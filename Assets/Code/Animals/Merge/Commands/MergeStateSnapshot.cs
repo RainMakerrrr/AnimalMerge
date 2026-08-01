@@ -61,13 +61,15 @@ namespace Code.Animals.Merge.Commands
                 return null;
             }
 
+            var scaleAnimator = animal.ScaleAnimator;
+
             var snapshot = new MergeStateSnapshot
             {
                 MaxHealth = animal.GetMaxHealth(),
                 CurrentHealth = animal.GetCurrentHealth(),
                 Damage = animal.GetDamage(),
                 WasActive = animal.gameObject.activeSelf,
-                LocalScale = animal.transform.localScale
+                LocalScale = scaleAnimator != null ? scaleAnimator.LogicalScale : animal.transform.localScale
             };
 
             // Capture grid cell if available

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 namespace Code.Animals.Vfx
 {
-    public class MergeSweepGlow
+    public class MergeSweepGlow : IDisposable
     {
         private static readonly int SweepSpeed = Shader.PropertyToID("_SweepSpeed");
         private static readonly int SweepTiling = Shader.PropertyToID("_SweepTiling");
@@ -83,7 +84,7 @@ namespace Code.Animals.Vfx
         public void Dispose()
         {
             if (Instance != null)
-                Object.Destroy(Instance);
+                UnityEngine.Object.Destroy(Instance);
 
             Instance = null;
             _target = null;

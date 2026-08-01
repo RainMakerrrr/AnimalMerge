@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _stepId: MergeHint
   _levelNumber: 1
-  _targetMode: 0
+  _targetMode: 1
   _sourceIndex: 0
   _targetIndex: 1
-  _sourceType: 0
-  _targetType: 1
+  _sourceType: 1
+  _targetType: 0
   _markCompletedWhenPhaseEnds: 0

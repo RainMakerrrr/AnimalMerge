@@ -8,6 +8,7 @@ using Code.Animals.Merge.MergeAttributes;
 using Code.Animals.Merge.MergeSkills;
 using Code.Animals.Movement;
 using Code.Animals.Upgrade;
+using Code.Animals.Vfx;
 using Code.Data.Animals;
 using Code.Services.Random;
 using UnityEngine;
@@ -19,7 +20,20 @@ namespace Code.Animals.Facades
     {
         [SerializeField] private AnimalUpgrade _upgrade;
         [SerializeField] private MergeView _mergeView;
-        
+
+        private MergeScaleAnimator _scaleAnimator;
+
+        public MergeScaleAnimator ScaleAnimator
+        {
+            get
+            {
+                if (_scaleAnimator == null)
+                    _scaleAnimator = GetComponent<MergeScaleAnimator>();
+
+                return _scaleAnimator;
+            }
+        }
+
         public MergeView MergeView
         {
             get
