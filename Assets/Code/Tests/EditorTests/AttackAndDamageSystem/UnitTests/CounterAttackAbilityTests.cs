@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Code.Abilities;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Data.Animals;
 using Code.Services.Random;
 using Code.Tests.EditorTests.Helpers.AttackSystem;
 using FluentAssertions;
@@ -93,7 +94,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true,
+                HedgehogStats.DefaultOwnerCounterChance,
                 randomProvider);
 
             // Act
@@ -175,7 +176,7 @@ namespace Code.Tests.EditorTests.AttackAndDamageSystem.UnitTests
                 hedgehogHealth,
                 hedgehogAnimator,
                 hedgehogAttack,
-                isOwner: true,
+                HedgehogStats.DefaultOwnerCounterChance,
                 randomProvider);
 
             // Act

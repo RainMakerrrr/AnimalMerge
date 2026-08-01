@@ -35,3 +35,18 @@ int successThreshold = _isOwner ? 50 : 30; // 50% владелец, 30% унас
 
 ## Затронутые файлы
 `Code/Data/Animals/FoxStats.cs` (новый), `Settings/Animals/Stats/FoxStats.asset`, `Code/Abilities/Dodge.cs`, `Code/Animals/Facades/FoxFacade.cs`, `Code/Animals/Merge/MergeSkills/IMergeSkill.cs`, тесты (`AbilityTestMocks`, `DodgeAbilityTests`, `AoEAbilityTests`, `AoEAttackIntegrationTests`, `AttackAndDamageIntegrationTests`).
+
+---
+
+## Addendum 2026-08-01 — значения 50/30 заменены на 80/50
+
+Структурное решение выше (где живут данные: `FoxStats`, value-agnostic `Dodge`, owner/inherited решается на стороне вызова) **остаётся в силе без изменений**.
+
+Меняются только сами числа. Значения 50/30 были перенесены дословно из существовавшего хардкода и балансным решением не являлись. Концепт-док 3.0 (ClickUp «Heroes & Bosses») требует 80/50, поэтому по §2.2 спецификации `AgentsDocs/Specifications/06_Balance_Sync_With_Concept_Doc.md`:
+
+- `Settings/Animals/Stats/FoxStats.asset`: `_ownerDodgeChance: 50 → 80`, `_inheritedDodgeChance: 30 → 50`
+- `Code/Data/Animals/FoxStats.cs`: `DefaultOwnerDodgeChance = 50 → 80`, `DefaultInheritedDodgeChance = 30 → 50` (фоллбэк-дефолты должны совпадать с ассетом, иначе появляется второй несогласованный источник истины)
+
+Логика «первый додж гарантирован» (`Dodge.CanUse`, `_counter == 0 => true`) не менялась.
+
+По этому же образцу в тот же день вынесен шанс контратаки ежа: `Code/Data/Animals/HedgehogStats.cs` (`_ownerCounterChance: 100` / `_inheritedCounterChance: 50`), `CounterAttack` стал value-agnostic (`int successChance` вместо `bool isOwner`), `HedgehogFacade` читает `AnimalDatabase`, `HedgehogMergeSkill` хранит `_inheritedChance`.

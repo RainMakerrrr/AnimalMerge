@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Code.Animals.Facades;
 using Code.GridPathfinding;
 using Code.Infrastructure.Factories.Animals;
@@ -12,26 +11,9 @@ namespace Code.Animals
     {
         [SerializeField] private GridManager _mergeGrid;
         [SerializeField] private GridManager _gameGrid;
-        [SerializeField] private AnimalType[] _animalTypes = new[] {AnimalType.Cheetah, AnimalType.Fox, AnimalType.Hedgehog};
 
         private IAnimalFactory _factory;
         private bool _factoryReady;
-
-        private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
-        public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal != null && animal.gameObject != null && animal.gameObject.activeInHierarchy).ToList();
-
-        public bool TryPickRandomType(out AnimalType type)
-        {
-            if (_animalTypes.Length == 0)
-            {
-                Debug.LogWarning("[AnimalSpawner] No animal types configured - cannot pick a random one");
-                type = default;
-                return false;
-            }
-
-            type = _animalTypes[Random.Range(0, _animalTypes.Length)];
-            return true;
-        }
 
         [Inject]
         private void Construct(IAnimalFactory factory)
@@ -45,6 +27,9 @@ namespace Code.Animals
         {
             EnsureFactoryReady();
 
+            if (animalType == AnimalType.Chicken)
+                return SpawnChickenFlock();
+
             var spawned = new List<AnimalFacade>();
 
             if (!_mergeGrid.HasCellFor(animalType))
@@ -54,30 +39,32 @@ namespace Code.Animals
             }
 
             var animal = _factory.Create(animalType);
-            _animals.Add(animal);
-            spawned.Add(animal);
+            if (animal == null)
+            {
+                Debug.LogError($"[AnimalSpawner] Factory produced no instance for {animalType}");
+                return spawned;
+            }
 
-            // Subscribe to removal event to clean up list when animal is merged/destroyed
-            animal.OnRemoved += OnAnimalRemoved;
+            spawned.Add(animal);
 
             _mergeGrid.PlaceOnGrid(animal.Movement);
 
             Debug.Log($"[AnimalSpawner] Spawned {animalType} at {animal.Movement.CurrentPathNode.GridPosition}");
 
-            // Handle special case for Chicken (spawns additional units)
-            if (animalType == AnimalType.Chicken)
+            return spawned;
+        }
+
+        private IReadOnlyList<AnimalFacade> SpawnChickenFlock()
+        {
+            if (!_mergeGrid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
             {
-                var additionalChickens = _factory.SpawnAdditionalChickens(animal as ChickenFacade);
-                foreach (var chicken in additionalChickens)
-                {
-                    chicken.OnRemoved += OnAnimalRemoved;
-                }
-                _animals.AddRange(additionalChickens);
-                spawned.AddRange(additionalChickens);
-                Debug.Log($"[AnimalSpawner] Spawned {additionalChickens.Count} additional chickens");
+                Debug.LogWarning($"[AnimalSpawner] No free {ChickenFlock.Footprint} block for {AnimalType.Chicken}, skipping");
+                return new List<AnimalFacade>();
             }
 
-            return spawned;
+            var cells = _mergeGrid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
+
+            return _factory.CreateChickenFlock(cells);
         }
 
         private void EnsureFactoryReady()
@@ -86,35 +73,7 @@ namespace Code.Animals
                 return;
 
             _factory.Load();
-            _factory.SetMergeGrid(_mergeGrid);
             _factoryReady = true;
-        }
-
-        private void OnAnimalRemoved(AnimalFacade animal)
-        {
-            if (_animals.Remove(animal))
-            {
-                Debug.Log($"[AnimalSpawner] Removed {animal.name} from spawner list. Remaining: {_animals.Count}");
-            }
-            else
-            {
-                Debug.LogWarning($"[AnimalSpawner] Tried to remove {animal.name} but it wasn't in the list");
-            }
-
-            // Unsubscribe to prevent memory leaks
-            animal.OnRemoved -= OnAnimalRemoved;
-        }
-
-        private void OnDestroy()
-        {
-            // Unsubscribe from all animals to prevent memory leaks
-            foreach (var animal in _animals)
-            {
-                if (animal != null)
-                {
-                    animal.OnRemoved -= OnAnimalRemoved;
-                }
-            }
         }
     }
 }

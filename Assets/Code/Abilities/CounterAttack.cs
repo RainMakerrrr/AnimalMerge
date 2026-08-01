@@ -11,7 +11,7 @@ namespace Code.Abilities
         private readonly AnimalHealth _health;
         private readonly AnimalAnimator _animator;
         private readonly AnimalAttack _attack;
-        private readonly bool _isOwner;
+        private readonly int _successChance;
         private readonly IRandomProvider _randomProvider;
 
         // Store attacker from CanUse to use in Apply
@@ -32,19 +32,15 @@ namespace Code.Abilities
                 return false;
             }
 
-            // Owner: always 100%
-            if (_isOwner) return true;
-
-            // Inherited: 50%
-            return _randomProvider.Range(0, 100) < 50;
+            return _randomProvider.Range(0, 100) < _successChance;
         }
 
-        public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, bool isOwner, IRandomProvider randomProvider)
+        public CounterAttack(AnimalHealth health, AnimalAnimator animator, AnimalAttack attack, int successChance, IRandomProvider randomProvider)
         {
             _health = health;
             _animator = animator;
             _attack = attack;
-            _isOwner = isOwner;
+            _successChance = successChance;
             _randomProvider = randomProvider;
         }
 

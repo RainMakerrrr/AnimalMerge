@@ -681,42 +681,53 @@ namespace Code.GridPathfinding
         /// </summary>
         public bool HasCellFor(AnimalType animalType)
         {
-            // Determine unit size based on animal type
-            UnitSize unitSize = animalType switch
-            {
-                AnimalType.Elephant => new UnitSize(2, 2),  // 2x2 (Big) - 4 cells
-                AnimalType.Chicken => new UnitSize(1, 1),   // 1x1 (Small) - Each chicken is 1x1 (4 chickens = ChickenGroup)
-                AnimalType.Cheetah => new UnitSize(1, 2),   // 1x2 (Medium) - 2 adjacent cells
-                AnimalType.Deer => new UnitSize(1, 2),      // 1x2 (Medium) - 2 adjacent cells
-                AnimalType.Fox => new UnitSize(1, 2),       // 1x2 (Medium) - 2 adjacent cells
-                AnimalType.Hedgehog => new UnitSize(1, 2),  // 1x2 (Medium) - 2 adjacent cells
-                _ => new UnitSize(1, 1)  // Default fallback
-            };
+            var unitSize = GetFootprint(animalType);
 
-            // Try to find a valid placement position in the bottom two rows
-            // For rectangular units (1×2 or 2×1), we need to check both vertical and horizontal orientations
             Direction[] directionsToCheck = unitSize.IsRectangular()
-                ? new[] { Direction.North, Direction.East }  // Try vertical and horizontal
-                : new[] { Direction.North };                  // Square units don't depend on direction
+                ? new[] { Direction.North, Direction.East }
+                : new[] { Direction.North };
 
+            foreach (var direction in directionsToCheck)
+            {
+                if (TryFindFreePlacement(unitSize, direction, out _))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool TryFindFreePlacement(UnitSize size, Direction direction, out Vector2Int anchor)
+        {
             for (int y = 0; y <= 1; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    Vector2Int position = new Vector2Int(x, y);
+                    var candidate = AdjustPositionToFitBounds(new Vector2Int(x, y), size, direction);
 
-                    // Check if we can place the unit at this position with any valid direction
-                    foreach (Direction direction in directionsToCheck)
-                    {
-                        if (CanPlaceUnit(position, unitSize, direction))
-                        {
-                            return true;
-                        }
-                    }
+                    if (!CanPlaceUnit(candidate, size, direction))
+                        continue;
+
+                    anchor = candidate;
+                    return true;
                 }
             }
 
+            anchor = default;
             return false;
+        }
+
+        private static UnitSize GetFootprint(AnimalType animalType)
+        {
+            return animalType switch
+            {
+                AnimalType.Elephant => new UnitSize(2, 2),
+                AnimalType.Chicken => ChickenFlock.Footprint,
+                AnimalType.Cheetah => new UnitSize(1, 2),
+                AnimalType.Deer => new UnitSize(1, 2),
+                AnimalType.Fox => new UnitSize(1, 2),
+                AnimalType.Hedgehog => new UnitSize(1, 2),
+                _ => new UnitSize(1, 1)
+            };
         }
 
         /// <summary>
@@ -733,19 +744,13 @@ namespace Code.GridPathfinding
             var unitSize = animal.UnitSize;
             var direction = animal.Direction;
 
-            // Find the first valid placement position in bottom two rows
-            GridCell targetCell = null;
-            for (int y = 0; y <= 1 && targetCell == null; y++)
+            if (!TryFindFreePlacement(unitSize, direction, out var anchor))
             {
-                for (int x = 0; x < Width && targetCell == null; x++)
-                {
-                    Vector2Int position = new Vector2Int(x, y);
-                    if (CanPlaceUnit(position, unitSize, direction))
-                    {
-                        targetCell = GetCell(position) as GridCell;
-                    }
-                }
+                Debug.LogWarning("[GridManager] No valid placement position found");
+                return;
             }
+
+            var targetCell = GetCell(anchor) as GridCell;
 
             if (targetCell == null)
             {
@@ -753,14 +758,9 @@ namespace Code.GridPathfinding
                 return;
             }
 
-            // Place the animal at the target position
             animal.Place(targetCell.WorldPosition);
             animal.SetCurrentNode(targetCell);
 
-            // Get all occupied cells (includes the base cell and neighbors)
-            var allOccupiedCells = GetOccupiedCells(targetCell.GridPosition, unitSize, direction).Cast<GridCell>().ToList();
-
-            // Mark all cells as occupied (this sets IsWalkable = false)
             SetOccupied(targetCell.GridPosition, unitSize, direction, animal);
 
             // Get neighbor cells (excluding the base targetCell) for the animal's internal tracking

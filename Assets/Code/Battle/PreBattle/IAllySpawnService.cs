@@ -7,6 +7,8 @@ namespace Code.Battle.PreBattle
 
         bool RequestSpawn();
 
+        int QueueStartingPool();
+
         int QueueReinforcements();
     }
 }

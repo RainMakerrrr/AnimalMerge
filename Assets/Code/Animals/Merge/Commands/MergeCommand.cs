@@ -244,6 +244,8 @@ namespace Code.Animals.Merge.Commands
             _targetAnimal.AccumulatedVisualAttributes.Clear();
             _targetAnimal.AccumulatedVisualAttributes.AddRange(_targetStateBefore.AccumulatedVisualAttributes);
             Debug.Log($"[MergeCommand] Restored {_targetAnimal.AccumulatedVisualAttributes.Count} accumulated visual attributes");
+
+            _targetAnimal.ScaleAnimator?.Resync(_targetStateBefore.LocalScale);
         }
 
         private void ReactivateSourceAnimal()

@@ -121,6 +121,13 @@ namespace Code.Animals.Merge.MergeSkills
     {
         public AnimalType AnimalType => AnimalType.Hedgehog;
 
+        private readonly int _inheritedChance;
+
+        public HedgehogMergeSkill(int inheritedChance)
+        {
+            _inheritedChance = inheritedChance;
+        }
+
         public bool Merge(PlayerAnimalFacade animal)
         {
             if (animal.MergeSkills.Contains(this) == false)
@@ -128,7 +135,7 @@ namespace Code.Animals.Merge.MergeSkills
 
             animal.MergeSkills.ForEach(Debug.Log);
 
-            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, isOwner: false, animal.RandomProvider));
+            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, _inheritedChance, animal.RandomProvider));
             return true;
         }
 
@@ -137,7 +144,7 @@ namespace Code.Animals.Merge.MergeSkills
             if (animal.MergeSkills.Contains(this) == false)
                 animal.MergeSkills.Add(this);
 
-            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, isOwner: false, animal.RandomProvider));
+            animal.AddAbility(new CounterAttack(animal.Health, animal.Animator, animal.AttackInstance, _inheritedChance, animal.RandomProvider));
 
             foreach (var mergeSkill in other.MergeSkills)
             {
@@ -243,6 +250,14 @@ namespace Code.Animals.Merge.MergeSkills
             Debug.Log($"[ChickenMergeSkill] Downgrading {animal.Type} to 75% stats");
             animal.UpgradeHealth(0.75f);
             animal.UpgradeDamage(0.75f);
+
+            if (_animationConfig != null)
+            {
+                animal.EnsureScaleAnimator().ScaleBy(
+                    _animationConfig.CloneScaleMultiplier,
+                    _animationConfig.GrowDuration,
+                    _animationConfig.GrowCurve);
+            }
 
             // 3. Create clone of the same type
             Debug.Log($"[ChickenMergeSkill] Creating clone of {animal.Type} at {freeCell.GridPosition}");
@@ -355,6 +370,8 @@ namespace Code.Animals.Merge.MergeSkills
         {
             if (_animationConfig == null)
                 return;
+
+            clone.EnsureScaleAnimator().ScaleBy(_animationConfig.CloneScaleMultiplier, 0f, null);
 
             var appearAnimation = MergeAppearAnimation.Begin(
                 clone.transform,

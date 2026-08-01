@@ -10,6 +10,7 @@ namespace Code.Data.Animals
     {
         public AnimalType Type;
         public AnimalStats Stats;
+        public Sprite Icon;
         [TextArea] public string MergeInfo;
     }
 
@@ -27,6 +28,17 @@ namespace Code.Data.Animals
             }
 
             Debug.LogWarning($"[AnimalDatabase] No stats found for {type}");
+            return null;
+        }
+
+        public Sprite GetIcon(AnimalType type)
+        {
+            foreach (var config in _configs)
+            {
+                if (config.Type == type)
+                    return config.Icon;
+            }
+
             return null;
         }
 

@@ -53,30 +53,46 @@ namespace Code.Battle.PreBattle
             return SpawnAndRegister(_animalSpawner.Spawn(type));
         }
 
+        public int QueueStartingPool()
+        {
+            _pool.Clear();
+
+            var startingPool = _config == null ? null : _config.StartingPool;
+            if (startingPool == null || startingPool.Count == 0)
+            {
+                Debug.LogError("[AllySpawnService] PreBattleConfig has an empty starting pool");
+                return 0;
+            }
+
+            foreach (var type in startingPool)
+            {
+                _pool.Enqueue(type);
+            }
+
+            Debug.Log($"[AllySpawnService] Queued {startingPool.Count} animal(s) from the starting pool");
+            return startingPool.Count;
+        }
+
         public int QueueReinforcements()
         {
             int requested = _config == null ? 0 : _config.ReinforcementsPerLevel;
             if (requested <= 0)
                 return 0;
 
-            int queued = 0;
-            for (int i = 0; i < requested; i++)
+            var randomPool = _config.RandomPool;
+            if (randomPool == null || randomPool.Count == 0)
             {
-                if (!_animalSpawner.TryPickRandomType(out var type))
-                    break;
-
-                _pool.Enqueue(type);
-                queued++;
-            }
-
-            if (queued == 0)
-            {
-                Debug.LogWarning("[AllySpawnService] No reinforcements queued - the spawner has no animal types configured");
+                Debug.LogWarning("[AllySpawnService] PreBattleConfig has an empty random pool - no reinforcements queued");
                 return 0;
             }
 
-            Debug.Log($"[AllySpawnService] Queued {queued} random reinforcement(s) - the player places them with the Add Animal button");
-            return queued;
+            for (int i = 0; i < requested; i++)
+            {
+                _pool.Enqueue(randomPool[Random.Range(0, randomPool.Count)]);
+            }
+
+            Debug.Log($"[AllySpawnService] Queued {requested} random reinforcement(s) - the player places them with the Add Animal button");
+            return requested;
         }
 
         private bool SpawnAndRegister(IReadOnlyList<AnimalFacade> spawned)

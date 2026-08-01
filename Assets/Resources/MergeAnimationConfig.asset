@@ -47,6 +47,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  _cloneScaleMultiplier: 0.75
   _appearStartScale: 0.05
   _appearDuration: 0.35
   _appearCurve:

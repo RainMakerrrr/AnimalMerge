@@ -1,4 +1,5 @@
 ﻿using Code.Animals.Movement;
+using Code.Animals.Selection;
 using Code.Animals.Vfx.Config;
 using Code.Data.Animals;
 using Code.Infrastructure.Factories.Animals;
@@ -32,6 +33,7 @@ namespace Code.Infrastructure.Installers
             BindCanvas();
             BindInputService();
             BindMoveRangeHighlighter();
+            BindAnimalSelectionService();
         }
 
 
@@ -59,5 +61,8 @@ namespace Code.Infrastructure.Installers
 
         private void BindMoveRangeHighlighter() =>
             Container.Bind<IMoveRangeHighlighter>().To<MoveRangeHighlighter>().AsSingle();
+
+        private void BindAnimalSelectionService() =>
+            Container.BindInterfacesAndSelfTo<AnimalSelectionService>().AsSingle();
     }
 }

@@ -377,7 +377,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 153689331}
-  - component: {fileID: 153689330}
   - component: {fileID: 153689332}
   m_Layer: 0
   m_Name: TargetFinder
@@ -386,21 +385,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &153689330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 153689329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a353f77652374f4ea786a5b413e26b7e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _spawner: {fileID: 2102332268}
-  _targetFinder: {fileID: 153689332}
-  _enemiesSpawner: {fileID: 0}
 --- !u!4 &153689331
 Transform:
   m_ObjectHideFlags: 0
@@ -654,15 +638,16 @@ MonoBehaviour:
       m_Calls: []
   m_text: fight!
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f44c35828bdf347ca94feaa14b6910b8, type: 2}
+  m_sharedMaterial: {fileID: -2537499884133859750, guid: f44c35828bdf347ca94feaa14b6910b8,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -818,15 +803,16 @@ MonoBehaviour:
       m_Calls: []
   m_text: + add animal
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f44c35828bdf347ca94feaa14b6910b8, type: 2}
+  m_sharedMaterial: {fileID: -2537499884133859750, guid: f44c35828bdf347ca94feaa14b6910b8,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1168,7 +1154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.9607843, g: 0.6509804, b: 0.13725491, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1207,8 +1193,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _targetGraphic: {fileID: 692326471}
   _pulse: {fileID: 692326474}
-  _readyColor: {r: 1, g: 1, b: 1, a: 1}
-  _notReadyColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  _readyColor: {r: 0.9607843, g: 0.6509804, b: 0.13725491, a: 1}
+  _notReadyColor: {r: 0.6901961, g: 0.4627451, b: 0.16470589, a: 1}
   _hideUntilReady: 0
 --- !u!114 &692326474
 MonoBehaviour:
@@ -2058,15 +2044,16 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f44c35828bdf347ca94feaa14b6910b8, type: 2}
+  m_sharedMaterial: {fileID: -2537499884133859750, guid: f44c35828bdf347ca94feaa14b6910b8,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -2289,7 +2276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.4862745, g: 0.7019608, b: 0.25882354, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2328,8 +2315,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _targetGraphic: {fileID: 1864989974}
   _remainingLabel: {fileID: 1585616875}
-  _normalColor: {r: 1, g: 1, b: 1, a: 1}
-  _disabledColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  _normalColor: {r: 0.4862745, g: 0.7019608, b: 0.25882354, a: 1}
+  _disabledColor: {r: 0.3529412, g: 0.49803922, b: 0.2, a: 1}
 --- !u!1001 &1902631477
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3280,6 +3267,8 @@ MonoBehaviour:
   _preBattleConfig: {fileID: 11400000, guid: f3c8ce4c5279c49acba278594f4a6105, type: 2}
   _addAnimalButton: {fileID: 1864989976}
   _battleButton: {fileID: 692326473}
+  _statsPanelPrefab: {fileID: 2128353874416221182, guid: fc12e71cb15294d2ab0884a828dd8757,
+    type: 3}
 --- !u!114 &2088146940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3342,7 +3331,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mergeGrid: {fileID: 12922331}
   _gameGrid: {fileID: 1536527367}
-  _animalTypes: 010000000300000000000000
+  _startingPool: 010000000300000000000000
+  _randomPool: 000000000100000002000000030000000400000005000000
 --- !u!114 &2102332269
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29,11 +29,12 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         {
             BattleTestHelper.CleanScene();
 
-            _config = BattleTestHelper.CreatePreBattleConfig(
-                2, AnimalType.Cheetah, AnimalType.Fox, AnimalType.Elephant);
+            _config = BattleTestHelper.CreatePreBattleConfig(2);
 
-            _pool = new AllySpawnPool(_config);
-            _pool.RefillFromConfig();
+            _pool = new AllySpawnPool();
+            _pool.Enqueue(AnimalType.Cheetah);
+            _pool.Enqueue(AnimalType.Fox);
+            _pool.Enqueue(AnimalType.Elephant);
 
             _animalSpawner = BattleTestHelper.CreateMockAnimalSpawner();
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
@@ -157,8 +158,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker.DidNotReceiveWithAnyArgs().RegisterPlayerUnit(null);
 
             _pool.TryPeekNext(out var queuedType).Should().BeTrue();
-            queuedType.Should().Be(AnimalType.Hedgehog, "the random type is picked by the spawner, which owns the type list");
-            _animalSpawner.ReceivedWithAnyArgs(1).TryPickRandomType(out _);
+            queuedType.Should().Be(AnimalType.Hedgehog, "the random type is drawn from PreBattleConfig.RandomPool");
         }
 
         private void StubSpawnResult(params AnimalFacade[] facades)

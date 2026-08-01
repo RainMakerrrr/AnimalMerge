@@ -69,13 +69,11 @@ namespace Code.Battle.States
 
             if (isLevelStart)
             {
-                // IMPORTANT: Use UnitTracker instead of AnimalSpawner.Animals
-                // because AnimalSpawner.Animals filters by activeInHierarchy which is unreliable
                 bool hasExistingUnits = _unitTracker.AlivePlayerUnitsCount > 0;
 
                 if (!hasExistingUnits)
                 {
-                    _allySpawnPool.RefillFromConfig();
+                    _allySpawnService.QueueStartingPool();
                     isStartingPool = true;
                     Debug.Log($"[PreBattleState] First level - starting pool holds {_allySpawnPool.Remaining} animals");
                 }

@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: PreBattleConfig
   m_EditorClassIdentifier: 
   _startingPool: 010000000300000000000000
+  _randomPool: 000000000100000002000000030000000400000005000000
   _minAlliesToStart: 2
   _reinforcementsPerLevel: 1

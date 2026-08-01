@@ -65,6 +65,12 @@ namespace Code.Abilities
             for (int i = 0; i < freeCells.Count; i++)
             {
                 var animal = _animalFactory.Create(_animalType);
+                if (animal == null)
+                {
+                    Debug.LogError($"[MultipleCharacters] Factory produced no instance for {_animalType}");
+                    return;
+                }
+
                 var animalMovement = animal.Movement;
 
                 animalMovement.SetCurrentNode(freeCells[i]);

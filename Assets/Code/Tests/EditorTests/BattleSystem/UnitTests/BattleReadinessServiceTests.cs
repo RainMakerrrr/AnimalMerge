@@ -29,10 +29,9 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         [SetUp]
         public void SetUp()
         {
-            _config = BattleTestHelper.CreatePreBattleConfig(
-                2, AnimalType.Cheetah, AnimalType.Fox, AnimalType.Elephant);
+            _config = BattleTestHelper.CreatePreBattleConfig(2);
 
-            _pool = new AllySpawnPool(_config);
+            _pool = new AllySpawnPool();
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
             _signalBus = BattleTestHelper.CreatePreBattleSignalBus();
             _minAllyRule = new MinAllyCountRule(_config, _unitTracker, _signalBus);
@@ -63,7 +62,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void PendingStartingPool_BlocksBattleStart()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedStartingPool();
             SetAllyCount(1);
 
             // Act
@@ -78,7 +77,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void FirstLevel_WithDrainedPool_AllowsBattleStart()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedStartingPool();
             SetAllyCount(0);
             StartPhase(isStartingPool: true);
 
@@ -96,7 +95,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void FirstLevel_MergedIntoSingleAlly_AllowsBattleStart()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedStartingPool();
             SetAllyCount(0);
             StartPhase(isStartingPool: true);
 
@@ -222,6 +221,14 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         private void SetAllyCount(int count) => _unitTracker.AlivePlayerUnitsCount.Returns(count);
 
         private void RaisePlayerUnitsChanged() => _unitTracker.PlayerUnitsChanged += Raise.Event<Action>();
+
+        private void SeedStartingPool()
+        {
+            _pool.Clear();
+            _pool.Enqueue(AnimalType.Cheetah);
+            _pool.Enqueue(AnimalType.Fox);
+            _pool.Enqueue(AnimalType.Elephant);
+        }
 
         private void DrainPool()
         {

@@ -5,10 +5,11 @@ namespace Code.Animals.Vfx.Config
     [CreateAssetMenu(fileName = "MergeAnimationConfig", menuName = "Game/Merge Animation Config")]
     public class MergeAnimationConfig : ScriptableObject
     {
-        [Header("Elephant Growth")]
+        [Header("Merge Scale Change")]
         [SerializeField, Min(0.01f)] private float _growScaleMultiplier = 1.5f;
         [SerializeField, Min(0f)] private float _growDuration = 0.35f;
         [SerializeField] private AnimationCurve _growCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        [SerializeField, Min(0.01f)] private float _cloneScaleMultiplier = 0.75f;
 
         [Header("Appear")]
         [SerializeField, Range(0f, 1f)] private float _appearStartScale;
@@ -27,6 +28,7 @@ namespace Code.Animals.Vfx.Config
         public float GrowScaleMultiplier => _growScaleMultiplier;
         public float GrowDuration => _growDuration;
         public AnimationCurve GrowCurve => _growCurve;
+        public float CloneScaleMultiplier => _cloneScaleMultiplier;
 
         public float AppearStartScale => _appearStartScale;
         public float AppearDuration => _appearDuration;

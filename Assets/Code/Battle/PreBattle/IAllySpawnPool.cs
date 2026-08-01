@@ -12,7 +12,6 @@ namespace Code.Battle.PreBattle
 
         void Enqueue(AnimalType type);
 
-        void RefillFromConfig();
         void Clear();
     }
 }

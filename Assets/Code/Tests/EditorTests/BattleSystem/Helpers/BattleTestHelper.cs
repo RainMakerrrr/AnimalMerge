@@ -63,31 +63,27 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         public static IAnimalSpawner CreateMockAnimalSpawner()
         {
             var spawner = Substitute.For<IAnimalSpawner>();
-            spawner.Animals.Returns(new List<AnimalFacade>());
-            spawner.TryPickRandomType(out _).ReturnsForAnyArgs(call =>
-            {
-                call[0] = AnimalType.Hedgehog;
-                return true;
-            });
             spawner.HasFreeCellFor(default).ReturnsForAnyArgs(true);
             spawner.Spawn(default).ReturnsForAnyArgs(new List<AnimalFacade>());
             return spawner;
         }
 
-        public static PreBattleConfig CreatePreBattleConfig(int minAlliesToStart, params AnimalType[] startingPool)
-        {
-            return CreatePreBattleConfig(minAlliesToStart, 1, startingPool);
-        }
-
         public static PreBattleConfig CreatePreBattleConfig(
             int minAlliesToStart,
-            int reinforcementsPerLevel,
-            params AnimalType[] startingPool)
+            int reinforcementsPerLevel = 1,
+            AnimalType[] startingPool = null,
+            AnimalType[] randomPool = null)
         {
             var config = ScriptableObject.CreateInstance<PreBattleConfig>();
-            SetPrivateField(config, "_startingPool", startingPool ?? new AnimalType[0]);
             SetPrivateField(config, "_minAlliesToStart", minAlliesToStart);
             SetPrivateField(config, "_reinforcementsPerLevel", reinforcementsPerLevel);
+            SetPrivateField(config, "_startingPool", startingPool ?? new[]
+            {
+                AnimalType.Cheetah,
+                AnimalType.Fox,
+                AnimalType.Elephant
+            });
+            SetPrivateField(config, "_randomPool", randomPool ?? new[] { AnimalType.Hedgehog });
             return config;
         }
 

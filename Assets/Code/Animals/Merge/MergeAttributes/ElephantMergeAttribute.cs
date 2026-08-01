@@ -22,7 +22,7 @@ namespace Code.Animals.Merge.MergeAttributes
             var curve = AnimationConfig != null ? AnimationConfig.GrowCurve : null;
 
             var animator = ResolveScaleAnimator(createIfMissing: true);
-            animator.GrowBy(_appliedMultiplier, duration, curve);
+            animator.ScaleBy(_appliedMultiplier, duration, curve);
 
             Debug.Log($"[ElephantMergeAttribute] Growing {Target.name} by {_appliedMultiplier}x over {duration}s");
         }
@@ -35,7 +35,7 @@ namespace Code.Animals.Merge.MergeAttributes
 
                 if (animator != null)
                 {
-                    animator.UndoGrowBy(_appliedMultiplier);
+                    animator.UndoScaleBy(_appliedMultiplier);
                     Debug.Log($"[ElephantMergeAttribute] Restored scale to {animator.LogicalScale} on {Target.name}");
                 }
             }

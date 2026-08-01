@@ -1,40 +1,27 @@
 using Code.Animals;
-using Code.Battle.Config;
 using Code.Battle.PreBattle;
-using Code.Tests.EditorTests.BattleSystem.Helpers;
 using FluentAssertions;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Code.Tests.EditorTests.BattleSystem.UnitTests
 {
     [TestFixture]
     public class AllySpawnPoolTests
     {
-        private PreBattleConfig _config;
         private AllySpawnPool _pool;
 
         [SetUp]
         public void SetUp()
         {
-            _config = BattleTestHelper.CreatePreBattleConfig(
-                2, AnimalType.Cheetah, AnimalType.Fox, AnimalType.Elephant);
-            _pool = new AllySpawnPool(_config);
+            _pool = new AllySpawnPool();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            if (_config != null)
-                Object.DestroyImmediate(_config);
-        }
-
-        /// <summary>UT-POOL-001: RefillFromConfig hands out the types in config order</summary>
+        /// <summary>UT-POOL-001: Enqueue hands out the types in insertion order</summary>
         [Test]
-        public void RefillFromConfig_KeepsConfigOrder()
+        public void Enqueue_KeepsInsertionOrder()
         {
             // Act
-            _pool.RefillFromConfig();
+            SeedPool();
 
             // Assert
             _pool.Remaining.Should().Be(3);
@@ -53,7 +40,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void TryTakeNext_DecrementsRemaining()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedPool();
 
             // Act
             _pool.TryTakeNext(out _);
@@ -68,7 +55,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void TryPeekNext_DoesNotConsume()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedPool();
 
             // Act
             _pool.TryPeekNext(out var peeked).Should().BeTrue();
@@ -96,7 +83,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         public void Clear_EmptiesPool()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedPool();
 
             // Act
             _pool.Clear();
@@ -108,20 +95,27 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
 
         /// <summary>UT-POOL-006: A cleared pool can be refilled for the next level</summary>
         [Test]
-        public void RefillFromConfig_AfterClear_RestoresFullPool()
+        public void Enqueue_AfterClear_RestoresFullPool()
         {
             // Arrange
-            _pool.RefillFromConfig();
+            SeedPool();
             _pool.TryTakeNext(out _);
             _pool.Clear();
 
             // Act
-            _pool.RefillFromConfig();
+            SeedPool();
 
             // Assert
             _pool.Remaining.Should().Be(3);
             _pool.TryPeekNext(out var next).Should().BeTrue();
             next.Should().Be(AnimalType.Cheetah);
+        }
+
+        private void SeedPool()
+        {
+            _pool.Enqueue(AnimalType.Cheetah);
+            _pool.Enqueue(AnimalType.Fox);
+            _pool.Enqueue(AnimalType.Elephant);
         }
     }
 }

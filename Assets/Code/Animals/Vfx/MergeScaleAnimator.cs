@@ -23,12 +23,12 @@ namespace Code.Animals.Vfx
 
         private void OnDestroy() => CancelRunningTween();
 
-        public void GrowBy(float multiplier, float duration, AnimationCurve curve)
+        public void ScaleBy(float multiplier, float duration, AnimationCurve curve)
         {
             CaptureLogicalScale();
             CancelRunningTween();
 
-            var scaleBeforeGrowth = transform.localScale;
+            var scaleBeforeChange = transform.localScale;
             _logicalScale *= multiplier;
 
             if (duration <= 0f)
@@ -40,11 +40,20 @@ namespace Code.Animals.Vfx
             _cancellation = new CancellationTokenSource();
 
             MergeScaleTween
-                .RunAsync(transform, scaleBeforeGrowth, _logicalScale, duration, curve, _cancellation.Token)
+                .RunAsync(transform, scaleBeforeChange, _logicalScale, duration, curve, _cancellation.Token)
                 .Forget();
         }
 
-        public void UndoGrowBy(float multiplier)
+        public void Resync(Vector3 scale)
+        {
+            CancelRunningTween();
+
+            _logicalScale = scale;
+            _hasLogicalScale = true;
+            transform.localScale = scale;
+        }
+
+        public void UndoScaleBy(float multiplier)
         {
             CaptureLogicalScale();
             CancelRunningTween();

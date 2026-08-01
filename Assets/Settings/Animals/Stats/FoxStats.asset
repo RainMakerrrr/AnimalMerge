@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97b3a2ae85c1743b2ba7cc12efc71c60, type: 3}
   m_Name: FoxStats
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   _health: 150
   _damage: 100
   _tilesPerMove: 3

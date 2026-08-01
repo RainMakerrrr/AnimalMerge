@@ -61,6 +61,14 @@ namespace Code.Animals.Facades
         public void UpgradeDamage(float multiplier) => _upgrade.UpgradeDamage(multiplier);
         public void UpgradeSpeed(int multiplier) => _upgrade.UpgradeSpeed(multiplier);
 
+        public MergeScaleAnimator EnsureScaleAnimator()
+        {
+            if (ScaleAnimator == null)
+                _scaleAnimator = gameObject.AddComponent<MergeScaleAnimator>();
+
+            return _scaleAnimator;
+        }
+
     }
 
     public abstract class EnemyAnimalFacade : AnimalFacade

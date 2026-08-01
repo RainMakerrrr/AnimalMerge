@@ -3,6 +3,7 @@ using Code.Abilities;
 using Cysharp.Threading.Tasks;
 using Code.Animals;
 using Code.Animals.Health;
+using Code.Data.Animals;
 using Code.Services.Random;
 using NSubstitute;
 using UnityEngine;
@@ -106,7 +107,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
             IRandomProvider randomProvider = null)
         {
             randomProvider ??= CreateMockRandomProvider(0);
-            return new CounterAttack(health, animator, attack, isOwner, randomProvider);
+            return new CounterAttack(health, animator, attack, ToCounterChance(isOwner), randomProvider);
         }
 
         /// <summary>
@@ -125,7 +126,7 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
 
             randomProvider ??= CreateMockRandomProvider(0);
 
-            return new CounterAttack(health, animator, attack, isOwner, randomProvider);
+            return new CounterAttack(health, animator, attack, ToCounterChance(isOwner), randomProvider);
         }
 
         /// <summary>
@@ -140,6 +141,10 @@ namespace Code.Tests.EditorTests.Helpers.AttackSystem
         {
             return new MockCounterAttack(health, animator, attack, isOwner, randomValueProvider);
         }
+
+        private static int ToCounterChance(bool isOwner) => isOwner
+            ? HedgehogStats.DefaultOwnerCounterChance
+            : HedgehogStats.DefaultInheritedCounterChance;
     }
 
     /// <summary>

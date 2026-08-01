@@ -640,7 +640,7 @@ MonoBehaviour:
   _baseMoveSpeed: 3
   _minAnimSpeed: 0.4
   _maxAnimSpeed: 3
-  _moveRangeColor: {r: 0.2, g: 0.5, b: 1, a: 1}
+  _moveRangeColor: {r: 0.96, g: 0.8, b: 0.47, a: 1}
   _currentPathNode: {fileID: 0}
   _debugTargetCell: {fileID: 0}
 --- !u!114 &584509779

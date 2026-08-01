@@ -53,8 +53,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.2
-  m_Center: {x: 0, y: 1.03, z: -0.15}
+  m_Radius: 1.6
+  m_Center: {x: 0, y: 1.2, z: 0.4}
 --- !u!114 &1165212902779726181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2027,7 +2027,7 @@ MonoBehaviour:
   _baseMoveSpeed: 3
   _minAnimSpeed: 0.4
   _maxAnimSpeed: 3
-  _moveRangeColor: {r: 0.2, g: 0.5, b: 1, a: 1}
+  _moveRangeColor: {r: 0.96, g: 0.8, b: 0.47, a: 1}
   _currentPathNode: {fileID: 0}
   _debugTargetCell: {fileID: 0}
 --- !u!114 &7371413107812673440
@@ -2087,7 +2087,7 @@ MonoBehaviour:
   _health: {fileID: -15052929749299548}
   _movement: {fileID: 7371413107812673446}
   _upgrade: {fileID: -826941444165281398}
-  _mergeView: {fileID: 0}
+  _mergeView: {fileID: 5533359069743301579}
 --- !u!114 &-826941444165281398
 MonoBehaviour:
   m_ObjectHideFlags: 0

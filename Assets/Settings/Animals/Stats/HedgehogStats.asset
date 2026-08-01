@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02a40683236b4589b4586295be012ec9, type: 3}
+  m_Script: {fileID: 11500000, guid: 411b2c6235462489189b19da61f5e8db, type: 3}
   m_Name: HedgehogStats
   m_EditorClassIdentifier: 
   _health: 100
   _damage: 100
   _tilesPerMove: 3
+  _ownerCounterChance: 100
+  _inheritedCounterChance: 50

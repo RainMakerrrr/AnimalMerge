@@ -1,5 +1,6 @@
 using Code.Animals;
 using Code.Animals.Merge.Services;
+using Code.Animals.UI;
 using Code.Battle;
 using Code.Battle.Config;
 using Code.Battle.Input;
@@ -24,6 +25,7 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private PreBattleConfig _preBattleConfig;
         [SerializeField] private AddAnimalButtonView _addAnimalButton;
         [SerializeField] private BattleButtonView _battleButton;
+        [SerializeField] private AnimalStatsPanelView _statsPanelPrefab;
 
         public override void InstallBindings()
         {
@@ -32,6 +34,7 @@ namespace Code.Infrastructure.Installers
             DeclareSignals();
             BindServices();
             BindPreBattle();
+            BindAnimalStatsPanel();
             BindBattleStateMachine();
             BindBattleFlowController();
         }
@@ -109,6 +112,16 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<PreBattleHudPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindAnimalStatsPanel()
+        {
+            Container.Bind<IAnimalStatsPanelView>()
+                .To<AnimalStatsPanelView>()
+                .FromComponentInNewPrefab(_statsPanelPrefab)
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<AnimalStatsPanelPresenter>().AsSingle().NonLazy();
+        }
+
         private void BindBattleStateMachine()
         {
             // BattleStateMachine will initialize itself via [Inject] method
@@ -130,6 +143,9 @@ namespace Code.Infrastructure.Installers
 
             if (_battleButton == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_battleButton)} is not assigned - assign the Battle button from the scene", this);
+
+            if (_statsPanelPrefab == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_statsPanelPrefab)} is not assigned - assign Assets/Prefabs/AnimalStatsPanelView.prefab", this);
         }
     }
 }
