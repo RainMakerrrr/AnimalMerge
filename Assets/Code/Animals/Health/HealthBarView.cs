@@ -9,11 +9,30 @@ namespace Code.Animals.Health
         [SerializeField] private AnimalHealth _health;
         [SerializeField] private Image _fillImage;
         [SerializeField] private float _widthPerGridCell = 100f;
+        [SerializeField] private float _barHeight = 20f;
 
         private void Awake()
         {
             var layer = LayerMask.NameToLayer("HealthBar");
             SetLayerRecursively(gameObject, layer);
+            ApplyFootprintSize();
+        }
+
+        public void ApplyFootprintSize()
+        {
+            if (!(transform is RectTransform rect)) return;
+
+            var movement = GetComponentInParent<AnimalMovement>();
+            if (movement == null) return;
+
+            var ownerScale = movement.transform.localScale;
+            if (Mathf.Approximately(ownerScale.x, 0f) || Mathf.Approximately(ownerScale.y, 0f)) return;
+
+            var cells = Mathf.Max(1, movement.UnitSize.Width);
+
+            rect.sizeDelta = new Vector2(
+                _widthPerGridCell * cells / ownerScale.x,
+                _barHeight / ownerScale.y);
         }
 
         private void OnEnable()
