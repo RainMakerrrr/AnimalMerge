@@ -1,7 +1,8 @@
 using Code.Animals.Facades;
-using Code.Animals.Movement;
+using Code.Animals.Selection;
 using Code.Infrastructure.Services.Input;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Zenject;
 
 namespace Code.Animals
@@ -13,7 +14,7 @@ namespace Code.Animals
 
         private IInputService _inputService;
         private Camera _camera;
-        private IMoveRangeHighlighter _moveRangeHighlighter;
+        private IAnimalSelectionService _selectionService;
 
         private AnimalFacade _current;
         private Vector3 _originalPosition;
@@ -22,16 +23,17 @@ namespace Code.Animals
         private Vector2 _pressScreenPos;
         private float _pressTime;
         private bool _isDragging;
-        private bool _rangeShown;
+        private bool _selectionShown;
+        private bool _pressedOnSelected;
 
 
         [Inject]
         private void Construct(IInputService inputService, Camera mainCamera,
-            IMoveRangeHighlighter moveRangeHighlighter)
+            IAnimalSelectionService selectionService)
         {
             _inputService = inputService;
             _camera = mainCamera;
-            _moveRangeHighlighter = moveRangeHighlighter;
+            _selectionService = selectionService;
         }
 
         private void Update()
@@ -43,9 +45,12 @@ namespace Code.Animals
 
             if (_current == null)
             {
-                // Animal was destroyed/removed mid-gesture - clear any leftover highlight/gesture state.
-                if (_rangeShown || _isDragging)
+                if (_selectionShown || _isDragging)
+                {
+                    _selectionService.Clear();
                     ResetGesture();
+                }
+
                 return;
             }
 
@@ -61,18 +66,35 @@ namespace Code.Animals
 
         private void OnPress()
         {
-            _moveRangeHighlighter.Hide();
+            if (IsPointerOverUi()) return;
+
             _isDragging = false;
-            _rangeShown = false;
+            _selectionShown = false;
 
             TryPickAnimal();
 
-            if (_current == null) return;
+            if (_current == null)
+            {
+                _selectionService.Clear();
+                return;
+            }
+
+            _pressedOnSelected = ReferenceEquals(_current, _selectionService.Selected);
 
             _pressScreenPos = _inputService.MousePosition;
             _pressTime = Time.time;
-            _isDragging = false;
-            _rangeShown = false;
+        }
+
+        private bool IsPointerOverUi()
+        {
+            var eventSystem = EventSystem.current;
+
+            if (eventSystem == null) return false;
+
+            if (UnityEngine.Input.touchCount > 0)
+                return eventSystem.IsPointerOverGameObject(UnityEngine.Input.GetTouch(0).fingerId);
+
+            return eventSystem.IsPointerOverGameObject();
         }
 
         private void OnHeld()
@@ -89,24 +111,24 @@ namespace Code.Animals
             {
                 BeginDrag();
             }
-            else if (!_rangeShown && Time.time - _pressTime >= _holdTimeToShow)
+            else if (!_selectionShown && Time.time - _pressTime >= _holdTimeToShow)
             {
-                _moveRangeHighlighter.Show(_current.Movement);
-                _rangeShown = true;
+                _selectionService.Select(_current);
+                _selectionShown = true;
+                _pressedOnSelected = false;
             }
         }
 
         private void BeginDrag()
         {
-            if (_rangeShown)
-                _moveRangeHighlighter.Hide();
+            _selectionService.Clear();
 
             var unitOccupancy = _current.Occupancy;
             unitOccupancy?.SaveState();
             _current.Movement.ClearNodes();
 
             _isDragging = true;
-            _rangeShown = false;
+            _selectionShown = false;
         }
 
         private void OnRelease()
@@ -126,22 +148,33 @@ namespace Code.Animals
                     // Placement succeeded - clear saved state
                     unitOccupancy?.ClearSavedState();
                 }
+
+                _selectionService.Clear();
+            }
+            else if (_pressedOnSelected)
+            {
+                _selectionService.Clear();
+            }
+            else
+            {
+                _selectionService.Select(_current);
             }
 
-            // For a non-drag hold this also clears the move-range highlight; for a drag it is a no-op (already hidden).
             ResetGesture();
         }
 
         private void ResetGesture()
         {
-            _moveRangeHighlighter.Hide();
             _current = null;
             _isDragging = false;
-            _rangeShown = false;
+            _selectionShown = false;
+            _pressedOnSelected = false;
         }
 
         private void TryPickAnimal()
         {
+            _current = null;
+
             var hit = CastRay();
 
             if (hit.collider != null)
