@@ -13,6 +13,10 @@ Shader "Voodoo_LaunchOps/FX/IridescentSweep"
         _SweepAxis       ("Sweep Axis (Object Space)", Vector) = (0, 1, 0, 0)
         _SweepAxisExtent ("Object Size Along Sweep Axis", Float) = 1
         _WorldSweepBlend ("Object To World Sweep Blend", Range(0, 1)) = 0
+
+        _SweepWorldAxis   ("Explicit World Axis (w = enable)", Vector) = (0, 1, 0, 0)
+        _SweepWorldOrigin ("Explicit World Origin", Vector) = (0, 0, 0, 0)
+
         _SweepTiling     ("Bands Per Object", Float) = 1
         _SweepSpeed      ("Sweep Speed", Float) = 0.6
         _SweepWidth      ("Sweep Width (Fraction Of Band Spacing)", Range(0.01, 1)) = 0.25
@@ -24,7 +28,7 @@ Shader "Voodoo_LaunchOps/FX/IridescentSweep"
         _RimPower      ("Rim Power", Range(0.5, 8)) = 3
         _RimStrength   ("Constant Rim Strength", Range(0, 4)) = 0.15
 
-        _PhaseOffset ("Phase Offset", Range(0, 1)) = 0
+        _PhaseOffset ("Phase Offset", Float) = 0
     }
 
     SubShader
@@ -78,6 +82,8 @@ Shader "Voodoo_LaunchOps/FX/IridescentSweep"
             float4 _SweepAxis;
             float  _SweepAxisExtent;
             float  _WorldSweepBlend;
+            float4 _SweepWorldAxis;
+            float4 _SweepWorldOrigin;
             float  _SweepTiling;
             float  _SweepSpeed;
             half   _SweepWidth;
@@ -108,8 +114,14 @@ Shader "Voodoo_LaunchOps/FX/IridescentSweep"
                 float objectSweepInObjectSpans = dot(v.vertex.xyz, objectAxis) / objectSpan;
                 float worldSweepInObjectSpans  = dot(worldPos, worldAxis) / (objectSpan * worldUnitsPerObjectUnit);
 
+                float3 explicitAxisInput = _SweepWorldAxis.xyz;
+                float3 explicitWorldAxis = normalize(dot(explicitAxisInput, explicitAxisInput) > 1e-6 ? explicitAxisInput : float3(0, 1, 0));
+                float  explicitSweepInSpans = dot(worldPos - _SweepWorldOrigin.xyz, explicitWorldAxis) / objectSpan;
+
+                float blendedSweep = lerp(objectSweepInObjectSpans, worldSweepInObjectSpans, _WorldSweepBlend);
+
                 o.pos         = UnityObjectToClipPos(v.vertex);
-                o.sweepCoord  = lerp(objectSweepInObjectSpans, worldSweepInObjectSpans, _WorldSweepBlend);
+                o.sweepCoord  = lerp(blendedSweep, explicitSweepInSpans, step(0.5, _SweepWorldAxis.w));
                 o.worldNormal = UnityObjectToWorldNormal(v.normal);
                 o.viewDir     = _WorldSpaceCameraPos.xyz - worldPos;
 
