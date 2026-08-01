@@ -54,6 +54,7 @@ namespace Code.Infrastructure.Installers
             Container.Bind<IVictoryConditionChecker>().To<VictoryConditionChecker>().AsSingle();
             Container.Bind<IHealthRestorationService>().To<HealthRestorationService>().AsSingle();
             Container.Bind<IUnitRepositioningService>().To<UnitRepositioningService>().AsSingle();
+            Container.Bind<IBattleResetService>().To<BattleResetService>().AsSingle();
 
             // Merge undo service
             Container.Bind<IMergeUndoService>().To<MergeUndoService>().AsSingle();
@@ -98,7 +99,7 @@ namespace Code.Infrastructure.Installers
             Container.Bind<IAllySpawnPool>().To<AllySpawnPool>().AsSingle();
             Container.Bind<IAllySpawnService>().To<AllySpawnService>().AsSingle();
 
-            Container.Bind<IBattleReadinessRule>().To<PoolExhaustedRule>().AsSingle();
+            Container.BindInterfacesTo<PoolExhaustedRule>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<MinAllyCountRule>().AsSingle().NonLazy();
             Container.BindInterfacesTo<BattleReadinessService>().AsSingle();

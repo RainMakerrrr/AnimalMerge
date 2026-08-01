@@ -4,87 +4,73 @@ using Framework.Code.Infrastructure.Services.Analytics;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
 using Framework.Code.UI;
 using Framework.Code.UI.Elements;
-using Lean.Touch;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Object = UnityEngine.Object;
 
 namespace Framework.Code.Infrastructure.States
 {
     public class LoadLevelState : IState
     {
-        readonly GameStateMachine stateMachine;
-        readonly ILevelFactory levelFactory;
-        readonly WindowPool windowPool;
-        readonly UIRoot uiRoot;
-        readonly IPersistentProgressService progressService;
-        readonly IAnalyticsService analyticsService;
+        private readonly GameStateMachine _stateMachine;
+        private readonly ILevelFactory _levelFactory;
+        private readonly WindowPool _windowPool;
+        private readonly UIRoot _uiRoot;
+        private readonly IPersistentProgressService _progressService;
+        private readonly IAnalyticsService _analyticsService;
 
-        Level currentLevel;
+        private Level _currentLevel;
 
         public LoadLevelState(GameStateMachine stateMachine, ILevelFactory levelFactory, WindowPool windowPool,
             UIRoot uiRoot,
             IPersistentProgressService progressService, IAnalyticsService analyticsService)
         {
-            this.stateMachine = stateMachine;
-            this.levelFactory = levelFactory;
-            this.windowPool = windowPool;
-            this.uiRoot = uiRoot;
-            this.progressService = progressService;
-            this.analyticsService = analyticsService;
+            _stateMachine = stateMachine;
+            _levelFactory = levelFactory;
+            _windowPool = windowPool;
+            _uiRoot = uiRoot;
+            _progressService = progressService;
+            _analyticsService = analyticsService;
 
-            this.levelFactory.Load();
+            _levelFactory.Load();
         }
 
         public void Enter()
         {
             UpdateUI();
             InitLevel();
-            
-            if (currentLevel != null)
-                analyticsService.LevelStarted(currentLevel.Id, progressService.Progress.Level);
 
-            windowPool.DisableWindows(WindowType.Tutorial);
-            stateMachine.Enter<BattleLoopState>();
-            //LeanTouch.OnFingerDown += OnFingerDown;
+            if (_currentLevel == null)
+                return;
+
+            _analyticsService.LevelStarted(_currentLevel.Id, _progressService.Progress.Level);
+
+            _windowPool.DisableWindows(WindowType.Tutorial);
+            _stateMachine.Enter<BattleLoopState>();
         }
 
         public void Exit()
         {
-            LeanTouch.OnFingerDown -= OnFingerDown;
         }
 
-        void OnFingerDown(LeanFinger finger)
+        private void UpdateUI()
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            _windowPool.DisableAllWindows();
 
-            if (currentLevel != null)
-                analyticsService.LevelStarted(currentLevel.Id, progressService.Progress.Level);
-
-            windowPool.DisableWindows(WindowType.Tutorial);
-            stateMachine.Enter<BattleLoopState>();
-        }
-
-        void UpdateUI()
-        {
-            windowPool.DisableAllWindows();
-            //windowPool.EnableWindows(WindowType.Tutorial);
-
-            foreach (IViewUpdatable updater in uiRoot.ViewUpdaters)
+            foreach (IViewUpdatable updater in _uiRoot.ViewUpdaters)
             {
                 updater.UpdateView();
             }
         }
 
-        void InitLevel()
+        private void InitLevel()
         {
-            if (currentLevel != null)
-                Object.Destroy(currentLevel.gameObject);
-            
-            currentLevel = levelFactory.Create();
+            if (_currentLevel != null)
+                Object.Destroy(_currentLevel.gameObject);
 
-            if (currentLevel != null)
-                analyticsService.LevelLoaded(currentLevel.Id, progressService.Progress.Level);
+            _currentLevel = _levelFactory.Create();
+
+            if (_currentLevel != null)
+                _analyticsService.LevelLoaded(_currentLevel.Id, _progressService.Progress.Level);
             else Debug.LogError("Level is not loaded");
         }
     }

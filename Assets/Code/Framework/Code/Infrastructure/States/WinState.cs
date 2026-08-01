@@ -1,9 +1,9 @@
-﻿using DG.Tweening;
+using DG.Tweening;
 using Framework.Code.Data;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.Services.Analytics;
-using Framework.Code.Infrastructure.Services.Assets;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
+using Framework.Code.Infrastructure.Services.Progression;
 using Framework.Code.Infrastructure.Services.SaveSystem;
 using Framework.Code.UI;
 
@@ -11,50 +11,58 @@ namespace Framework.Code.Infrastructure.States
 {
 	public class WinState : IState
 	{
-		readonly GameStateMachine stateMachine;
-		readonly WindowPool windowPool;
-		readonly IPersistentProgressService progressService;
-		readonly ISaveLoadService saveLoadService;
-		readonly IAnalyticsService analyticsService;
-		readonly ILevelFactory levelFactory;
-		readonly GameData gameData;
-		
+		private readonly GameStateMachine _stateMachine;
+		private readonly WindowPool _windowPool;
+		private readonly IPersistentProgressService _progressService;
+		private readonly ISaveLoadService _saveLoadService;
+		private readonly IAnalyticsService _analyticsService;
+		private readonly ILevelFactory _levelFactory;
+		private readonly ICampaignProgressService _campaignProgress;
+		private readonly GameData _gameData;
+
 		public WinState(GameStateMachine stateMachine, WindowPool windowPool,
 			IPersistentProgressService progressService, ISaveLoadService saveLoadService,
-			IAnalyticsService analyticsService, ILevelFactory levelFactory, IAssetProvider assetProvider)
+			IAnalyticsService analyticsService, ILevelFactory levelFactory,
+			ICampaignProgressService campaignProgress, GameData gameData)
 		{
-			this.stateMachine = stateMachine;
-			this.windowPool = windowPool;
-			this.progressService = progressService;
-			this.saveLoadService = saveLoadService;
-			this.analyticsService = analyticsService;
-			this.levelFactory = levelFactory;
-			
-			gameData = assetProvider.Load<GameData>(AssetPath.GAME_DATA);
+			_stateMachine = stateMachine;
+			_windowPool = windowPool;
+			_progressService = progressService;
+			_saveLoadService = saveLoadService;
+			_analyticsService = analyticsService;
+			_levelFactory = levelFactory;
+			_campaignProgress = campaignProgress;
+			_gameData = gameData;
 		}
 
 		public void Enter()
 		{
 			UpdatePlayerProgress();
 
-			saveLoadService.Save(progressService.Progress);
+			_saveLoadService.Save(_progressService.Progress);
 
-			analyticsService.LevelCompleted(levelFactory.CurrentLevel.Id, progressService.Progress.Level - 1, true,
-				progressService.Progress.Collectables.Amount, levelFactory.CurrentLevel.TimeSpent);
+			_analyticsService.LevelCompleted(_levelFactory.CurrentLevel.Id, _progressService.Progress.Level - 1, true,
+				_progressService.Progress.Collectables.Amount, _levelFactory.CurrentLevel.TimeSpent);
 
-			windowPool.EnableWindows(WindowType.Win);
+			if (_campaignProgress.IsCampaignCompleted)
+			{
+				_stateMachine.Enter<CampaignVictoryState>();
+				return;
+			}
 
-			DOVirtual.DelayedCall(gameData.StateSwitchDelay, () => stateMachine.Enter<LoadLevelState>());
+			_windowPool.EnableWindows(WindowType.Win);
+
+			DOVirtual.DelayedCall(_gameData.StateSwitchDelay, () => _stateMachine.Enter<LoadLevelState>());
 		}
 
 		public void Exit()
 		{
 		}
 
-		void UpdatePlayerProgress()
+		private void UpdatePlayerProgress()
 		{
-			progressService.Progress.Level++;
-			progressService.Progress.Collectables.LevelAmount = 0;
+			_progressService.Progress.Level++;
+			_progressService.Progress.Collectables.LevelAmount = 0;
 		}
 	}
 }

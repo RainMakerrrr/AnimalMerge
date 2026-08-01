@@ -65,6 +65,7 @@ namespace Code.Battle.States
             Debug.Log("[PreBattleState] Merge undo tracking enabled");
 
             bool isLevelStart = _flowController.IsFirstStageOfLevel;
+            bool isStartingPool = false;
 
             if (isLevelStart)
             {
@@ -75,13 +76,14 @@ namespace Code.Battle.States
                 if (!hasExistingUnits)
                 {
                     _allySpawnPool.RefillFromConfig();
+                    isStartingPool = true;
                     Debug.Log($"[PreBattleState] First level - starting pool holds {_allySpawnPool.Remaining} animals");
                 }
                 else
                 {
                     _allySpawnPool.Clear();
-                    bool spawned = _allySpawnService.SpawnReinforcement();
-                    Debug.Log($"[PreBattleState] New level - reinforcement spawned: {spawned}, allies in tracker: {_unitTracker.AlivePlayerUnitsCount}");
+                    int queued = _allySpawnService.QueueReinforcements();
+                    Debug.Log($"[PreBattleState] New level - {queued} reinforcement(s) queued for the Add Animal button, allies in tracker: {_unitTracker.AlivePlayerUnitsCount}");
                 }
 
                 // Mark that we've processed the first stage of this level
@@ -129,6 +131,7 @@ namespace Code.Battle.States
             _signalBus.Fire(new PreBattlePhaseStartedSignal
             {
                 IsLevelStart = isLevelStart,
+                IsStartingPool = isStartingPool,
                 PoolRemaining = _allySpawnPool.Remaining
             });
 

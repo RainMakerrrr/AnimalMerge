@@ -10,6 +10,8 @@ namespace Code.Battle.PreBattle
         bool TryPeekNext(out AnimalType type);
         bool TryTakeNext(out AnimalType type);
 
+        void Enqueue(AnimalType type);
+
         void RefillFromConfig();
         void Clear();
     }

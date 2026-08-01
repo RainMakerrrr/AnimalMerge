@@ -1,6 +1,4 @@
-﻿using Framework.Code.Factories.Levels;
-using Framework.Code.Infrastructure.Services.Analytics;
-using Framework.Code.Infrastructure.States;
+using Framework.Code.Infrastructure.Services.GameRestart;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -9,35 +7,27 @@ namespace Framework.Code.UI.Elements
 {
     public class RestartButton : MonoBehaviour
     {
-        Button button;
-        GameStateMachine stateMachine;
-        IAnalyticsService analyticsService;
-        ILevelFactory levelFactory;
+        private Button _button;
+        private IGameRestartService _gameRestartService;
 
         [Inject]
-        void Construct(GameStateMachine stateMachine, IAnalyticsService analyticsService, ILevelFactory levelFactory)
+        private void Construct(IGameRestartService gameRestartService)
         {
-            this.stateMachine = stateMachine;
-            this.analyticsService = analyticsService;
-            this.levelFactory = levelFactory;
+            _gameRestartService = gameRestartService;
         }
 
-        void Start()
+        private void Start()
         {
-            button = GetComponent<Button>();
-            button.onClick.AddListener(RestartLevel);
+            _button = GetComponent<Button>();
+            _button.onClick.AddListener(RestartLevel);
         }
 
-        void OnDestroy() => button.onClick.RemoveListener(RestartLevel);
-
-        void RestartLevel()
+        private void OnDestroy()
         {
-            if (stateMachine.ActiveState is WinState) return;
-            if (stateMachine.ActiveState is LoseState) return;
-
-            analyticsService.LevelRestarted(levelFactory.CurrentLevel.Id, levelFactory.CurrentLevel.TimeSpent);
-            
-            stateMachine.Enter<LoadLevelState>();
+            if (_button != null)
+                _button.onClick.RemoveListener(RestartLevel);
         }
+
+        private void RestartLevel() => _gameRestartService.RetryCurrentLevel();
     }
 }

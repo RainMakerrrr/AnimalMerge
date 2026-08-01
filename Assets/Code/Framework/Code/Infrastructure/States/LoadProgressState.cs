@@ -1,26 +1,27 @@
-﻿using Framework.Code.Infrastructure.Services.PersistentProgress;
+using Framework.Code.Infrastructure.Services.PersistentProgress;
 using Framework.Code.Infrastructure.Services.SaveSystem;
 
 namespace Framework.Code.Infrastructure.States
 {
 	public class LoadProgressState : IState
 	{
-		readonly GameStateMachine stateMachine;
-		readonly IPersistentProgressService progressService;
-		readonly ISaveLoadService saveLoadService;
+		private readonly GameStateMachine _stateMachine;
+		private readonly IPersistentProgressService _progressService;
+		private readonly ISaveLoadService _saveLoadService;
 
-		public LoadProgressState(GameStateMachine stateMachine, IPersistentProgressService progressService, ISaveLoadService saveLoadService)
+		public LoadProgressState(GameStateMachine stateMachine, IPersistentProgressService progressService,
+			ISaveLoadService saveLoadService)
 		{
-			this.stateMachine = stateMachine;
-			this.progressService = progressService;
-			this.saveLoadService = saveLoadService;
+			_stateMachine = stateMachine;
+			_progressService = progressService;
+			_saveLoadService = saveLoadService;
 		}
 
 		public void Enter()
 		{
-			progressService.Progress = saveLoadService.LoadProgress();
-			progressService.Data = saveLoadService.LoadData();
-			stateMachine.Enter<LoadLevelState>();
+			_progressService.Progress = _saveLoadService.LoadProgress();
+			_progressService.Data = _saveLoadService.LoadData();
+			_stateMachine.Enter<LoadLevelState>();
 		}
 
 		public void Exit()

@@ -36,7 +36,8 @@ namespace Code.Battle.StateMachine
             IAllySpawnPool allySpawnPool,
             IAllySpawnService allySpawnService,
             IBattleReadinessService battleReadiness,
-            SignalBus signalBus)
+            SignalBus signalBus,
+            Framework.Code.Data.GameData gameData)
         {
             // Resolve circular dependency: FlowController needs StateMachine, StateMachine needs FlowController
             flowController.SetStateMachine(this);
@@ -49,8 +50,8 @@ namespace Code.Battle.StateMachine
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },
                 { typeof(CheckVictoryState), new CheckVictoryState(this, victoryChecker, flowController) },
-                { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker, unitRepositioning) },
-                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker) }
+                { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker, unitRepositioning, gameData) },
+                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker, gameData) }
             };
 
             Debug.Log("[BattleStateMachine] Initialized with 7 battle states");

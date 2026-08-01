@@ -1,4 +1,4 @@
-﻿using Framework.Code.Infrastructure.Services.Assets;
+using Framework.Code.Infrastructure.Services.Assets;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 using Zenject;
@@ -7,77 +7,104 @@ namespace Framework.Code.Factories.Levels
 {
 	public class LevelFactory : ILevelFactory
 	{
-		readonly DiContainer diContainer;
-		readonly IPersistentProgressService progressService;
-		readonly IAssetProvider assetProvider;
+		private readonly DiContainer _diContainer;
+		private readonly IPersistentProgressService _progressService;
+		private readonly IAssetProvider _assetProvider;
 
-		string[] tutorialLevels;
-		string[] levels;
-		LevelDataBase levelDataBase;
+		private string[] _tutorialLevels;
+		private string[] _levels;
+		private LevelDataBase _levelDataBase;
 
 		public Level CurrentLevel { get; private set; }
+
+		public int TotalLevelsCount
+		{
+			get
+			{
+				EnsureLoaded();
+
+				return TutorialLevelsCount + RegularLevelsCount;
+			}
+		}
+
+		private int TutorialLevelsCount => _tutorialLevels?.Length ?? 0;
+
+		private int RegularLevelsCount => _levels?.Length ?? 0;
 
 		public LevelFactory(DiContainer diContainer, IPersistentProgressService progressService,
 			IAssetProvider assetProvider)
 		{
-			this.diContainer = diContainer;
-			this.progressService = progressService;
-			this.assetProvider = assetProvider;
+			_diContainer = diContainer;
+			_progressService = progressService;
+			_assetProvider = assetProvider;
 		}
 
 		public void Load()
 		{
-			levelDataBase = assetProvider.Load<LevelDataBase>(AssetPath.LEVELS_DATABASE);
-			tutorialLevels = levelDataBase.TutorialLevels;
-			levels = levelDataBase.Levels;
+			_levelDataBase = _assetProvider.Load<LevelDataBase>(AssetPath.LEVELS_DATABASE);
+			_tutorialLevels = _levelDataBase.TutorialLevels;
+			_levels = _levelDataBase.Levels;
 		}
 
 		public Level Create()
 		{
+			EnsureLoaded();
+
 			if (CurrentLevel == null)
 			{
 				var existingLevel = Object.FindObjectOfType<Level>();
 				if (existingLevel != null)
 				{
 					Debug.Log("Level already in scene");
-			
+
 					CurrentLevel = existingLevel;
 					return CurrentLevel;
 				}
 			}
-			
-			if (levels.Length == 0 && tutorialLevels.Length == 0)
+
+			if (TotalLevelsCount == 0)
 			{
-				Debug.Log("No levels loaded");
+				Debug.LogError("No levels loaded");
+				CurrentLevel = null;
 				return null;
 			}
-			
 
 			Level level = LoadCurrentLevel();
 
+			if (level == null)
+			{
+				CurrentLevel = null;
+				return null;
+			}
+
 			CurrentLevel =
-				diContainer.InstantiatePrefabForComponent<Level>(level, Vector3.zero, Quaternion.identity, null);
+				_diContainer.InstantiatePrefabForComponent<Level>(level, Vector3.zero, Quaternion.identity, null);
 			return CurrentLevel;
 		}
 
-		Level LoadCurrentLevel()
+		private void EnsureLoaded()
 		{
-			Level level;
-			if (tutorialLevels != null && progressService.Progress.Level <= tutorialLevels.Length)
-			{
-				level = assetProvider.Load<Level>(
-					$"{AssetPath.TUTORIAL_LEVELS}/{tutorialLevels[progressService.Progress.Level - 1]}");
-			}
-			else
-			{
-				int index =
-					(progressService.Progress.Level - (tutorialLevels != null ? tutorialLevels.Length + 1 : 1)) %
-					levels.Length;
+			if (_levelDataBase == null)
+				Load();
+		}
 
-				level = assetProvider.Load<Level>($"{AssetPath.LEVELS}/{levels[index]}");
+		private Level LoadCurrentLevel()
+		{
+			int requestedLevel = _progressService.Progress.Level;
+
+			if (requestedLevel > TotalLevelsCount)
+			{
+				Debug.LogError($"Level {requestedLevel} is out of range, total levels: {TotalLevelsCount}");
+				return null;
 			}
 
-			return level;
+			if (requestedLevel <= TutorialLevelsCount)
+				return _assetProvider.Load<Level>(
+					$"{AssetPath.TUTORIAL_LEVELS}/{_tutorialLevels[requestedLevel - 1]}");
+
+			int levelIndex = requestedLevel - TutorialLevelsCount - 1;
+
+			return _assetProvider.Load<Level>($"{AssetPath.LEVELS}/{_levels[levelIndex]}");
 		}
 	}
 }

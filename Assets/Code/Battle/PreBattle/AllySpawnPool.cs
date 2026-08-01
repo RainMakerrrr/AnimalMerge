@@ -42,6 +42,8 @@ namespace Code.Battle.PreBattle
             return true;
         }
 
+        public void Enqueue(AnimalType type) => _pending.Enqueue(type);
+
         public void RefillFromConfig()
         {
             _pending.Clear();

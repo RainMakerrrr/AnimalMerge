@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Code.Battle;
 using Code.Infrastructure.States;
+using Framework.Code.Data;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.Services.Analytics;
 using Framework.Code.Infrastructure.Services.Assets;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
+using Framework.Code.Infrastructure.Services.Progression;
 using Framework.Code.Infrastructure.Services.SaveSystem;
 using Framework.Code.Infrastructure.Signals;
 using Framework.Code.UI;
@@ -18,18 +20,22 @@ namespace Framework.Code.Infrastructure.States
     {
         public IBaseState ActiveState { get; private set; }
 
-        readonly Dictionary<Type, IBaseState> states;
-        readonly SignalBus signalBus;
+        private readonly Dictionary<Type, IBaseState> _states;
+        private readonly SignalBus _signalBus;
 
         public GameStateMachine(ISaveLoadService saveLoad, IPersistentProgressService progressService,
             ILevelFactory levelFactory, WindowPool windowPool,
             UIRoot uiRoot, IAnalyticsService analyticsService, IAssetProvider assetProvider, SignalBus signalBus,
-            BattleFlowController battleFlowController)
+            BattleFlowController battleFlowController, ICampaignProgressService campaignProgress,
+            GameData gameData)
         {
-            this.signalBus = signalBus;
-            states = new Dictionary<Type, IBaseState>
+            _signalBus = signalBus;
+            _states = new Dictionary<Type, IBaseState>
             {
-                {typeof(BootstrapState), new BootstrapState(this, assetProvider)},
+                {
+                    typeof(BootstrapState),
+                    new BootstrapState(this, assetProvider, campaignProgress, progressService, saveLoad)
+                },
                 {
                     typeof(LoadLevelState),
                     new LoadLevelState(this, levelFactory, windowPool, uiRoot, progressService,
@@ -40,34 +46,36 @@ namespace Framework.Code.Infrastructure.States
                 {
                     typeof(WinState),
                     new WinState(this, windowPool, progressService, saveLoad, analyticsService, levelFactory,
-                        assetProvider)
+                        campaignProgress, gameData)
                 },
                 {
                     typeof(LoseState),
-                    new LoseState(windowPool, this, analyticsService, progressService, levelFactory, assetProvider)
-                }
+                    new LoseState(windowPool, analyticsService, progressService, levelFactory)
+                },
+                {typeof(CampaignVictoryState), new CampaignVictoryState(windowPool)}
             };
         }
 
         public void Enter<TState>() where TState : class, IState
         {
-            TState state = ChangeState<TState>();
-            state.Enter();
+            var state = ChangeState<TState>();
 
-            signalBus.Fire(new StateChangedSignal {State = state});
+            _signalBus.Fire(new StateChangedSignal {State = state});
+
+            state.Enter();
         }
 
         public void Enter<TState, TPayload>(TPayload payload) where TState : class, IPayloadedState<TPayload>
         {
-            TState state = ChangeState<TState>();
+            var state = ChangeState<TState>();
             state.Enter(payload);
         }
 
-        TState ChangeState<TState>() where TState : class, IBaseState
+        private TState ChangeState<TState>() where TState : class, IBaseState
         {
             ActiveState?.Exit();
 
-            TState nextState = states[typeof(TState)] as TState;
+            var nextState = _states[typeof(TState)] as TState;
             ActiveState = nextState;
 
             return nextState;

@@ -20,7 +20,18 @@ namespace Code.Animals
         private readonly List<AnimalFacade> _animals = new List<AnimalFacade>();
         public IReadOnlyList<AnimalFacade> Animals => _animals.Where(animal => animal != null && animal.gameObject != null && animal.gameObject.activeInHierarchy).ToList();
 
-        public IReadOnlyList<AnimalType> DefaultTypes => _animalTypes;
+        public bool TryPickRandomType(out AnimalType type)
+        {
+            if (_animalTypes.Length == 0)
+            {
+                Debug.LogWarning("[AnimalSpawner] No animal types configured - cannot pick a random one");
+                type = default;
+                return false;
+            }
+
+            type = _animalTypes[Random.Range(0, _animalTypes.Length)];
+            return true;
+        }
 
         [Inject]
         private void Construct(IAnimalFactory factory)
@@ -67,24 +78,6 @@ namespace Code.Animals
             }
 
             return spawned;
-        }
-
-        /// <summary>
-        /// Spawns one random animal from available types
-        /// </summary>
-        public IReadOnlyList<AnimalFacade> SpawnRandom()
-        {
-            if (_animalTypes.Length == 0)
-            {
-                Debug.LogWarning("[AnimalSpawner] No animal types configured");
-                return new List<AnimalFacade>();
-            }
-
-            var randomIndex = Random.Range(0, _animalTypes.Length);
-            var randomType = _animalTypes[randomIndex];
-
-            Debug.Log($"[AnimalSpawner] Spawning random animal: {randomType}");
-            return Spawn(randomType);
         }
 
         private void EnsureFactoryReady()

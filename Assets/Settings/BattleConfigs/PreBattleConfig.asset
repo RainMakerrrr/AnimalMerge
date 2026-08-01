@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _startingPool: 010000000300000000000000
   _minAlliesToStart: 2
+  _reinforcementsPerLevel: 1

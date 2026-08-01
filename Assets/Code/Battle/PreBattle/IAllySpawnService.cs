@@ -7,6 +7,6 @@ namespace Code.Battle.PreBattle
 
         bool RequestSpawn();
 
-        bool SpawnReinforcement();
+        int QueueReinforcements();
     }
 }

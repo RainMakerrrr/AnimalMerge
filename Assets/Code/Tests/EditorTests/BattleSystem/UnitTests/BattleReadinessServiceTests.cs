@@ -23,6 +23,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         private IUnitTracker _unitTracker;
         private SignalBus _signalBus;
         private MinAllyCountRule _minAllyRule;
+        private PoolExhaustedRule _poolRule;
         private BattleReadinessService _service;
 
         [SetUp]
@@ -35,10 +36,11 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
             _signalBus = BattleTestHelper.CreatePreBattleSignalBus();
             _minAllyRule = new MinAllyCountRule(_config, _unitTracker, _signalBus);
+            _poolRule = new PoolExhaustedRule(_pool, _signalBus);
 
             var rules = new List<IBattleReadinessRule>
             {
-                new PoolExhaustedRule(_pool),
+                _poolRule,
                 _minAllyRule
             };
 
@@ -50,6 +52,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         {
             _service?.Dispose();
             _minAllyRule?.Dispose();
+            _poolRule?.Dispose();
 
             if (_config != null)
                 UnityEngine.Object.DestroyImmediate(_config);
@@ -64,7 +67,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             SetAllyCount(1);
 
             // Act
-            StartPhase();
+            StartPhase(isStartingPool: true);
 
             // Assert
             _service.CanStartBattle.Should().BeFalse();
@@ -77,7 +80,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             // Arrange
             _pool.RefillFromConfig();
             SetAllyCount(0);
-            StartPhase();
+            StartPhase(isStartingPool: true);
 
             // Act
             DrainPool();
@@ -95,7 +98,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             // Arrange
             _pool.RefillFromConfig();
             SetAllyCount(0);
-            StartPhase();
+            StartPhase(isStartingPool: true);
 
             // Act
             DrainPool();
@@ -126,12 +129,16 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _service.CanStartBattle.Should().BeTrue();
         }
 
-        /// <summary>UT-READY-005: A later level with two allies is ready</summary>
+        /// <summary>
+        /// UT-READY-005: A later level with allies already on the field is ready right away -
+        /// its queued reinforcement is optional and must not gate the Battle button
+        /// </summary>
         [Test]
-        public void LaterLevel_WithTwoAllies_AllowsBattleStart()
+        public void LaterLevel_WithAlliesOnField_AllowsBattleStartWithPendingReinforcement()
         {
             // Arrange
             _pool.Clear();
+            _pool.Enqueue(AnimalType.Hedgehog);
             SetAllyCount(2);
 
             // Act
@@ -139,6 +146,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
 
             // Assert
             _service.CanStartBattle.Should().BeTrue();
+            _pool.Remaining.Should().Be(1, "the reinforcement is still available via the Add Animal button");
         }
 
         /// <summary>UT-READY-006: A stage that can only field one ally stays startable</summary>
@@ -199,11 +207,12 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _service.CanStartBattle.Should().BeFalse();
         }
 
-        private void StartPhase()
+        private void StartPhase(bool isStartingPool = false)
         {
             _signalBus.Fire(new PreBattlePhaseStartedSignal
             {
                 IsLevelStart = true,
+                IsStartingPool = isStartingPool,
                 PoolRemaining = _pool.Remaining
             });
 

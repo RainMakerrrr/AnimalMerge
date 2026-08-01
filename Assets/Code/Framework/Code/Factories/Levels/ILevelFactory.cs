@@ -5,5 +5,6 @@ namespace Framework.Code.Factories.Levels
         void Load();
         Level Create();
         Level CurrentLevel { get; }
+        int TotalLevelsCount { get; }
     }
 }

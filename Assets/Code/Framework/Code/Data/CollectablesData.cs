@@ -20,6 +20,20 @@ namespace Framework.Code.Data
 			AmountChanged?.Invoke();
 		}
 
-		public void ResetAmount() => Amount -= LevelAmount;
+		public void RevertLevelAmount()
+		{
+			Amount -= LevelAmount;
+			LevelAmount = 0;
+
+			AmountChanged?.Invoke();
+		}
+
+		public void Clear()
+		{
+			Amount = 0;
+			LevelAmount = 0;
+
+			AmountChanged?.Invoke();
+		}
 	}
 }

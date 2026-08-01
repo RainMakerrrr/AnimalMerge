@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38abb2dcb7164d15bb28cfbb803e4f4f, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  stateSwitchDelay: 2
+  _stateSwitchDelay: 2
+  _deathAnimationDelay: 2.2

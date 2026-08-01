@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Code.Battle.Config;
 using Code.Battle.Services;
@@ -17,10 +18,12 @@ namespace Code.Battle
         private ExtendedLevel _currentLevel;
         private int _currentStageIndex;
         private bool _isFirstStageOfLevel;
+        private CancellationTokenSource _battleCts;
 
         public ExtendedLevel CurrentLevel => _currentLevel;
         public int CurrentStageIndex => _currentStageIndex;
         public bool IsFirstStageOfLevel => _isFirstStageOfLevel;
+        public CancellationToken BattleToken => _battleCts?.Token ?? CancellationToken.None;
 
         public BattleFlowController(
             IUnitTracker unitTracker,
@@ -42,6 +45,8 @@ namespace Code.Battle
                 Debug.LogError("[BattleFlowController] Cannot start battle with null level");
                 return;
             }
+
+            RenewBattleToken();
 
             _currentLevel = level;
             _currentStageIndex = 0;
@@ -115,11 +120,28 @@ namespace Code.Battle
         public void Cleanup()
         {
             Debug.Log("[BattleFlowController] Full cleanup - resetting all battle state");
+            CancelBattleToken();
             _unitTracker.Reset();
             _enemySpawnService.ClearEnemies();
             _currentLevel = null;
             _currentStageIndex = 0;
             _isFirstStageOfLevel = false;
+        }
+
+        private void RenewBattleToken()
+        {
+            CancelBattleToken();
+            _battleCts = new CancellationTokenSource();
+        }
+
+        private void CancelBattleToken()
+        {
+            if (_battleCts == null)
+                return;
+
+            _battleCts.Cancel();
+            _battleCts.Dispose();
+            _battleCts = null;
         }
 
         public async UniTask CleanupAsync()

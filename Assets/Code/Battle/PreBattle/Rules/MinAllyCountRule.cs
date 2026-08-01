@@ -13,7 +13,7 @@ namespace Code.Battle.PreBattle.Rules
         private readonly IUnitTracker _unitTracker;
         private readonly SignalBus _signalBus;
 
-        private bool _phaseStartedWithPool;
+        private bool _phaseUsesStartingPool;
         private int _alliesAvailableThisPhase;
         private int _highWaterMark;
 
@@ -34,7 +34,7 @@ namespace Code.Battle.PreBattle.Rules
         {
             get
             {
-                if (_phaseStartedWithPool)
+                if (_phaseUsesStartingPool)
                     return true;
 
                 int aliveNow = _unitTracker.AlivePlayerUnitsCount;
@@ -55,7 +55,7 @@ namespace Code.Battle.PreBattle.Rules
         {
             int aliveAtStart = _unitTracker.AlivePlayerUnitsCount;
 
-            _phaseStartedWithPool = signal.PoolRemaining > 0;
+            _phaseUsesStartingPool = signal.IsStartingPool;
             _alliesAvailableThisPhase = aliveAtStart + signal.PoolRemaining;
             _highWaterMark = aliveAtStart;
         }

@@ -1,4 +1,5 @@
 ﻿using Code.Animals.Movement;
+using Code.Animals.Vfx.Config;
 using Code.Data.Animals;
 using Code.Infrastructure.Factories.Animals;
 using Code.Infrastructure.Factories.Nodes;
@@ -26,6 +27,7 @@ namespace Code.Infrastructure.Installers
             BindGrid();
             BindAnimalFactory();
             BindAnimalDatabase();
+            BindMergeAnimationConfig();
             BindCamera();
             BindCanvas();
             BindInputService();
@@ -46,6 +48,11 @@ namespace Code.Infrastructure.Installers
         private void BindAnimalDatabase() => Container.Bind<AnimalDatabase>()
             .FromScriptableObjectResource("AnimalDatabase")
             .AsSingle();
+
+        private void BindMergeAnimationConfig() => Container.Bind<MergeAnimationConfig>()
+            .FromScriptableObjectResource("MergeAnimationConfig")
+            .AsSingle();
+
         private void BindCamera() => Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
         private void BindCanvas() => Container.Bind<Canvas>().FromInstance(_uiCanvas).AsSingle();
         private void BindInputService() => Container.Bind<IInputService>().To<InputService>().AsSingle();

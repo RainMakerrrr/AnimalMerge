@@ -39,7 +39,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
             _signalBus = BattleTestHelper.CreatePreBattleSignalBus();
 
-            _service = new AllySpawnService(_pool, _animalSpawner, _unitTracker, _signalBus);
+            _service = new AllySpawnService(_pool, _animalSpawner, _unitTracker, _config, _signalBus);
         }
 
         [TearDown]
@@ -140,22 +140,25 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             received.PoolRemaining.Should().Be(2);
         }
 
-        /// <summary>UT-SPAWNSRV-006: Reinforcements come from the random spawn and leave the pool alone</summary>
+        /// <summary>UT-SPAWNSRV-006: A reinforcement goes into the pool and is placed by an Add Animal click, not spawned outright</summary>
         [Test]
-        public void SpawnReinforcement_UsesRandomSpawnAndRegistersUnit()
+        public void QueueReinforcements_AddsToThePoolWithoutSpawning()
         {
             // Arrange
-            var unit = CreateFacade("Reinforcement");
-            _animalSpawner.SpawnRandom().Returns(new List<AnimalFacade> { unit });
+            _pool.Clear();
 
             // Act
-            bool spawned = _service.SpawnReinforcement();
+            int queued = _service.QueueReinforcements();
 
             // Assert
-            spawned.Should().BeTrue();
-            _animalSpawner.Received(1).SpawnRandom();
-            _unitTracker.Received(1).RegisterPlayerUnit(unit);
-            _service.PoolRemaining.Should().Be(3, "reinforcements are not taken from the starting pool");
+            queued.Should().Be(1);
+            _service.PoolRemaining.Should().Be(1, "the reinforcement waits for an Add Animal click");
+            _animalSpawner.DidNotReceiveWithAnyArgs().Spawn(default);
+            _unitTracker.DidNotReceiveWithAnyArgs().RegisterPlayerUnit(null);
+
+            _pool.TryPeekNext(out var queuedType).Should().BeTrue();
+            queuedType.Should().Be(AnimalType.Hedgehog, "the random type is picked by the spawner, which owns the type list");
+            _animalSpawner.ReceivedWithAnyArgs(1).TryPickRandomType(out _);
         }
 
         private void StubSpawnResult(params AnimalFacade[] facades)

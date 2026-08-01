@@ -16,7 +16,10 @@ namespace Code.Battle.Config
 
         [SerializeField, Min(1)] private int _minAlliesToStart = 2;
 
+        [SerializeField, Min(0)] private int _reinforcementsPerLevel = 1;
+
         public IReadOnlyList<AnimalType> StartingPool => _startingPool;
         public int MinAlliesToStart => _minAlliesToStart;
+        public int ReinforcementsPerLevel => _reinforcementsPerLevel;
     }
 }

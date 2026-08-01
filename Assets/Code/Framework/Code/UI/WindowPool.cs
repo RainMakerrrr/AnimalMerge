@@ -1,19 +1,20 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 namespace Framework.Code.UI
 {
 	public class WindowPool
 	{
-		readonly Dictionary<WindowType, Graphic> windows;
+		private readonly Dictionary<WindowType, Graphic> _windows;
 
 		public WindowPool(WindowHolder windowHolder)
 		{
-			windows = new Dictionary<WindowType, Graphic>
+			_windows = new Dictionary<WindowType, Graphic>
 			{
 				{WindowType.Win, windowHolder.Win},
 				{WindowType.Lose, windowHolder.Lose},
-				{WindowType.Tutorial, windowHolder.Tutorial}
+				{WindowType.Tutorial, windowHolder.Tutorial},
+				{WindowType.CampaignVictory, windowHolder.CampaignVictory}
 			};
 		}
 
@@ -21,7 +22,7 @@ namespace Framework.Code.UI
 		{
 			foreach (WindowType windowType in windowTypes)
 			{
-				windows[windowType].gameObject.SetActive(true);
+				_windows[windowType].gameObject.SetActive(true);
 			}
 		}
 
@@ -29,13 +30,13 @@ namespace Framework.Code.UI
 		{
 			foreach (WindowType windowType in windowTypes)
 			{
-				windows[windowType].gameObject.SetActive(false);
+				_windows[windowType].gameObject.SetActive(false);
 			}
 		}
 
 		public void DisableAllWindows()
 		{
-			foreach (Graphic window in windows.Values)
+			foreach (Graphic window in _windows.Values)
 			{
 				window.gameObject.SetActive(false);
 			}

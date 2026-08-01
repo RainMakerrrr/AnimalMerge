@@ -47,7 +47,6 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
             return new UnitTracker();
         }
 
-        /// <summary>
         public static SignalBus CreatePreBattleSignalBus()
         {
             var container = new DiContainer();
@@ -65,21 +64,34 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         {
             var spawner = Substitute.For<IAnimalSpawner>();
             spawner.Animals.Returns(new List<AnimalFacade>());
-            spawner.DefaultTypes.Returns(new List<AnimalType>());
+            spawner.TryPickRandomType(out _).ReturnsForAnyArgs(call =>
+            {
+                call[0] = AnimalType.Hedgehog;
+                return true;
+            });
             spawner.HasFreeCellFor(default).ReturnsForAnyArgs(true);
             spawner.Spawn(default).ReturnsForAnyArgs(new List<AnimalFacade>());
-            spawner.SpawnRandom().ReturnsForAnyArgs(new List<AnimalFacade>());
             return spawner;
         }
 
         public static PreBattleConfig CreatePreBattleConfig(int minAlliesToStart, params AnimalType[] startingPool)
         {
+            return CreatePreBattleConfig(minAlliesToStart, 1, startingPool);
+        }
+
+        public static PreBattleConfig CreatePreBattleConfig(
+            int minAlliesToStart,
+            int reinforcementsPerLevel,
+            params AnimalType[] startingPool)
+        {
             var config = ScriptableObject.CreateInstance<PreBattleConfig>();
             SetPrivateField(config, "_startingPool", startingPool ?? new AnimalType[0]);
             SetPrivateField(config, "_minAlliesToStart", minAlliesToStart);
+            SetPrivateField(config, "_reinforcementsPerLevel", reinforcementsPerLevel);
             return config;
         }
 
+        /// <summary>
         /// Creates a mock VictoryConditionChecker
         /// </summary>
         public static IVictoryConditionChecker CreateMockVictoryChecker()

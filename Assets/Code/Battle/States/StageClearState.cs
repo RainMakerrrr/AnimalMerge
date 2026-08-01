@@ -1,7 +1,9 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Code.Battle;
 using Code.Battle.Services;
 using Code.Battle.StateMachine;
+using Framework.Code.Data;
 using UnityEngine;
 
 namespace Code.Battle.States
@@ -14,6 +16,7 @@ namespace Code.Battle.States
         private readonly IEnemySpawnService _enemySpawnService;
         private readonly IUnitTracker _unitTracker;
         private readonly IUnitRepositioningService _unitRepositioningService;
+        private readonly GameData _gameData;
 
         public StageClearState(
             BattleStateMachine stateMachine,
@@ -21,7 +24,8 @@ namespace Code.Battle.States
             IHealthRestorationService healthRestorationService,
             IEnemySpawnService enemySpawnService,
             IUnitTracker unitTracker,
-            IUnitRepositioningService unitRepositioningService)
+            IUnitRepositioningService unitRepositioningService,
+            GameData gameData)
         {
             _stateMachine = stateMachine;
             _flowController = flowController;
@@ -29,38 +33,44 @@ namespace Code.Battle.States
             _enemySpawnService = enemySpawnService;
             _unitTracker = unitTracker;
             _unitRepositioningService = unitRepositioningService;
+            _gameData = gameData;
         }
 
-        public UniTask Enter()
+        public async UniTask Enter()
         {
             Debug.Log("[StageClearState] Entering - Stage complete!");
 
-            // 1. Get surviving player units
+            var isCanceled = await UniTask
+                .Delay(TimeSpan.FromSeconds(_gameData.DeathAnimationDelay), cancellationToken: _flowController.BattleToken)
+                .SuppressCancellationThrow();
+
+            if (isCanceled)
+            {
+                Debug.Log("[StageClearState] Canceled while waiting for death animations");
+                return;
+            }
+
             var playerUnits = _unitTracker.GetAlivePlayerUnits();
 
-            // 2. Restore HP
             _healthRestorationService.RestoreHealthForSurvivingUnits(playerUnits);
             Debug.Log($"[StageClearState] Restored HP for {playerUnits.Count} units");
 
-            // 3. Reposition to merge grid
             _unitRepositioningService.RepositionUnitsToMergeGrid(playerUnits);
             Debug.Log($"[StageClearState] Repositioned {playerUnits.Count} units to merge grid");
 
-            // 4. Clear enemies
             _enemySpawnService.ClearEnemies();
 
-            // 5. Advance stage and transition
             _flowController.AdvanceToNextStage();
 
             if (_flowController.HasMoreStages())
             {
                 Debug.Log("[StageClearState] More stages - transitioning to PreBattleState");
-                return _stateMachine.ChangeStateAsync<PreBattleState>();
+                await _stateMachine.ChangeStateAsync<PreBattleState>();
             }
             else
             {
                 Debug.Log("[StageClearState] All stages complete - VICTORY!");
-                return _stateMachine.ChangeStateAsync<BattleEndState>();
+                await _stateMachine.ChangeStateAsync<BattleEndState>();
             }
         }
 

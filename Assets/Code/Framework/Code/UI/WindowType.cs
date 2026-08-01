@@ -1,9 +1,10 @@
-﻿namespace Framework.Code.UI
+namespace Framework.Code.UI
 {
 	public enum WindowType
 	{
 		Win,
 		Lose,
-		Tutorial
+		Tutorial,
+		CampaignVictory
 	}
 }
