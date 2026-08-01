@@ -42,6 +42,7 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<PreBattlePhaseEndedSignal>().OptionalSubscriber();
             Container.DeclareSignal<AllySpawnedSignal>().OptionalSubscriber();
             Container.DeclareSignal<BattleReadinessChangedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<AllyMergedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()

@@ -5,6 +5,7 @@ using Code.Animals.Merge.Commands;
 using Code.Animals.Merge.MergeAttributes;
 using Code.Animals.Merge.Services;
 using Code.Battle.Services;
+using Code.Battle.Signals;
 using UnityEngine;
 using Zenject;
 
@@ -18,6 +19,7 @@ namespace Code.Animals.Merge
 
         private IMergeUndoService _mergeUndoService;
         private IUnitTracker _unitTracker;
+        private SignalBus _signalBus;
 
         private void Awake()
         {
@@ -28,10 +30,12 @@ namespace Code.Animals.Merge
         [Inject]
         private void Construct(
             IMergeUndoService mergeUndoService,
-            IUnitTracker unitTracker)
+            IUnitTracker unitTracker,
+            SignalBus signalBus)
         {
             _mergeUndoService = mergeUndoService;
             _unitTracker = unitTracker;
+            _signalBus = signalBus;
         }
 
         public bool Accept(PlayerAnimalFacade animal)
@@ -120,8 +124,19 @@ namespace Code.Animals.Merge
             // Accumulate visual attributes on target for future merges
             _facade.AccumulatedVisualAttributes.AddRange(visualAttributes);
 
+            var sourceType = animal.Type;
+            var targetType = _facade.Type;
+
             animal.NotifyRemoved();
             animal.gameObject.SetActive(false);
+
+            _signalBus?.Fire(new AllyMergedSignal
+            {
+                Source = animal,
+                Target = _facade,
+                SourceType = sourceType,
+                TargetType = targetType
+            });
 
             return true;
         }

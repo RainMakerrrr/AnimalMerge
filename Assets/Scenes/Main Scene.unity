@@ -3146,6 +3146,7 @@ GameObject:
   - component: {fileID: 2088146937}
   - component: {fileID: 2088146938}
   - component: {fileID: 2088146939}
+  - component: {fileID: 2088146940}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -3172,6 +3173,7 @@ MonoBehaviour:
   - {fileID: 2088146937}
   - {fileID: 2088146938}
   - {fileID: 2088146939}
+  - {fileID: 2088146940}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -3276,6 +3278,21 @@ MonoBehaviour:
   _preBattleConfig: {fileID: 11400000, guid: f3c8ce4c5279c49acba278594f4a6105, type: 2}
   _addAnimalButton: {fileID: 1864989976}
   _battleButton: {fileID: 692326473}
+--- !u!114 &2088146940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088146932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92f90fdca999047b8b16c103a31449a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mergeHintConfig: {fileID: 11400000, guid: d76950c416eda4251a0bc942c3e6c95f, type: 2}
+  _handViewPrefab: {fileID: 7076962935745269881, guid: 067593591777942e0aafb39e8835143c,
+    type: 3}
 --- !u!1 &2102332266
 GameObject:
   m_ObjectHideFlags: 0
