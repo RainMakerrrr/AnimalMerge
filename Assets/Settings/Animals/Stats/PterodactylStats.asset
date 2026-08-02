@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a40683236b4589b4586295be012ec9, type: 3}
   m_Name: PterodactylStats
   m_EditorClassIdentifier: 
-  _health: 200
+  _health: 350
   _damage: 200
-  _tilesPerMove: 3
+  _tilesPerMove: 5

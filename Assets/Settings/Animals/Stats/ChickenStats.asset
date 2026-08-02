@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d21de17b044db5498b947cea8dfdafc, type: 3}
   m_Name: ChickenStats
   m_EditorClassIdentifier: 
-  _health: 100
+  _health: 25
   _damage: 50
-  _tilesPerMove: 2
+  _tilesPerMove: 3
   _jumpDuration: 0.5
   _jumpPower: 2
   _numJumps: 1

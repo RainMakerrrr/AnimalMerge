@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e92322ef8dc094835a5f15c188f10c9b, type: 3}
+  m_Name: PteranodonRecipe
+  m_EditorClassIdentifier: 
+  _type: 7
+  _prefabName: Pteranodon
+  _modelPrefab: {fileID: 1491578732314578, guid: 15816fc9bea9e1d429bdab4c645934de,
+    type: 3}
+  _facadeScript: {fileID: 11500000, guid: b4b0f76a37f494efba70ab177b4f5803, type: 3}
+  _attackScript: {fileID: 0}
+  _animatorController: {fileID: 9100000, guid: dbfe80ef9197c214aa628be9908c0547, type: 2}
+  _avatar: {fileID: 9000000, guid: abf72a4265305f1458da175b24d86c96, type: 3}
+  _attackClip: {fileID: 7400000, guid: fb11af1eb2fa741569b4dab127b0d49a, type: 2}
+  _deathClip: {fileID: 7400000, guid: abbc747e6b64b4747a3730930e8a2c48, type: 2}
+  _rootScale: {x: 0.8, y: 0.8, z: 0.8}
+  _footprint: 1
+  _zOffset: 0
+  _raycastOffset: 0.4
+  _sizeEffectY: 0
+  _minAnimSpeed: 0.5
+  _maxAnimSpeed: 3
+  _attackRadius: 0.6
+  _maxTargets: 1
+  _isAoE: 0
+  _forwardReach: 0.25
+  _damagePopupOffsetY: 1.5
+  _overrideColliderShape: 1
+  _colliderRadius: 1.2
+  _colliderCenter: {x: 0, y: 0.72, z: 0}
+  _overrideAttackPointPosition: 1
+  _attackPointLocalPosition: {x: 0, y: 0.75, z: 1.2}
+  _overrideHealthBarHeight: 1
+  _healthBarHeightOffset: 1.3
+  _stats: {fileID: 11400000, guid: ebeb3736349326349a3f67b28213c463, type: 2}
+  _statsScript: {fileID: 0}
+  _icon: {fileID: 0}

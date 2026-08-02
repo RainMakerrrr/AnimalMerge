@@ -10,16 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13cc2a8524248334e8c6a1255d241ed1, type: 3}
-  m_Name: LevelStageConfig_2
+  m_Name: LevelStageConfig_4
   m_EditorClassIdentifier: 
   _enemies:
-  - _prefab: {fileID: 5083706873987871201, guid: 675411dc48f604dbeba1dd58389f8124,
+  - _prefab: {fileID: 3751359421056397825, guid: 55e7e2f88d94f534ea549a020d19a77e,
       type: 3}
-    _gridPosition: {x: 2, y: 9}
-    _isBoss: 0
-  - _prefab: {fileID: 5083706873987871201, guid: 675411dc48f604dbeba1dd58389f8124,
-      type: 3}
-    _gridPosition: {x: 5, y: 9}
+    _gridPosition: {x: 3, y: 9}
     _isBoss: 0
   _isBossStage: 0
-  _stageNumber: 2
+  _stageNumber: 4
