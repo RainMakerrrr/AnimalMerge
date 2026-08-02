@@ -55,6 +55,17 @@ All tool names below are `mcp__UnityMCP__<name>`.
   `batch_execute`. Use these only when no dedicated tool covers the job, and say in your summary what
   you ran.
 
+**Keep Unity round-trips down.** Every `execute_code` call is a round-trip into the editor, and on
+asset-heavy work they dominate wall-clock. Group independent operations into one `batch_execute` (or
+one larger `execute_code` body) instead of firing them one at a time, and verify with a single
+read-back pass at the end rather than re-reading after every write.
+
+Two places where an immediate read-back **is** required — both traps are real in this project:
+- **Animator controller edits** — an open Animator window silently reverts API edits, and the revert
+  can be partial. Close the window first, then confirm the result on disk.
+- **Int fields via `SerializedProperty`** — writing an int field through `floatValue` silently
+  no-ops and saves `0`. Use `intValue`, then confirm the saved value.
+
 If a Unity MCP call fails because the editor is not running, say so plainly and fall back to
 `Write`/`Edit` — do not silently skip the step, and list what still needs doing inside Unity.
 
@@ -67,7 +78,10 @@ Given a plan or a list of review findings, work through it directly — do not d
 2. Validate changed scripts with `manage_script` (action `validate`)
 3. Check `read_console` for compile errors and fix them before finishing
 4. Tests — **TESTS PAUSED**: do not write new tests and do not add coverage for new behavior, even
-   if the plan asks for it; say in your summary that you skipped it. If the system you changed is
-   already covered by existing tests, run those with `run_tests` (`mode: EditMode` or `PlayMode`),
-   polling `get_test_job`, and report the real outcome — never report tests as passing without
-   having run them. Never delete or disable an existing test to make it pass.
+   if the plan asks for it; say in your summary that you skipped it.
+   Before running anything, work out whether existing tests actually cover the files you changed.
+   Nothing covers them → run nothing and say so in one line. Something does → run only those tests
+   with `run_tests` (`mode: EditMode` or `PlayMode`), polling `get_test_job`, and report the real
+   outcome. Never run the full suite as a stand-in for working out coverage — it costs minutes and
+   tells you nothing about your change. Never report tests as passing without having run them, and
+   never delete or disable an existing test to make it pass.

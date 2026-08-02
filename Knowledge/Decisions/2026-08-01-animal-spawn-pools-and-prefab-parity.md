@@ -105,3 +105,30 @@
 `Assets/Resources/Prefabs/Animals/{Deer, Hedgehog}.prefab`;
 `Assets/Scenes/Develop.unity`; `Assets/Scenes/Main Scene.unity`;
 `Assets/Settings/BattleConfigs/PreBattleConfig.asset`.
+
+---
+
+## Addendum 2026-08-01 — владение пулами ОТКАЧЕНО в `PreBattleConfig`
+
+> [!danger] Решение «единственный владелец пулов — `AnimalSpawner`» больше НЕ отражает код.
+
+В коммите `088b406f` пулы вернулись в ScriptableObject. Фактическое состояние:
+
+- `Assets/Code/Battle/Config/PreBattleConfig.cs` объявляет **оба** массива — `_startingPool` (ур. 1)
+  и `_randomPool` (ур. 2+: `Elephant, Cheetah, Deer, Fox, Hedgehog, Chicken`) — плюс свойства
+  `StartingPool` / `RandomPool`.
+- `AllySpawnService.QueueStartingPool()` читает `_config.StartingPool`,
+  `QueueReinforcements()` — `_config.RandomPool` (вместо прежнего `_animalSpawner.TryPickRandomType`).
+- `Assets/Code/Animals/AnimalSpawner.cs` объявляет **только** `_mergeGrid` и `_gameGrid`.
+  Полей `_startingPool` / `_randomPool` в классе нет.
+- Источник истины по значениям — `Assets/Settings/BattleConfigs/PreBattleConfig.asset`.
+
+> [!warning] Отменяется требование «беречь `AnimalSpawner._startingPool`/`_randomPool` при сохранении сцены»
+> Эти строки в `Main Scene.unity` — **мёртвые данные**: соответствующих сериализуемых полей в классе нет,
+> поэтому Unity вычищает их при каждом сохранении сцены. Их исчезновение из диффа сцены **не ломает**
+> спавн союзников и восстанавливать вручную бессмысленно.
+
+Остальная часть заметки (паритет префабов `Deer`/`Hedgehog`, разводка смерти через **Any State → DDeath**,
+обязательное анимационное событие `AttackAnimationHandler`, вывод геометрии merge-сфер из
+`AnimalMovement.TryPlace()`) **остаётся в силе без изменений** — см. также
+[[2026-08-01-pteranodon-enemy-prefab]], где те же два правила про анимации применены к новому врагу.

@@ -84,8 +84,10 @@ You have read-only Unity MCP access — use it instead of taking the implementer
 
 - `mcp__UnityMCP__read_console` — confirm the console is actually clean. Compile errors or new
   warnings are `[CRITICAL]` / `[WARNING]` regardless of what the implementation summary claimed.
-- `mcp__UnityMCP__run_tests` (`mode: EditMode` or `PlayMode`) + `get_test_job` — run the tests
-  covering the changed system yourself and report the real result.
+- `mcp__UnityMCP__run_tests` (`mode: EditMode` or `PlayMode`) + `get_test_job` — first work out
+  whether existing tests actually cover the changed files. If they do, run only those and report the
+  real result. If nothing covers them, run nothing and say so in one line. Never run the full suite
+  as a stand-in for working out coverage — it costs minutes and tells you nothing about the diff.
 - `mcp__UnityMCP__find_gameobjects`, `mcp__UnityMCP__unity_reflect` — inspect scene objects and types
   when the change depends on scene wiring rather than on code alone.
 

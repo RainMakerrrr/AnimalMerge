@@ -48,6 +48,19 @@ Returns verbatim source of all relevant symbols grouped by file. This single cal
 
 Only use `Read` as a last resort if CodeGraph did not cover a specific detail.
 
+**Validate every value you carry over from a document.** Specs, design documents and
+`Knowledge/Index.md` are notes, not the source of truth — they go stale silently. Any concrete value
+you take from one of them into the plan (a unit size, a damage number, an animator parameter name, an
+asset path, an enum member) must be confirmed against the code that consumes it. `codegraph_node` on
+the consuming type usually settles it in one call.
+
+- Code contradicts the document → the code wins. Plan against the code and note the discrepancy.
+- Cannot confirm the value → do not carry it in as settled. Mark it **UNVERIFIED** and name the
+  symbol that has to be checked before it is trusted.
+
+"No precedent for this, test it in Play Mode later" is not a validation. A value the consuming code
+cannot actually handle is a defect, and it is far cheaper to find here than anywhere downstream.
+
 **Scene state — read-only Unity MCP.** CodeGraph indexes code, not scenes or prefabs. When the task
 depends on how objects are wired in the editor, inspect it rather than guessing:
 `mcp__UnityMCP__find_gameobjects` (locate objects and their components),
