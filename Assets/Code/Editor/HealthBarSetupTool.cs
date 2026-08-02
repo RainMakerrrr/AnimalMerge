@@ -28,6 +28,7 @@ namespace Code.Editor
             { "EnemyElephant_Temp", 2.5f },
             { "T-Rex",              2.8f },
             { "Velociraptor",       2.5f },
+            { "Pteranodon",         1.3f },
         };
 
         private const float DefaultHeightOffset = 1.5f;
