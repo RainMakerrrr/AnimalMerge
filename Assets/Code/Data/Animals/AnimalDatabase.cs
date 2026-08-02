@@ -11,6 +11,7 @@ namespace Code.Data.Animals
         public AnimalType Type;
         public AnimalStats Stats;
         public Sprite Icon;
+        public Sprite Portrait;
         [TextArea] public string MergeInfo;
     }
 
@@ -37,6 +38,17 @@ namespace Code.Data.Animals
             {
                 if (config.Type == type)
                     return config.Icon;
+            }
+
+            return null;
+        }
+
+        public Sprite GetPortrait(AnimalType type)
+        {
+            foreach (var config in _configs)
+            {
+                if (config.Type == type)
+                    return config.Portrait != null ? config.Portrait : config.Icon;
             }
 
             return null;

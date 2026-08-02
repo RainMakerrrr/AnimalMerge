@@ -108,7 +108,19 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         /// </summary>
         public static TurnExecutor CreateTurnExecutor(IUnitTracker tracker, TargetFinder finder)
         {
-            return new TurnExecutor(tracker, finder);
+            return new TurnExecutor(tracker, finder, CreateTurnSignalBus(), new TurnOrderProvider(tracker));
+        }
+
+        public static SignalBus CreateTurnSignalBus()
+        {
+            var container = new DiContainer();
+            SignalBusInstaller.Install(container);
+
+            container.DeclareSignal<TurnRoundStartedSignal>().OptionalSubscriber();
+            container.DeclareSignal<UnitTurnStartedSignal>().OptionalSubscriber();
+            container.DeclareSignal<UnitTurnCompletedSignal>().OptionalSubscriber();
+
+            return container.Resolve<SignalBus>();
         }
 
         /// <summary>

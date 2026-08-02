@@ -5,8 +5,10 @@ using Cysharp.Threading.Tasks;
 using Code.Animals.Facades;
 using Code.Animals.Health;
 using Code.Animals.Movement;
+using Code.Battle.Signals;
 using Code.GridPathfinding;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Battle.Services
 {
@@ -17,13 +19,19 @@ namespace Code.Battle.Services
 
         private readonly IUnitTracker _unitTracker;
         private readonly TargetFinder _targetFinder;
+        private readonly SignalBus _signalBus;
+        private readonly ITurnOrderRecorder _turnOrderRecorder;
 
         public TurnExecutor(
             IUnitTracker unitTracker,
-            TargetFinder targetFinder)
+            TargetFinder targetFinder,
+            SignalBus signalBus,
+            ITurnOrderRecorder turnOrderRecorder)
         {
             _unitTracker = unitTracker;
             _targetFinder = targetFinder;
+            _signalBus = signalBus;
+            _turnOrderRecorder = turnOrderRecorder;
         }
 
         public async UniTask ExecutePlayerTurnsAsync()
@@ -35,12 +43,11 @@ namespace Code.Battle.Services
 
             var playerUnits = _unitTracker.GetAlivePlayerUnits();
 
-            // Sort by grid position: left-to-right, top-to-bottom
-            var sortedUnits = playerUnits
-                .Where(u => u != null && u.gameObject != null)
-                .OrderBy(u => u.Movement?.CurrentPathNode?.GridPosition.x ?? 0)
-                .ThenByDescending(u => u.Movement?.CurrentPathNode?.GridPosition.y ?? 0)
-                .ToList();
+            var sortedUnits = TurnOrderCalculator.OrderPlayerUnits(playerUnits);
+
+            _turnOrderRecorder.RecordPlayerTurns(sortedUnits);
+
+            _signalBus.Fire(new TurnRoundStartedSignal { IsPlayerSide = true });
 
             await ExecuteUnitTurnsAsync(sortedUnits, EnemyLayerMask);
             Debug.Log("[BattleSystem] === PLAYER UNITS TURN COMPLETE ===");
@@ -55,14 +62,15 @@ namespace Code.Battle.Services
 
             var enemyUnits = _unitTracker.GetAliveEnemyUnits();
 
-            // Sort by grid position: bottom-to-top (reversed Y order for enemies)
-            var sortedUnits = enemyUnits
-                .Where(u => u != null && u.gameObject != null)
-                .OrderByDescending(u => u.Movement?.CurrentPathNode?.GridPosition.x ?? 0)
-                .ThenByDescending(u => u.Movement?.CurrentPathNode?.GridPosition.y ?? 0)
-                .ToList();
+            var sortedUnits = TurnOrderCalculator.OrderEnemyUnits(enemyUnits);
+
+            _turnOrderRecorder.RecordEnemyTurns(sortedUnits);
+
+            _signalBus.Fire(new TurnRoundStartedSignal { IsPlayerSide = false });
 
             await ExecuteUnitTurnsAsync(sortedUnits, AnimalLayerMask);
+
+            _turnOrderRecorder.Clear();
             Debug.Log("[BattleSystem] === ENEMY UNITS TURN COMPLETE ===");
         }
 
@@ -83,7 +91,11 @@ namespace Code.Battle.Services
                 if (unit == null || unit.Health.IsDead)
                     continue;
 
+                _signalBus.Fire(new UnitTurnStartedSignal { Unit = unit });
+
                 await ExecuteSingleUnitTurnAsync(unit, targetLayerMask);
+
+                _signalBus.Fire(new UnitTurnCompletedSignal { Unit = unit });
             }
         }
 

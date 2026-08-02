@@ -26,6 +26,7 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private AddAnimalButtonView _addAnimalButton;
         [SerializeField] private BattleButtonView _battleButton;
         [SerializeField] private AnimalStatsPanelView _statsPanelPrefab;
+        [SerializeField] private TurnOrderView _turnOrderPrefab;
 
         public override void InstallBindings()
         {
@@ -35,6 +36,7 @@ namespace Code.Infrastructure.Installers
             BindServices();
             BindPreBattle();
             BindAnimalStatsPanel();
+            BindTurnOrder();
             BindBattleStateMachine();
             BindBattleFlowController();
         }
@@ -46,6 +48,9 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<AllySpawnedSignal>().OptionalSubscriber();
             Container.DeclareSignal<BattleReadinessChangedSignal>().OptionalSubscriber();
             Container.DeclareSignal<AllyMergedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<TurnRoundStartedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<UnitTurnStartedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<UnitTurnCompletedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()
@@ -54,6 +59,7 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<UnitTracker>().AsSingle();
             Container.Bind<IEnemySpawnService>().To<EnemySpawnService>().AsSingle();
             Container.Bind<ITurnExecutor>().To<TurnExecutor>().AsSingle();
+            Container.BindInterfacesTo<TurnOrderProvider>().AsSingle();
             Container.Bind<IVictoryConditionChecker>().To<VictoryConditionChecker>().AsSingle();
             Container.Bind<IHealthRestorationService>().To<HealthRestorationService>().AsSingle();
             Container.Bind<IUnitRepositioningService>().To<UnitRepositioningService>().AsSingle();
@@ -122,6 +128,16 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<AnimalStatsPanelPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindTurnOrder()
+        {
+            Container.Bind<ITurnOrderView>()
+                .To<TurnOrderView>()
+                .FromComponentInNewPrefab(_turnOrderPrefab)
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<TurnOrderPresenter>().AsSingle().NonLazy();
+        }
+
         private void BindBattleStateMachine()
         {
             // BattleStateMachine will initialize itself via [Inject] method
@@ -146,6 +162,9 @@ namespace Code.Infrastructure.Installers
 
             if (_statsPanelPrefab == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_statsPanelPrefab)} is not assigned - assign Assets/Prefabs/AnimalStatsPanelView.prefab", this);
+
+            if (_turnOrderPrefab == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_turnOrderPrefab)} is not assigned - assign Assets/Prefabs/TurnOrderView.prefab", this);
         }
     }
 }
