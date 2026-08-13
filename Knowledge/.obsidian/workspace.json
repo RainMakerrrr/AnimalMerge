@@ -62,7 +62,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Файловый менеджер"
@@ -206,6 +208,8 @@
   },
   "active": "f66210432b7861f6",
   "lastOpenFiles": [
+    "Sessions/2026-08-13.md",
+    "Decisions/2026-08-13-battle-scene-builder.md",
     "Sessions/2026-08-02.md",
     "Decisions/2026-08-02-turn-order-column.md",
     "GameDesignerGuide.md",
@@ -231,8 +235,6 @@
     "Decisions/2026-07-30-grid-config.md",
     "Полезные референсы для vibe coding.md",
     "Курсы.md",
-    "Без названия.md",
-    "Sessions/2026-06-27.md",
-    "Decisions/2026-06-27-fox-dodge-stats.md"
+    "Без названия.md"
   ]
 }

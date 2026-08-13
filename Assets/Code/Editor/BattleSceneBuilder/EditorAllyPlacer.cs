@@ -1,0 +1,147 @@
+#if UNITY_EDITOR
+using Code.Animals;
+using Code.Animals.Facades;
+using Code.Battle.Config;
+using Code.GridPathfinding;
+using Framework.Code;
+using UnityEditor;
+using UnityEngine;
+
+namespace Code.Editor.BattleSceneBuilder
+{
+    internal static class EditorAllyPlacer
+    {
+        public static void PlaceStartingPool(
+            PreBattleConfig config,
+            GridManager mergeGrid,
+            Transform parent,
+            BattleSceneBuildReport report)
+        {
+            if (config == null)
+            {
+                report.AddError("PreBattleConfig is not assigned, allies were skipped");
+                return;
+            }
+
+            if (mergeGrid == null)
+            {
+                report.AddError("Merge grid reference is missing, allies were skipped");
+                return;
+            }
+
+            if (config.StartingPool == null || config.StartingPool.Count == 0)
+            {
+                report.AddWarning("Starting pool is empty, no allies to place");
+                return;
+            }
+
+            var prefabsByType = AllyPrefabCatalog.Load();
+
+            if (prefabsByType.Count == 0)
+            {
+                report.AddError($"No ally prefabs found in Resources/{AssetPath.Animals}");
+                return;
+            }
+
+            foreach (var animalType in config.StartingPool)
+            {
+                if (!prefabsByType.TryGetValue(animalType, out var prefab))
+                {
+                    report.AddError($"No prefab registered for {animalType}");
+                    continue;
+                }
+
+                if (animalType == AnimalType.Chicken)
+                {
+                    PlaceChickenFlock(prefab, mergeGrid, parent, report);
+                    continue;
+                }
+
+                PlaceSingle(prefab, animalType, mergeGrid, parent, report);
+            }
+        }
+
+        private static void PlaceSingle(
+            AnimalFacade prefab,
+            AnimalType animalType,
+            GridManager mergeGrid,
+            Transform parent,
+            BattleSceneBuildReport report)
+        {
+            if (!mergeGrid.HasCellFor(animalType))
+            {
+                report.AddWarning($"No free cell for {animalType}, skipped");
+                return;
+            }
+
+            var unit = EditorUnitSpawner.Instantiate(prefab, parent);
+
+            if (unit == null || unit.Movement == null)
+            {
+                report.AddError($"Failed to instantiate {animalType}");
+                return;
+            }
+
+            var unitSize = unit.Movement.UnitSize;
+            var direction = unit.Movement.Direction;
+
+            if (!mergeGrid.TryFindFreePlacement(unitSize, direction, out var anchor))
+            {
+                report.AddWarning($"No free {unitSize} placement for {animalType}, skipped");
+                Undo.DestroyObjectImmediate(unit.gameObject);
+                return;
+            }
+
+            var anchorCell = mergeGrid.GetCell(anchor) as GridCell;
+
+            if (anchorCell == null)
+            {
+                report.AddError($"No grid cell at {anchor} for {animalType}");
+                Undo.DestroyObjectImmediate(unit.gameObject);
+                return;
+            }
+
+            EditorUnitSpawner.PlaceAt(unit, anchorCell);
+            mergeGrid.SetOccupied(anchorCell.GridPosition, unitSize, direction, null);
+            report.Allies++;
+        }
+
+        private static void PlaceChickenFlock(
+            AnimalFacade prefab,
+            GridManager mergeGrid,
+            Transform parent,
+            BattleSceneBuildReport report)
+        {
+            if (!mergeGrid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
+            {
+                report.AddWarning($"No free {ChickenFlock.Footprint} block for {AnimalType.Chicken}, skipped");
+                return;
+            }
+
+            var flockCells = mergeGrid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
+
+            if (flockCells.Count != ChickenFlock.Count)
+            {
+                report.AddWarning($"Chicken flock needs {ChickenFlock.Count} cells, found {flockCells.Count}, skipped");
+                return;
+            }
+
+            foreach (var flockCell in flockCells)
+            {
+                var chicken = EditorUnitSpawner.Instantiate(prefab, parent);
+
+                if (chicken == null)
+                {
+                    report.AddError($"Failed to instantiate {AnimalType.Chicken}");
+                    continue;
+                }
+
+                EditorUnitSpawner.PlaceAt(chicken, flockCell as GridCell);
+                report.Allies++;
+            }
+
+            mergeGrid.SetOccupied(anchor, ChickenFlock.Footprint, Direction.North, null);
+        }
+    }
+}
+#endif
