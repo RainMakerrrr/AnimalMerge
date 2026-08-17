@@ -9,7 +9,6 @@ namespace Code.Animals
 {
     public class AnimalSpawner : MonoBehaviour, IAnimalSpawner
     {
-        [SerializeField] private GridManager _mergeGrid;
         [SerializeField] private GridManager _gameGrid;
 
         private IAnimalFactory _factory;
@@ -21,7 +20,7 @@ namespace Code.Animals
             _factory = factory;
         }
 
-        public bool HasFreeCellFor(AnimalType type) => _mergeGrid.HasCellFor(type);
+        public bool HasFreeCellFor(AnimalType type) => _gameGrid.HasCellFor(type);
 
         public IReadOnlyList<AnimalFacade> Spawn(AnimalType animalType)
         {
@@ -32,7 +31,7 @@ namespace Code.Animals
 
             var spawned = new List<AnimalFacade>();
 
-            if (!_mergeGrid.HasCellFor(animalType))
+            if (!_gameGrid.HasCellFor(animalType))
             {
                 Debug.LogWarning($"[AnimalSpawner] No free cell for {animalType}, skipping");
                 return spawned;
@@ -47,7 +46,7 @@ namespace Code.Animals
 
             spawned.Add(animal);
 
-            _mergeGrid.PlaceOnGrid(animal.Movement);
+            _gameGrid.PlaceOnGrid(animal.Movement);
 
             Debug.Log($"[AnimalSpawner] Spawned {animalType} at {animal.Movement.CurrentPathNode.GridPosition}");
 
@@ -56,13 +55,13 @@ namespace Code.Animals
 
         private IReadOnlyList<AnimalFacade> SpawnChickenFlock()
         {
-            if (!_mergeGrid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
+            if (!_gameGrid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
             {
                 Debug.LogWarning($"[AnimalSpawner] No free {ChickenFlock.Footprint} block for {AnimalType.Chicken}, skipping");
                 return new List<AnimalFacade>();
             }
 
-            var cells = _mergeGrid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
+            var cells = _gameGrid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
 
             return _factory.CreateChickenFlock(cells);
         }

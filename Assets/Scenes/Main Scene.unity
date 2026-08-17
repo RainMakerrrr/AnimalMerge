@@ -255,58 +255,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 10754422}
   m_CullTransparentMesh: 1
---- !u!1 &12922330
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 12922332}
-  - component: {fileID: 12922331}
-  m_Layer: 0
-  m_Name: MergeGrid
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &12922331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12922330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 03908fa6ca06eb042abe4723769bf871, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: 39dabbca673014f1c91893664e6eecd7, type: 2}
-  _cellPrefab: {fileID: 328146204041037890, guid: c30bddd17ffdd0649bfc8f519726357f,
-    type: 3}
-  _cellsParent: {fileID: 12922332}
-  _showDebugGizmos: 0
-  _walkableColor: {r: 0, g: 1, b: 0, a: 1}
-  _blockedColor: {r: 1, g: 0, b: 0, a: 1}
-  _gizmoHeight: 0.1
---- !u!4 &12922332
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 12922330}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &128345104
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1715,7 +1663,7 @@ MonoBehaviour:
   _animals:
   - {fileID: 57357053369636908}
   _positions:
-  - {x: 3, y: 9}
+  - {x: 3, y: 11}
 --- !u!4 &1004205071
 Transform:
   m_ObjectHideFlags: 0
@@ -1979,7 +1927,7 @@ Transform:
   m_GameObject: {fileID: 1536527366}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3236,7 +3184,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5039dfd670f04d94ea22289e2e232521, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mergeGridManager: {fileID: 12922331}
   _gameGridManager: {fileID: 1536527367}
 --- !u!114 &2088146938
 MonoBehaviour:
@@ -3331,7 +3278,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd1e3e85282d4dc3a306437fe551fa54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mergeGrid: {fileID: 12922331}
   _gameGrid: {fileID: 1536527367}
 --- !u!114 &2102332269
 MonoBehaviour:
@@ -8086,7 +8032,6 @@ SceneRoots:
   - {fileID: 153689331}
   - {fileID: 57357053369636914}
   - {fileID: 158856069}
-  - {fileID: 12922332}
   - {fileID: 1536527368}
   - {fileID: 1902631477}
   - {fileID: 1004205071}

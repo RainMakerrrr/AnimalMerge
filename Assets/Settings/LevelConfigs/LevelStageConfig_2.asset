@@ -15,11 +15,11 @@ MonoBehaviour:
   _enemies:
   - _prefab: {fileID: 5083706873987871201, guid: 675411dc48f604dbeba1dd58389f8124,
       type: 3}
-    _gridPosition: {x: 2, y: 9}
+    _gridPosition: {x: 2, y: 11}
     _isBoss: 0
   - _prefab: {fileID: 5083706873987871201, guid: 675411dc48f604dbeba1dd58389f8124,
       type: 3}
-    _gridPosition: {x: 5, y: 9}
+    _gridPosition: {x: 5, y: 11}
     _isBoss: 0
   _isBossStage: 0
   _stageNumber: 2

@@ -80,6 +80,11 @@ namespace Code.GridPathfinding
         List<IGridCell> GetOccupiedCells(Vector2Int position, UnitSize size, Direction direction);
 
         /// <summary>
+        /// Finds a free anchor inside the deployment zone that fits a unit of the given size and direction
+        /// </summary>
+        bool TryFindFreePlacement(UnitSize size, Direction direction, out Vector2Int anchor);
+
+        /// <summary>
         /// Gets the neighbor cells (additional cells excluding the base position cell)
         /// that a unit occupies based on its size and direction.
         /// This matches the old PathNode.GetNeighbours behavior.

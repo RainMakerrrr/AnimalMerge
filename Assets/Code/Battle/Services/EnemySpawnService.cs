@@ -22,7 +22,7 @@ namespace Code.Battle.Services
 
         public EnemySpawnService(
             DiContainer container,
-            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager,
+            IGridManager gridManager,
             AnimalDatabase database)
         {
             _container = container;

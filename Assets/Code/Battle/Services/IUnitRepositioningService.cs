@@ -5,6 +5,6 @@ namespace Code.Battle.Services
 {
     public interface IUnitRepositioningService
     {
-        void RepositionUnitsToMergeGrid(IEnumerable<AnimalFacade> units);
+        void RepositionUnitsToDeploymentZone(IEnumerable<AnimalFacade> units);
     }
 }

@@ -13,7 +13,7 @@ namespace Code.Editor.BattleSceneBuilder
     {
         public static void PlaceStartingPool(
             PreBattleConfig config,
-            GridManager mergeGrid,
+            GridManager grid,
             Transform parent,
             BattleSceneBuildReport report)
         {
@@ -23,9 +23,9 @@ namespace Code.Editor.BattleSceneBuilder
                 return;
             }
 
-            if (mergeGrid == null)
+            if (grid == null)
             {
-                report.AddError("Merge grid reference is missing, allies were skipped");
+                report.AddError("Grid reference is missing, allies were skipped");
                 return;
             }
 
@@ -53,22 +53,22 @@ namespace Code.Editor.BattleSceneBuilder
 
                 if (animalType == AnimalType.Chicken)
                 {
-                    PlaceChickenFlock(prefab, mergeGrid, parent, report);
+                    PlaceChickenFlock(prefab, grid, parent, report);
                     continue;
                 }
 
-                PlaceSingle(prefab, animalType, mergeGrid, parent, report);
+                PlaceSingle(prefab, animalType, grid, parent, report);
             }
         }
 
         private static void PlaceSingle(
             AnimalFacade prefab,
             AnimalType animalType,
-            GridManager mergeGrid,
+            GridManager grid,
             Transform parent,
             BattleSceneBuildReport report)
         {
-            if (!mergeGrid.HasCellFor(animalType))
+            if (!grid.HasCellFor(animalType))
             {
                 report.AddWarning($"No free cell for {animalType}, skipped");
                 return;
@@ -85,14 +85,14 @@ namespace Code.Editor.BattleSceneBuilder
             var unitSize = unit.Movement.UnitSize;
             var direction = unit.Movement.Direction;
 
-            if (!mergeGrid.TryFindFreePlacement(unitSize, direction, out var anchor))
+            if (!grid.TryFindFreePlacement(unitSize, direction, out var anchor))
             {
                 report.AddWarning($"No free {unitSize} placement for {animalType}, skipped");
                 Undo.DestroyObjectImmediate(unit.gameObject);
                 return;
             }
 
-            var anchorCell = mergeGrid.GetCell(anchor) as GridCell;
+            var anchorCell = grid.GetCell(anchor) as GridCell;
 
             if (anchorCell == null)
             {
@@ -102,23 +102,23 @@ namespace Code.Editor.BattleSceneBuilder
             }
 
             EditorUnitSpawner.PlaceAt(unit, anchorCell);
-            mergeGrid.SetOccupied(anchorCell.GridPosition, unitSize, direction, null);
+            grid.SetOccupied(anchorCell.GridPosition, unitSize, direction, null);
             report.Allies++;
         }
 
         private static void PlaceChickenFlock(
             AnimalFacade prefab,
-            GridManager mergeGrid,
+            GridManager grid,
             Transform parent,
             BattleSceneBuildReport report)
         {
-            if (!mergeGrid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
+            if (!grid.TryFindFreePlacement(ChickenFlock.Footprint, Direction.North, out var anchor))
             {
                 report.AddWarning($"No free {ChickenFlock.Footprint} block for {AnimalType.Chicken}, skipped");
                 return;
             }
 
-            var flockCells = mergeGrid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
+            var flockCells = grid.GetOccupiedCells(anchor, ChickenFlock.Footprint, Direction.North);
 
             if (flockCells.Count != ChickenFlock.Count)
             {
@@ -140,7 +140,7 @@ namespace Code.Editor.BattleSceneBuilder
                 report.Allies++;
             }
 
-            mergeGrid.SetOccupied(anchor, ChickenFlock.Footprint, Direction.North, null);
+            grid.SetOccupied(anchor, ChickenFlock.Footprint, Direction.North, null);
         }
     }
 }

@@ -14,20 +14,7 @@ namespace Code.Editor
         [MenuItem("Tools/Pathfinding/Create Game Grid")]
         public static void CreateGameGrid()
         {
-            CreateGridManager("Game Grid", new Vector3(0, 0, 0), "GameGridConfig", 8, 10, 1f, "GameGrid");
-        }
-
-        [MenuItem("Tools/Pathfinding/Create Merge Grid")]
-        public static void CreateMergeGrid()
-        {
-            CreateGridManager("Merge Grid", new Vector3(0, 0, 0), "MergeGridConfig", 8, 2, 1f, "MergeGrid");
-        }
-
-        [MenuItem("Tools/Pathfinding/Create Both Grids")]
-        public static void CreateBothGrids()
-        {
-            CreateGameGrid();
-            CreateMergeGrid();
+            CreateGridManager("Game Grid", new Vector3(0, 0, 0), "GameGridConfig", 8, 12, 1f, "GameGrid");
         }
 
         private static void CreateGridManager(string name, Vector3 position, string configAssetName, int width, int height, float cellSize, string tag)

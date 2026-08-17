@@ -9,25 +9,22 @@ namespace Code.Editor.BattleSceneBuilder
 {
     internal static class BattleSceneReferenceResolver
     {
-        private const string InstallerMergeGridFieldName = "_mergeGridManager";
         private const string InstallerGameGridFieldName = "_gameGridManager";
-        private const string SpawnerMergeGridFieldName = "_mergeGrid";
         private const string SpawnerGameGridFieldName = "_gameGrid";
-        private const int MaxMergeGridHeight = 2;
 
-        public static bool TryResolveGrids(out GridManager mergeGrid, out GridManager gameGrid)
+        public static bool TryResolveGameGrid(out GridManager gameGrid)
         {
             var installer = UnityEngine.Object.FindObjectOfType<PathfindingInstaller>();
 
-            if (TryReadGrids(installer, InstallerMergeGridFieldName, InstallerGameGridFieldName, out mergeGrid, out gameGrid))
+            if (TryReadGrid(installer, InstallerGameGridFieldName, out gameGrid))
                 return true;
 
             var spawner = UnityEngine.Object.FindObjectOfType<AnimalSpawner>();
 
-            if (TryReadGrids(spawner, SpawnerMergeGridFieldName, SpawnerGameGridFieldName, out mergeGrid, out gameGrid))
+            if (TryReadGrid(spawner, SpawnerGameGridFieldName, out gameGrid))
                 return true;
 
-            return TryResolveByHeight(out mergeGrid, out gameGrid);
+            return TryResolveFromScene(out gameGrid);
         }
 
         public static PreBattleConfig LoadPreBattleConfig()
@@ -35,46 +32,31 @@ namespace Code.Editor.BattleSceneBuilder
             return AssetDatabase.LoadAssetAtPath<PreBattleConfig>(BattleSceneBuilderPaths.PreBattleConfigAsset);
         }
 
-        private static bool TryReadGrids(
-            UnityEngine.Object source,
-            string mergeGridFieldName,
-            string gameGridFieldName,
-            out GridManager mergeGrid,
-            out GridManager gameGrid)
+        private static bool TryReadGrid(UnityEngine.Object source, string gameGridFieldName, out GridManager gameGrid)
         {
-            mergeGrid = null;
             gameGrid = null;
 
             if (source == null)
                 return false;
 
             var serializedSource = new SerializedObject(source);
-            var mergeGridProperty = serializedSource.FindProperty(mergeGridFieldName);
             var gameGridProperty = serializedSource.FindProperty(gameGridFieldName);
 
-            if (mergeGridProperty == null || gameGridProperty == null)
+            if (gameGridProperty == null)
                 return false;
 
-            mergeGrid = mergeGridProperty.objectReferenceValue as GridManager;
             gameGrid = gameGridProperty.objectReferenceValue as GridManager;
 
-            return mergeGrid != null && gameGrid != null;
+            return gameGrid != null;
         }
 
-        private static bool TryResolveByHeight(out GridManager mergeGrid, out GridManager gameGrid)
+        private static bool TryResolveFromScene(out GridManager gameGrid)
         {
-            mergeGrid = null;
-            gameGrid = null;
+            var grids = UnityEngine.Object.FindObjectsOfType<GridManager>();
 
-            foreach (var grid in UnityEngine.Object.FindObjectsOfType<GridManager>())
-            {
-                if (grid.Height <= MaxMergeGridHeight)
-                    mergeGrid = grid;
-                else
-                    gameGrid = grid;
-            }
+            gameGrid = grids.Length == 1 ? grids[0] : null;
 
-            return mergeGrid != null && gameGrid != null;
+            return gameGrid != null;
         }
     }
 }

@@ -3,21 +3,19 @@ using System.Linq;
 using Code.Animals.Facades;
 using Code.GridPathfinding;
 using UnityEngine;
-using Zenject;
 
 namespace Code.Battle.Services
 {
     public class UnitRepositioningService : IUnitRepositioningService
     {
-        private readonly IGridManager _mergeGrid;
+        private readonly IGridManager _grid;
 
-        public UnitRepositioningService(
-            [Inject(Id = GridIdentifier.MergeGrid)] IGridManager mergeGrid)
+        public UnitRepositioningService(IGridManager grid)
         {
-            _mergeGrid = mergeGrid;
+            _grid = grid;
         }
 
-        public void RepositionUnitsToMergeGrid(IEnumerable<AnimalFacade> units)
+        public void RepositionUnitsToDeploymentZone(IEnumerable<AnimalFacade> units)
         {
             var unitsList = units.ToList();
 
@@ -27,7 +25,7 @@ namespace Code.Battle.Services
                 return;
             }
 
-            Debug.Log($"[UnitRepositioningService] Repositioning {unitsList.Count} units to merge grid");
+            Debug.Log($"[UnitRepositioningService] Repositioning {unitsList.Count} units to the deployment zone");
 
             foreach (var unit in unitsList)
             {
@@ -39,18 +37,16 @@ namespace Code.Battle.Services
 
                 Debug.Log($"[UnitRepositioningService] Processing {unit.name} - Active: {unit.gameObject.activeInHierarchy}, Dead: {unit.Health.IsDead}");
 
-                // Clear current grid occupancy (on GameGrid)
                 unit.Movement.ClearNodes();
                 Debug.Log($"[UnitRepositioningService] Cleared nodes for {unit.name}");
 
-                // Reset rotation to default
                 unit.transform.rotation = Quaternion.identity;
 
-                // Place on merge grid (automatically finds free position in bottom 2 rows)
-                var mergeGridManager = _mergeGrid as GridManager;
-                if (mergeGridManager != null)
+                var gridManager = _grid as GridManager;
+
+                if (gridManager != null)
                 {
-                    mergeGridManager.PlaceOnGrid(unit.Movement);
+                    gridManager.PlaceOnGrid(unit.Movement);
                     Debug.Log($"[UnitRepositioningService] Repositioned {unit.name} to {unit.Movement.CurrentPathNode.GridPosition} - Still active: {unit.gameObject.activeInHierarchy}");
                 }
                 else

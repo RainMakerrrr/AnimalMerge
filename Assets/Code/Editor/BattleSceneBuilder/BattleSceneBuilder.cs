@@ -29,7 +29,7 @@ namespace Code.Editor.BattleSceneBuilder
 
             var root = BattleSceneRoot.Create();
 
-            var gridsReady = TryBuildGrids(request, root.transform, report);
+            var gridsReady = TryBuildGameGrid(request, root.transform, report);
 
             if (gridsReady && request.BuildEnemies)
             {
@@ -44,7 +44,7 @@ namespace Code.Editor.BattleSceneBuilder
             {
                 EditorAllyPlacer.PlaceStartingPool(
                     request.PreBattleConfig,
-                    request.MergeGrid,
+                    request.GameGrid,
                     BattleSceneRoot.CreateChild(root.transform, AlliesParentName),
                     report);
             }
@@ -67,14 +67,11 @@ namespace Code.Editor.BattleSceneBuilder
                 GridManagerEditorAccess.ResetCells(grid);
         }
 
-        private static bool TryBuildGrids(BattleSceneBuildRequest request, Transform root, BattleSceneBuildReport report)
+        private static bool TryBuildGameGrid(BattleSceneBuildRequest request, Transform root, BattleSceneBuildReport report)
         {
             var gridsParent = BattleSceneRoot.CreateChild(root, GridsParentName);
 
-            var gameGridBuilt = TryBuildGrid(request.GameGrid, gridsParent, report);
-            var mergeGridBuilt = TryBuildGrid(request.MergeGrid, gridsParent, report);
-
-            return gameGridBuilt && mergeGridBuilt;
+            return TryBuildGrid(request.GameGrid, gridsParent, report);
         }
 
         private static bool TryBuildGrid(GridManager grid, Transform parent, BattleSceneBuildReport report)

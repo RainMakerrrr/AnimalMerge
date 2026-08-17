@@ -45,7 +45,7 @@ namespace Code.Battle.PreBattle
 
             if (!_animalSpawner.HasFreeCellFor(next))
             {
-                Debug.LogWarning($"[AllySpawnService] No free merge cell for {next} - keeping it in the pool");
+                Debug.LogWarning($"[AllySpawnService] No free deployment cell for {next} - keeping it in the pool");
                 return false;
             }
 

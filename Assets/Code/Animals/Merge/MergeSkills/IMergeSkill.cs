@@ -381,11 +381,6 @@ namespace Code.Animals.Merge.MergeSkills
             appearAnimation.PlayAsync(clone.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        /// <summary>
-        /// Finds a free cell on the entire grid where a clone can be placed.
-        /// Searches all cells on the grid, prioritizing cells closer to the animal's current position.
-        /// Accounts for unit size - for 2x2 units, needs 4 free cells.
-        /// </summary>
         private Code.GridPathfinding.IGridCell FindFreeMergeCell(AnimalFacade animal)
         {
             var currentCell = animal.Movement.CurrentPathNode;
@@ -398,57 +393,63 @@ namespace Code.Animals.Merge.MergeSkills
             var unitSize = animal.Movement.UnitSize;
             var direction = animal.Movement.Direction;
 
-            // First try nearby cells for better placement
             var searchOffsets = new[]
             {
-                new UnityEngine.Vector2Int(1, 0),   // Right
-                new UnityEngine.Vector2Int(-1, 0),  // Left
-                new UnityEngine.Vector2Int(0, 1),   // Up
-                new UnityEngine.Vector2Int(0, -1),  // Down
-                new UnityEngine.Vector2Int(1, 1),   // Up-right
-                new UnityEngine.Vector2Int(-1, 1),  // Up-left
-                new UnityEngine.Vector2Int(1, -1),  // Down-right
-                new UnityEngine.Vector2Int(-1, -1)  // Down-left
+                new UnityEngine.Vector2Int(1, 0),
+                new UnityEngine.Vector2Int(-1, 0),
+                new UnityEngine.Vector2Int(0, 1),
+                new UnityEngine.Vector2Int(0, -1),
+                new UnityEngine.Vector2Int(1, 1),
+                new UnityEngine.Vector2Int(-1, 1),
+                new UnityEngine.Vector2Int(1, -1),
+                new UnityEngine.Vector2Int(-1, -1)
             };
 
             foreach (var offset in searchOffsets)
             {
                 var testPosition = currentCell.GridPosition + offset;
 
-                if (_gridManager.CanPlaceUnit(testPosition, unitSize, direction))
+                if (!IsFreeDeploymentPlacement(testPosition, unitSize, direction))
+                    continue;
+
+                var cell = _gridManager.GetCell(testPosition);
+                if (cell != null && cell.IsWalkable)
                 {
-                    var cell = _gridManager.GetCell(testPosition);
-                    if (cell != null && cell.IsWalkable)
-                    {
-                        Debug.Log($"[ChickenMergeSkill] Found free cell nearby at {testPosition}");
-                        return cell;
-                    }
+                    Debug.Log($"[ChickenMergeSkill] Found free deployment cell next to parent at {testPosition}");
+                    return cell;
                 }
             }
 
-            // If no nearby cells found, search the entire grid
-            Debug.Log("[ChickenMergeSkill] No nearby cells found, searching entire grid...");
+            Debug.Log("[ChickenMergeSkill] No free deployment cell next to parent, scanning the deployment zone...");
 
-            for (int x = 0; x < _gridManager.Width; x++)
+            if (_gridManager.TryFindFreePlacement(unitSize, direction, out var anchor))
             {
-                for (int y = 0; y < _gridManager.Height; y++)
-                {
-                    var testPosition = new UnityEngine.Vector2Int(x, y);
-
-                    if (_gridManager.CanPlaceUnit(testPosition, unitSize, direction))
-                    {
-                        var cell = _gridManager.GetCell(testPosition);
-                        if (cell != null && cell.IsWalkable)
-                        {
-                            Debug.Log($"[ChickenMergeSkill] Found free cell on grid at {testPosition}");
-                            return cell;
-                        }
-                    }
-                }
+                Debug.Log($"[ChickenMergeSkill] Found free deployment cell at {anchor}");
+                return _gridManager.GetCell(anchor);
             }
 
-            Debug.LogWarning($"[ChickenMergeSkill] No free cell found on entire grid for {unitSize}");
+            Debug.LogWarning($"[ChickenMergeSkill] No free deployment cell found for {unitSize}");
             return null;
+        }
+
+        private bool IsFreeDeploymentPlacement(
+            UnityEngine.Vector2Int position,
+            Code.GridPathfinding.UnitSize size,
+            Code.GridPathfinding.Direction direction)
+        {
+            if (!_gridManager.IsInBounds(position))
+                return false;
+
+            if (!Code.GridPathfinding.DeploymentZone.Contains(position.y))
+                return false;
+
+            if (!_gridManager.CanPlaceUnit(position, size, direction))
+                return false;
+
+            var footprint = _gridManager.GetOccupiedCells(position, size, direction);
+
+            return footprint.Count == size.Width * size.Height
+                   && Code.GridPathfinding.DeploymentZone.ContainsAll(footprint);
         }
     }
 }

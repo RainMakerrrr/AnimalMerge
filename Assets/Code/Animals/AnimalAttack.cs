@@ -81,7 +81,7 @@ namespace Code.Animals
         [Inject]
         private void Construct(
             IPhysicsService physicsService,
-            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager)
+            IGridManager gridManager)
         {
             _physicsService = physicsService;
             _gridManager = gridManager;

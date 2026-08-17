@@ -12,7 +12,6 @@ namespace Code.Editor.BattleSceneBuilder
         [SerializeField] private LevelStageConfig _stageConfig;
         [SerializeField] private PreBattleConfig _preBattleConfig;
         [SerializeField] private GridManager _gameGrid;
-        [SerializeField] private GridManager _mergeGrid;
         [SerializeField] private bool _buildEnemies = true;
         [SerializeField] private bool _buildAllies = true;
         [SerializeField] private bool _showSceneReferences;
@@ -93,7 +92,6 @@ namespace Code.Editor.BattleSceneBuilder
             EditorGUI.indentLevel++;
 
             _gameGrid = (GridManager)EditorGUILayout.ObjectField("Game Grid", _gameGrid, typeof(GridManager), true);
-            _mergeGrid = (GridManager)EditorGUILayout.ObjectField("Merge Grid", _mergeGrid, typeof(GridManager), true);
 
             if (GUILayout.Button("Resolve From Scene"))
                 ResolveReferences();
@@ -106,8 +104,8 @@ namespace Code.Editor.BattleSceneBuilder
             if (_stageConfig == null)
                 EditorGUILayout.HelpBox("Assign a LevelStageConfig asset to build.", MessageType.Warning);
 
-            if (_gameGrid == null || _mergeGrid == null)
-                EditorGUILayout.HelpBox("Grid managers are not resolved. Open Scene References and assign them.", MessageType.Warning);
+            if (_gameGrid == null)
+                EditorGUILayout.HelpBox("Game grid is not resolved. Open Scene References and assign it.", MessageType.Warning);
 
             if (_buildAllies && _preBattleConfig == null)
                 EditorGUILayout.HelpBox("PreBattleConfig is not assigned, allies cannot be built.", MessageType.Warning);
@@ -131,7 +129,7 @@ namespace Code.Editor.BattleSceneBuilder
 
         private bool CanBuild(bool isPlayMode)
         {
-            return !isPlayMode && _stageConfig != null && _gameGrid != null && _mergeGrid != null;
+            return !isPlayMode && _stageConfig != null && _gameGrid != null;
         }
 
         private void Build()
@@ -140,7 +138,6 @@ namespace Code.Editor.BattleSceneBuilder
             {
                 StageConfig = _stageConfig,
                 PreBattleConfig = _preBattleConfig,
-                MergeGrid = _mergeGrid,
                 GameGrid = _gameGrid,
                 BuildAllies = _buildAllies,
                 BuildEnemies = _buildEnemies
@@ -162,7 +159,7 @@ namespace Code.Editor.BattleSceneBuilder
 
         private void ResolveMissingReferences()
         {
-            if (_gameGrid != null && _mergeGrid != null && _preBattleConfig != null)
+            if (_gameGrid != null && _preBattleConfig != null)
                 return;
 
             ResolveReferences();
@@ -170,11 +167,8 @@ namespace Code.Editor.BattleSceneBuilder
 
         private void ResolveReferences()
         {
-            if (BattleSceneReferenceResolver.TryResolveGrids(out var mergeGrid, out var gameGrid))
-            {
-                _mergeGrid = mergeGrid;
+            if (BattleSceneReferenceResolver.TryResolveGameGrid(out var gameGrid))
                 _gameGrid = gameGrid;
-            }
 
             if (_preBattleConfig == null)
                 _preBattleConfig = BattleSceneReferenceResolver.LoadPreBattleConfig();

@@ -31,7 +31,7 @@ namespace Code.Animals.Facades
 
         [Inject]
         private void ConstructChicken(
-            [Inject(Id = GridIdentifier.MergeGrid)] IGridManager gridManager,
+            IGridManager gridManager,
             IAnimalFactory animalFactory,
             IUnitTracker unitTracker,
             [InjectOptional] MergeAnimationConfig mergeAnimationConfig)

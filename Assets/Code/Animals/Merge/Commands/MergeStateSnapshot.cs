@@ -32,7 +32,6 @@ namespace Code.Animals.Merge.Commands
         public List<VisualMergeAttribute> AccumulatedVisualAttributes { get; set; }
 
         // Grid position - store the actual GridCell reference instead of just position
-        // This preserves which grid (MergeGrid vs GameGrid) the animal was on
         public GridCell GridCell { get; set; }
         public UnitSize UnitSize { get; set; }
         public Direction Direction { get; set; }
@@ -73,7 +72,6 @@ namespace Code.Animals.Merge.Commands
             };
 
             // Capture grid cell if available
-            // Store the actual GridCell reference to preserve which grid (MergeGrid/GameGrid) it was on
             if (animal.Movement?.CurrentPathNode != null)
             {
                 snapshot.GridCell = animal.Movement.CurrentPathNode;

@@ -24,7 +24,7 @@ namespace Code.Animals.Movement
         private readonly List<GridCell> _highlightedCells = new List<GridCell>();
 
         [Inject]
-        public MoveRangeHighlighter([Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager)
+        public MoveRangeHighlighter(IGridManager gridManager)
         {
             _gridManager = gridManager;
         }
@@ -32,9 +32,6 @@ namespace Code.Animals.Movement
         public void Show(AnimalMovement unit)
         {
             if (unit == null || unit.CurrentPathNode == null) return;
-
-            // Only preview moves while the unit is standing on the GameGrid (not the merge grid / detached).
-            if (IsOnGameGrid(unit.CurrentPathNode) == false) return;
 
             Hide();
 
@@ -56,16 +53,6 @@ namespace Code.Animals.Movement
             }
 
             _highlightedCells.Clear();
-        }
-
-        /// <summary>
-        /// True only when the cell belongs to the injected GameGrid.
-        /// Uses reference identity on purpose: GridCell.Equals compares by X/Y, so a merge-grid cell
-        /// with matching coordinates would otherwise be treated as equal to a game-grid cell.
-        /// </summary>
-        private bool IsOnGameGrid(GridCell cell)
-        {
-            return ReferenceEquals(_gridManager.GetCell(cell.GridPosition) as GridCell, cell);
         }
 
         private List<GridCell> GetReachableCells(GridCell origin, UnitSize size, Direction direction, int maxSteps)

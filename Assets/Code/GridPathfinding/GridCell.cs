@@ -54,7 +54,7 @@ namespace Code.GridPathfinding
         public Vector3 WorldPosition => transform.position;
 
         // Check if unit can be placed here
-        public bool CanPlace => IsWalkable && (Y == 0 || Y == 1);
+        public bool CanPlace => IsWalkable && DeploymentZone.Contains(Y);
 
         private void Awake()
         {
@@ -183,7 +183,7 @@ namespace Code.GridPathfinding
         /// </summary>
         private bool IsInDeploymentZone()
         {
-            return Y <= 1;
+            return DeploymentZone.Contains(Y);
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Code.GridPathfinding
         private bool IsPositionValidForPlacement(Vector2Int position, UnitSize unitSize, Direction direction)
         {
             // Anchor point must be in deployment zone
-            if (position.y > 1)
+            if (!DeploymentZone.Contains(position.y))
                 return false;
 
             // Calculate theoretical bounds
@@ -219,7 +219,7 @@ namespace Code.GridPathfinding
                 return false;
 
             // All cells must be in deployment zone
-            if (maxY > 1)
+            if (!DeploymentZone.Contains(maxY))
                 return false;
 
             return true;

@@ -698,13 +698,16 @@ namespace Code.GridPathfinding
 
         public bool TryFindFreePlacement(UnitSize size, Direction direction, out Vector2Int anchor)
         {
-            for (int y = 0; y <= 1; y++)
+            for (int y = 0; y < DeploymentZone.Depth; y++)
             {
                 for (int x = 0; x < Width; x++)
                 {
                     var candidate = AdjustPositionToFitBounds(new Vector2Int(x, y), size, direction);
 
                     if (!CanPlaceUnit(candidate, size, direction))
+                        continue;
+
+                    if (!FitsInDeploymentZone(candidate, size, direction))
                         continue;
 
                     anchor = candidate;
@@ -714,6 +717,14 @@ namespace Code.GridPathfinding
 
             anchor = default;
             return false;
+        }
+
+        private bool FitsInDeploymentZone(Vector2Int anchor, UnitSize size, Direction direction)
+        {
+            var footprintCells = GetOccupiedCells(anchor, size, direction);
+
+            return footprintCells.Count == size.Width * size.Height
+                   && DeploymentZone.ContainsAll(footprintCells);
         }
 
         private static UnitSize GetFootprint(AnimalType animalType)
@@ -769,38 +780,6 @@ namespace Code.GridPathfinding
             {
                 animal.FillNodes(neighbourCells);
             }
-        }
-
-        /// <summary>
-        /// Gets all free cells sorted by position (bottom-left to top-right, row by row)
-        /// Only returns cells in the bottom two rows (y = 0 or y = 1) that are walkable and can be placed on
-        /// </summary>
-        private List<GridCell> GetSortedFreeCells()
-        {
-            List<GridCell> freeCells = new List<GridCell>();
-
-            if (_cells == null) return freeCells;
-
-            // Collect all cells from the grid
-            for (int y = 0; y < Height; y++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    GridCell cell = _cells[x, y];
-                    if (cell != null && cell.IsWalkable && cell.CanPlace &&
-                        (y == 0 || y == 1))  // Only bottom two rows
-                    {
-                        freeCells.Add(cell);
-                    }
-                }
-            }
-
-            // Sort by Y first (ascending), then by X (ascending)
-            // This gives us bottom-left to top-right ordering
-            return freeCells
-                .OrderBy(cell => cell.Y)
-                .ThenBy(cell => cell.X)
-                .ToList();
         }
 
         #endregion

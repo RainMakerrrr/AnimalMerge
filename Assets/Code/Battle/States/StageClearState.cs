@@ -55,8 +55,8 @@ namespace Code.Battle.States
             _healthRestorationService.RestoreHealthForSurvivingUnits(playerUnits);
             Debug.Log($"[StageClearState] Restored HP for {playerUnits.Count} units");
 
-            _unitRepositioningService.RepositionUnitsToMergeGrid(playerUnits);
-            Debug.Log($"[StageClearState] Repositioned {playerUnits.Count} units to merge grid");
+            _unitRepositioningService.RepositionUnitsToDeploymentZone(playerUnits);
+            Debug.Log($"[StageClearState] Repositioned {playerUnits.Count} units to the deployment zone");
 
             _enemySpawnService.ClearEnemies();
 

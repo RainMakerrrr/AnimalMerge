@@ -55,7 +55,6 @@ namespace Code.Animals.Movement
 
         private IPathfindingService _pathfinder;
         private IGridManager _gridManager;
-        private IGridManager _mergeGrid;
         private ITargetDetector _targetDetector;
         private IUnitOccupancy _unitOccupancy;
         private IMovementAnimator _movementAnimator;
@@ -152,15 +151,12 @@ namespace Code.Animals.Movement
         [Inject]
         private void Construct(
             IPathfindingService pathfinder,
-            [Inject(Id = GridIdentifier.GameGrid)] IGridManager gridManager,
-            [Inject(Id = GridIdentifier.MergeGrid)]
-            IGridManager mergeGridManager,
+            IGridManager gridManager,
             IAnimalFactory animalFactory,
             ITargetDetector targetDetector)
         {
             _pathfinder = pathfinder;
             _gridManager = gridManager;
-            _mergeGrid = mergeGridManager;
             _animalFactory = animalFactory;
             _targetDetector = targetDetector;
         }
@@ -244,15 +240,14 @@ namespace Code.Animals.Movement
             return raycastable != null && raycastable.Accept(GetComponent<PlayerAnimalFacade>());
         }
 
-        public void SetNewNode(GridCell gridCell, bool isReset = false)
+        public void SetNewNode(GridCell gridCell)
         {
             ClearNodes();
 
             Place(gridCell.WorldPosition, Utilities.GetMovementOffset(gridCell, _unitSize, _direction));
 
-            var neighbours = isReset
-                ? _mergeGrid.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList()
-                : _gridManager.GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
+            var neighbours = _gridManager
+                .GetNeighborCells(gridCell.GridPosition, _unitSize, _direction).Cast<GridCell>().ToList();
 
             _currentPathNode = gridCell;
             _nodes = neighbours;

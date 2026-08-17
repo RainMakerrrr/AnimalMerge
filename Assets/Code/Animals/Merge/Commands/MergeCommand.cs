@@ -255,11 +255,10 @@ namespace Code.Animals.Merge.Commands
             // Reactivate the GameObject
             _sourceAnimal.gameObject.SetActive(true);
 
-            // Restore grid position using the saved GridCell (preserves correct grid - MergeGrid vs GameGrid)
             if (_sourceStateBefore.GridCell != null)
             {
-                _sourceAnimal.Movement.SetNewNode(_sourceStateBefore.GridCell, true);
-                Debug.Log($"[MergeCommand] Restored source position to {_sourceStateBefore.GridCell.GridPosition} on its original grid");
+                _sourceAnimal.Movement.SetNewNode(_sourceStateBefore.GridCell);
+                Debug.Log($"[MergeCommand] Restored source position to {_sourceStateBefore.GridCell.GridPosition}");
             }
             else
             {

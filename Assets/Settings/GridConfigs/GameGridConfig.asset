@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GameGridConfig
   m_EditorClassIdentifier: 
   _width: 8
-  _height: 10
+  _height: 12
   _cellSize: 1
