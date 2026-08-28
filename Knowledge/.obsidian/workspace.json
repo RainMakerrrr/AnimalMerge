@@ -25,10 +25,14 @@
             "id": "f66210432b7861f6",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Decisions/2026-06-27-merge-popup.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Новая вкладка"
+              "title": "2026-06-27-merge-popup"
             }
           },
           {
@@ -208,6 +212,9 @@
   },
   "active": "f66210432b7861f6",
   "lastOpenFiles": [
+    "Decisions/2026-06-27-fox-dodge-stats.md",
+    "Decisions/2026-07-31-min-ally-count-high-water-mark.md",
+    "Decisions/2026-07-31-chicken-death-spirit.md",
     "Sessions/2026-08-17.md",
     "Decisions/2026-08-17-single-game-grid-deployment-zone.md",
     "Sessions/2026-08-13.md",
@@ -227,14 +234,11 @@
     "Decisions/2026-08-01-merge-sweep-glow.md",
     "Index.md.tmp.47673.b86679a3d40d",
     "Decisions/2026-07-31-chicken-death-spirit.md.tmp.47673.ed8ebf5bdf4f",
-    "Decisions/2026-07-31-chicken-death-spirit.md",
     "Decisions/2026-07-31-iridescent-sweep-shader.md",
-    "Decisions/2026-07-31-min-ally-count-high-water-mark.md",
     "Decisions/2026-07-31-pre-battle-phase-architecture.md",
     "Sessions/2026-07-31.md",
     "Index.md",
     "Sessions/2026-07-30.md",
-    "Decisions/2026-07-30-grid-config.md",
-    "Полезные референсы для vibe coding.md"
+    "Decisions/2026-07-30-grid-config.md"
   ]
 }
