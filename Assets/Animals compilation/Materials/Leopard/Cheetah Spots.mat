@@ -28,9 +28,9 @@ Material:
     - _BlendSharpness: 6
     - _Metallic: 0
     - _Smoothness: 0.1
-    - _SpotDensity: 0.26
-    - _SpotEdge: 0.05
-    - _SpotScale: 24
+    - _SpotDensity: 0.444
+    - _SpotEdge: 0.064
+    - _SpotScale: 8.56
     m_Colors:
     - _BaseColor: {r: 0.55, g: 0.38, b: 0.18, a: 1}
     - _SpotColor: {r: 0.09, g: 0.06, b: 0.04, a: 1}
