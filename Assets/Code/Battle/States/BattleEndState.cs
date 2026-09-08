@@ -2,10 +2,12 @@ using System;
 using Cysharp.Threading.Tasks;
 using Code.Battle;
 using Code.Battle.Services;
+using Code.Battle.Signals;
 using Code.Battle.StateMachine;
 using Framework.Code.Data;
 using Framework.Code.Infrastructure.States;
 using UnityEngine;
+using Zenject;
 
 namespace Code.Battle.States
 {
@@ -15,17 +17,20 @@ namespace Code.Battle.States
         private readonly BattleFlowController _flowController;
         private readonly IVictoryConditionChecker _victoryChecker;
         private readonly GameData _gameData;
+        private readonly SignalBus _signalBus;
 
         public BattleEndState(
             GameStateMachine gameStateMachine,
             BattleFlowController flowController,
             IVictoryConditionChecker victoryChecker,
-            GameData gameData)
+            GameData gameData,
+            SignalBus signalBus)
         {
             _gameStateMachine = gameStateMachine;
             _flowController = flowController;
             _victoryChecker = victoryChecker;
             _gameData = gameData;
+            _signalBus = signalBus;
         }
 
         public async UniTask Enter()
@@ -39,6 +44,8 @@ namespace Code.Battle.States
                 Debug.Log("[BattleEndState] Canceled while waiting for death animations");
                 return;
             }
+
+            _signalBus.Fire(new BattleEndedSignal());
 
             _flowController.CleanupLevel();
 

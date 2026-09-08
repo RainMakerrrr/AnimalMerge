@@ -51,7 +51,7 @@ namespace Code.Battle.StateMachine
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },
                 { typeof(CheckVictoryState), new CheckVictoryState(this, victoryChecker, flowController) },
                 { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker, unitRepositioning, gameData) },
-                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker, gameData) }
+                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker, gameData, signalBus) }
             };
 
             Debug.Log("[BattleStateMachine] Initialized with 7 battle states");

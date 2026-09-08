@@ -181,6 +181,9 @@ namespace Code.Battle.States
         private async UniTask StartBattleAsync()
         {
             Debug.Log("[PreBattleState] Battle start confirmed - transitioning to PlayerTurnState");
+
+            _signalBus.Fire(new BattleStartedSignal());
+
             await _stateMachine.ChangeStateAsync<PlayerTurnState>();
         }
     }
