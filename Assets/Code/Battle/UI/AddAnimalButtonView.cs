@@ -10,6 +10,7 @@ namespace Code.Battle.UI
     {
         [SerializeField] private Graphic _targetGraphic;
         [SerializeField] private TextMeshProUGUI _remainingLabel;
+        [SerializeField] private TextMeshProUGUI _totalLabel;
         [SerializeField] private Color _normalColor = Color.white;
         [SerializeField] private Color _disabledColor = new Color(0.55f, 0.55f, 0.55f, 1f);
 
@@ -46,10 +47,13 @@ namespace Code.Battle.UI
                 _targetGraphic.color = isInteractable ? _normalColor : _disabledColor;
         }
 
-        public void SetRemaining(int remaining)
+        public void SetRemaining(int remaining, int total)
         {
             if (_remainingLabel != null)
-                _remainingLabel.text = remaining.ToString();
+                _remainingLabel.text = remaining.ToString("D2");
+
+            if (_totalLabel != null)
+                _totalLabel.text = $"/ {total:D2}";
         }
 
         private void OnButtonClick() => Clicked?.Invoke();

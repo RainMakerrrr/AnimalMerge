@@ -99,7 +99,7 @@ namespace Code.Battle.UI
         private void Refresh()
         {
             _addAnimalButton.SetInteractable(_allySpawnService.CanSpawn);
-            _addAnimalButton.SetRemaining(_allySpawnService.PoolRemaining);
+            _addAnimalButton.SetRemaining(_allySpawnService.PoolRemaining, _allySpawnService.PoolTotal);
             _battleButton.SetReady(_battleReadiness.CanStartBattle);
         }
 

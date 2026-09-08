@@ -33,6 +33,8 @@ namespace Code.Battle.PreBattle
 
         public int PoolRemaining => _pool.Remaining;
 
+        public int PoolTotal => _pool.Total;
+
         public bool CanSpawn => _pool.TryPeekNext(out var next) && _animalSpawner.HasFreeCellFor(next);
 
         public bool RequestSpawn()

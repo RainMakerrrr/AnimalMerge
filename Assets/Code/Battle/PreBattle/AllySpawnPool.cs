@@ -7,7 +7,10 @@ namespace Code.Battle.PreBattle
     {
         private readonly Queue<AnimalType> _pending = new Queue<AnimalType>();
 
+        private int _total;
+
         public int Remaining => _pending.Count;
+        public int Total => _total;
         public bool HasNext => _pending.Count > 0;
 
         public bool TryPeekNext(out AnimalType type)
@@ -34,8 +37,16 @@ namespace Code.Battle.PreBattle
             return true;
         }
 
-        public void Enqueue(AnimalType type) => _pending.Enqueue(type);
+        public void Enqueue(AnimalType type)
+        {
+            _pending.Enqueue(type);
+            _total++;
+        }
 
-        public void Clear() => _pending.Clear();
+        public void Clear()
+        {
+            _pending.Clear();
+            _total = 0;
+        }
     }
 }

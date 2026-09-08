@@ -5,6 +5,7 @@ namespace Code.Battle.PreBattle
     public interface IAllySpawnPool
     {
         int Remaining { get; }
+        int Total { get; }
         bool HasNext { get; }
 
         bool TryPeekNext(out AnimalType type);

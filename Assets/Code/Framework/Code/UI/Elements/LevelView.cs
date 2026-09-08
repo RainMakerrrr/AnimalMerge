@@ -18,8 +18,8 @@ namespace Framework.Code.UI.Elements
 			this.progressService = progressService;
 		}
 
-		void OnEnable() => levelText.text = $"Level {progressService.Progress.Level.ToString()}";
+		private void OnEnable() => levelText.text = progressService.Progress.Level.ToString();
 
-		public void UpdateView() => levelText.text = $"Level {progressService.Progress.Level.ToString()}";
+		public void UpdateView() => levelText.text = progressService.Progress.Level.ToString();
 	}
 }

@@ -4,6 +4,7 @@ namespace Code.Battle.PreBattle
     {
         bool CanSpawn { get; }
         int PoolRemaining { get; }
+        int PoolTotal { get; }
 
         bool RequestSpawn();
 
