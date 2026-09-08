@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.PreBattle;
+using Code.Battle.Selection;
 using Code.Battle.Services;
 using Code.Battle.States;
 using UnityEngine;
@@ -36,6 +37,7 @@ namespace Code.Battle.StateMachine
             IAllySpawnPool allySpawnPool,
             IAllySpawnService allySpawnService,
             IBattleReadinessService battleReadiness,
+            IEnemySelectionService enemySelection,
             SignalBus signalBus,
             Framework.Code.Data.GameData gameData)
         {
@@ -45,13 +47,13 @@ namespace Code.Battle.StateMachine
             // Create all battle states with their dependencies
             _states = new Dictionary<Type, IBattleState>
             {
-                { typeof(PreBattleState), new PreBattleState(this, flowController, enemySpawnService, unitTracker, startBattleService, mergeUndoService, allySpawnPool, allySpawnService, battleReadiness, signalBus) },
+                { typeof(PreBattleState), new PreBattleState(this, flowController, enemySpawnService, unitTracker, startBattleService, mergeUndoService, allySpawnPool, allySpawnService, battleReadiness, enemySelection, signalBus) },
                 { typeof(BattleStartState), new BattleStartState(this) },
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },
                 { typeof(CheckVictoryState), new CheckVictoryState(this, victoryChecker, flowController) },
                 { typeof(StageClearState), new StageClearState(this, flowController, healthRestoration, enemySpawnService, unitTracker, unitRepositioning, gameData) },
-                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker, gameData, signalBus) }
+                { typeof(BattleEndState), new BattleEndState(gameStateMachine, flowController, victoryChecker, gameData, enemySelection, signalBus) }
             };
 
             Debug.Log("[BattleStateMachine] Initialized with 7 battle states");

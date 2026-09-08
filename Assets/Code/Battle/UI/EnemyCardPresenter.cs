@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Code.Animals.Facades;
-using Code.Battle.Services;
-using Code.Battle.Signals;
+using Code.Battle.Selection;
 using Code.Data.Animals;
 using UnityEngine;
 using Zenject;
@@ -14,91 +13,37 @@ namespace Code.Battle.UI
         private const IReadOnlyList<string> KeepPrefabAbilityLines = null;
 
         private readonly IEnemyCardView _view;
-        private readonly IUnitTracker _unitTracker;
+        private readonly IEnemySelectionService _selectionService;
         private readonly AnimalDatabase _database;
-        private readonly SignalBus _signalBus;
 
         private AnimalFacade _tracked;
 
-        public EnemyCardPresenter(
-            IEnemyCardView view,
-            IUnitTracker unitTracker,
-            AnimalDatabase database,
-            SignalBus signalBus)
+        public EnemyCardPresenter(IEnemyCardView view, IEnemySelectionService selectionService,
+            AnimalDatabase database)
         {
             _view = view;
-            _unitTracker = unitTracker;
+            _selectionService = selectionService;
             _database = database;
-            _signalBus = signalBus;
         }
 
-        public void Initialize()
-        {
-            _signalBus.Subscribe<PreBattlePhaseStartedSignal>(OnPreBattlePhaseStarted);
-            _signalBus.Subscribe<UnitTurnStartedSignal>(OnUnitTurnStarted);
-            _signalBus.Subscribe<BattleEndedSignal>(OnBattleEnded);
-        }
+        public void Initialize() => _selectionService.SelectionChanged += OnSelectionChanged;
 
         public void Dispose()
         {
-            _signalBus.Unsubscribe<PreBattlePhaseStartedSignal>(OnPreBattlePhaseStarted);
-            _signalBus.Unsubscribe<UnitTurnStartedSignal>(OnUnitTurnStarted);
-            _signalBus.Unsubscribe<BattleEndedSignal>(OnBattleEnded);
+            _selectionService.SelectionChanged -= OnSelectionChanged;
 
             StopTracking();
         }
 
-        private void OnPreBattlePhaseStarted(PreBattlePhaseStartedSignal signal) => ShowFeaturedEnemy();
-
-        private void OnBattleEnded() => HideCard();
-
-        private void OnUnitTurnStarted(UnitTurnStartedSignal signal)
+        private void OnSelectionChanged(AnimalFacade enemy)
         {
-            if (IsAliveEnemyUnit(signal.Unit) == false)
-                return;
+            StopTracking();
 
-            if (ReferenceEquals(_tracked, signal.Unit))
-                return;
-
-            ShowCard(signal.Unit);
-        }
-
-        private void OnHealthChanged()
-        {
-            if (_tracked == null)
-                return;
-
-            if (IsAlive(_tracked) == false)
-            {
-                ShowFeaturedEnemy();
-                return;
-            }
-
-            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
-        }
-
-        private void ShowFeaturedEnemy()
-        {
-            var enemies = _unitTracker.GetAliveEnemyUnits();
-
-            if (enemies == null || enemies.Count == 0)
-            {
-                HideCard();
-                return;
-            }
-
-            ShowCard(ResolveFeaturedEnemy(enemies));
-        }
-
-        private void ShowCard(AnimalFacade enemy)
-        {
             if (enemy == null)
             {
-                HideCard();
+                _view.Hide();
                 return;
             }
-
-            StopTracking();
 
             _tracked = enemy;
 
@@ -114,11 +59,12 @@ namespace Code.Battle.UI
                 KeepPrefabAbilityLines);
         }
 
-        private void HideCard()
+        private void OnHealthChanged()
         {
-            StopTracking();
+            if (_tracked == null)
+                return;
 
-            _view.Hide();
+            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
         }
 
         private void StopTracking()
@@ -128,39 +74,6 @@ namespace Code.Battle.UI
 
             _tracked = null;
         }
-
-        private AnimalFacade ResolveFeaturedEnemy(IReadOnlyList<AnimalFacade> enemies)
-        {
-            foreach (var enemy in enemies)
-            {
-                if (enemy != null && enemy.IsBoss)
-                    return enemy;
-            }
-
-            return enemies[0];
-        }
-
-        private bool IsAliveEnemyUnit(AnimalFacade unit)
-        {
-            if (unit == null)
-                return false;
-
-            var enemies = _unitTracker.GetAliveEnemyUnits();
-
-            if (enemies == null)
-                return false;
-
-            foreach (var enemy in enemies)
-            {
-                if (ReferenceEquals(enemy, unit))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private bool IsAlive(AnimalFacade unit) =>
-            unit != null && unit.Health != null && unit.Health.IsDead == false;
 
         private int ReadDamage(AnimalFacade enemy) =>
             enemy.AttackInstance != null ? ToStatValue(enemy.GetDamage()) : 0;

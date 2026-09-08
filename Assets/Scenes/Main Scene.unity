@@ -4859,7 +4859,8 @@ MonoBehaviour:
   _battleButton: {fileID: 692326473}
   _statsPanelPrefab: {fileID: 2128353874416221182, guid: fc12e71cb15294d2ab0884a828dd8757,
     type: 3}
-  _enemyCardPrefab: {fileID: 0}
+  _enemyCardPrefab: {fileID: 4030965744223505235, guid: 9fcfbffcead114af0a5b28f831d61675,
+    type: 3}
   _turnOrderPrefab: {fileID: 1389347501294995425, guid: 54920d705f2a74654824a0f5123e8a2c,
     type: 3}
 --- !u!114 &2088146940

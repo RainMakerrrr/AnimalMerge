@@ -1,5 +1,6 @@
 using Code.Animals.Facades;
 using Code.Animals.Selection;
+using Code.Battle.Selection;
 using Code.Infrastructure.Services.Input;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,12 +10,19 @@ namespace Code.Animals
 {
     public class AnimalMover : MonoBehaviour
     {
+        private const string AnimalLayerName = "Animal";
+        private const string EnemyLayerName = "Enemy";
+
         [SerializeField] private float _dragThresholdPixels = 15f;
         [SerializeField] private float _holdTimeToShow = 0.15f;
 
         private IInputService _inputService;
         private Camera _camera;
         private IAnimalSelectionService _selectionService;
+        private IEnemySelectionService _enemySelection;
+
+        private int _enemyLayer;
+        private int _pickMask;
 
         private AnimalFacade _current;
         private Vector3 _originalPosition;
@@ -25,15 +33,20 @@ namespace Code.Animals
         private bool _isDragging;
         private bool _selectionShown;
         private bool _pressedOnSelected;
+        private bool _currentIsEnemy;
 
 
         [Inject]
         private void Construct(IInputService inputService, Camera mainCamera,
-            IAnimalSelectionService selectionService)
+            IAnimalSelectionService selectionService, IEnemySelectionService enemySelection)
         {
             _inputService = inputService;
             _camera = mainCamera;
             _selectionService = selectionService;
+            _enemySelection = enemySelection;
+
+            _enemyLayer = LayerMask.NameToLayer(EnemyLayerName);
+            _pickMask = LayerMask.GetMask(AnimalLayerName, EnemyLayerName);
         }
 
         private void Update()
@@ -76,10 +89,11 @@ namespace Code.Animals
             if (_current == null)
             {
                 _selectionService.Clear();
+                _enemySelection.Clear();
                 return;
             }
 
-            _pressedOnSelected = ReferenceEquals(_current, _selectionService.Selected);
+            _pressedOnSelected = _currentIsEnemy == false && ReferenceEquals(_current, _selectionService.Selected);
 
             _pressScreenPos = _inputService.MousePosition;
             _pressTime = Time.time;
@@ -99,6 +113,14 @@ namespace Code.Animals
 
         private void OnHeld()
         {
+            if (_currentIsEnemy)
+            {
+                if (((Vector2)_inputService.MousePosition - _pressScreenPos).magnitude > DragThreshold())
+                    ResetGesture();
+
+                return;
+            }
+
             if (_isDragging)
             {
                 DragAnimal();
@@ -133,19 +155,24 @@ namespace Code.Animals
 
         private void OnRelease()
         {
+            if (_currentIsEnemy)
+            {
+                _enemySelection.Toggle(_current);
+                ResetGesture();
+                return;
+            }
+
             if (_isDragging)
             {
                 var unitOccupancy = _current.Occupancy;
 
                 if (_current.Movement.TryPlace() == false)
                 {
-                    // Placement failed - restore original position and grid occupancy
                     _current.transform.position = _originalPosition;
                     unitOccupancy?.RestoreState();
                 }
                 else
                 {
-                    // Placement succeeded - clear saved state
                     unitOccupancy?.ClearSavedState();
                 }
 
@@ -169,11 +196,13 @@ namespace Code.Animals
             _isDragging = false;
             _selectionShown = false;
             _pressedOnSelected = false;
+            _currentIsEnemy = false;
         }
 
         private void TryPickAnimal()
         {
             _current = null;
+            _currentIsEnemy = false;
 
             var hit = CastRay();
 
@@ -182,6 +211,7 @@ namespace Code.Animals
                 _current = hit.collider.GetComponentInParent<AnimalFacade>();
                 if (_current != null)
                 {
+                    _currentIsEnemy = _current.gameObject.layer == _enemyLayer;
                     _originalPosition = _current.transform.position;
                     _offset = _current.transform.position - GetMouseAsWorldPoint();
                 }
@@ -226,7 +256,7 @@ namespace Code.Animals
             var worldMousePosNear = _camera.ScreenToWorldPoint(screenMousePosNear);
 
             Physics.Raycast(worldMousePosNear, worldMousePosFar - worldMousePosNear, out var hit, Mathf.Infinity,
-                layerMask: LayerMask.GetMask("Animal"));
+                layerMask: _pickMask);
 
             return hit;
         }

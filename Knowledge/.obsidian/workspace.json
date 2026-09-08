@@ -212,6 +212,11 @@
   },
   "active": "f66210432b7861f6",
   "lastOpenFiles": [
+    "Sessions/2026-09-08.md",
+    "Decisions/2026-09-08-battle-hud-layout-editor-part.md",
+    "Decisions/2026-09-07-battle-hud-layout-iteration-1.md",
+    "Decisions/2026-09-07-battle-camera-zoom.md",
+    "Sessions/2026-09-07.md",
     "Decisions/2026-06-27-fox-dodge-stats.md",
     "Decisions/2026-07-31-min-ally-count-high-water-mark.md",
     "Decisions/2026-07-31-chicken-death-spirit.md",
@@ -234,11 +239,6 @@
     "Decisions/2026-08-01-merge-sweep-glow.md",
     "Index.md.tmp.47673.b86679a3d40d",
     "Decisions/2026-07-31-chicken-death-spirit.md.tmp.47673.ed8ebf5bdf4f",
-    "Decisions/2026-07-31-iridescent-sweep-shader.md",
-    "Decisions/2026-07-31-pre-battle-phase-architecture.md",
-    "Sessions/2026-07-31.md",
-    "Index.md",
-    "Sessions/2026-07-30.md",
-    "Decisions/2026-07-30-grid-config.md"
+    "Decisions/2026-07-31-iridescent-sweep-shader.md"
   ]
 }

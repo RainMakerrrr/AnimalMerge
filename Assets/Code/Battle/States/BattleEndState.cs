@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Code.Battle;
+using Code.Battle.Selection;
 using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
@@ -17,6 +18,7 @@ namespace Code.Battle.States
         private readonly BattleFlowController _flowController;
         private readonly IVictoryConditionChecker _victoryChecker;
         private readonly GameData _gameData;
+        private readonly IEnemySelectionService _enemySelection;
         private readonly SignalBus _signalBus;
 
         public BattleEndState(
@@ -24,12 +26,14 @@ namespace Code.Battle.States
             BattleFlowController flowController,
             IVictoryConditionChecker victoryChecker,
             GameData gameData,
+            IEnemySelectionService enemySelection,
             SignalBus signalBus)
         {
             _gameStateMachine = gameStateMachine;
             _flowController = flowController;
             _victoryChecker = victoryChecker;
             _gameData = gameData;
+            _enemySelection = enemySelection;
             _signalBus = signalBus;
         }
 
@@ -44,6 +48,8 @@ namespace Code.Battle.States
                 Debug.Log("[BattleEndState] Canceled while waiting for death animations");
                 return;
             }
+
+            _enemySelection.Clear();
 
             _signalBus.Fire(new BattleEndedSignal());
 

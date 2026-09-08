@@ -7,6 +7,7 @@ using Code.Battle.Config;
 using Code.Battle.Input;
 using Code.Battle.PreBattle;
 using Code.Battle.PreBattle.Rules;
+using Code.Battle.Selection;
 using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
@@ -40,6 +41,7 @@ namespace Code.Infrastructure.Installers
             BindPreBattle();
             BindBattleCamera();
             BindAnimalStatsPanel();
+            BindEnemySelection();
             BindEnemyCard();
             BindTurnOrder();
             BindBattleStateMachine();
@@ -142,11 +144,13 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<AnimalStatsPanelPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindEnemySelection()
+        {
+            Container.BindInterfacesAndSelfTo<EnemySelectionService>().AsSingle();
+        }
+
         private void BindEnemyCard()
         {
-            if (_enemyCardPrefab == null)
-                return;
-
             Container.Bind<IEnemyCardView>()
                 .To<EnemyCardView>()
                 .FromComponentInNewPrefab(_enemyCardPrefab)
@@ -192,6 +196,9 @@ namespace Code.Infrastructure.Installers
 
             if (_statsPanelPrefab == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_statsPanelPrefab)} is not assigned - assign Assets/Prefabs/AnimalStatsPanelView.prefab", this);
+
+            if (_enemyCardPrefab == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_enemyCardPrefab)} is not assigned - assign Assets/Prefabs/EnemyCardView.prefab", this);
 
             if (_turnOrderPrefab == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_turnOrderPrefab)} is not assigned - assign Assets/Prefabs/TurnOrderView.prefab", this);

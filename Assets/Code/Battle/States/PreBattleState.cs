@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
 using Code.Battle.Input;
 using Code.Battle.PreBattle;
+using Code.Battle.Selection;
 using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
@@ -25,6 +26,7 @@ namespace Code.Battle.States
         private readonly IAllySpawnPool _allySpawnPool;
         private readonly IAllySpawnService _allySpawnService;
         private readonly IBattleReadinessService _battleReadiness;
+        private readonly IEnemySelectionService _enemySelection;
         private readonly SignalBus _signalBus;
 
         private CancellationTokenSource _cancellationTokenSource;
@@ -40,6 +42,7 @@ namespace Code.Battle.States
             IAllySpawnPool allySpawnPool,
             IAllySpawnService allySpawnService,
             IBattleReadinessService battleReadiness,
+            IEnemySelectionService enemySelection,
             SignalBus signalBus)
         {
             _stateMachine = stateMachine;
@@ -51,6 +54,7 @@ namespace Code.Battle.States
             _allySpawnPool = allySpawnPool;
             _allySpawnService = allySpawnService;
             _battleReadiness = battleReadiness;
+            _enemySelection = enemySelection;
             _signalBus = signalBus;
         }
 
@@ -63,6 +67,8 @@ namespace Code.Battle.States
             // Enable merge undo tracking during pre-battle phase
             _mergeUndoService.Enable();
             Debug.Log("[PreBattleState] Merge undo tracking enabled");
+
+            _enemySelection.Clear();
 
             bool isLevelStart = _flowController.IsFirstStageOfLevel;
             bool isStartingPool = false;
