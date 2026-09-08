@@ -1,6 +1,9 @@
+using Code.Animals.Facades;
 using Code.Animals.Movement;
+using Code.Battle.Services;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace Code.Animals.Health
 {
@@ -8,8 +11,24 @@ namespace Code.Animals.Health
     {
         [SerializeField] private AnimalHealth _health;
         [SerializeField] private Image _fillImage;
+        [SerializeField] private RectTransform _enemyIcon;
         [SerializeField] private float _widthPerGridCell = 100f;
         [SerializeField] private float _barHeight = 20f;
+        [SerializeField] private float _enemyIconSize = 36f;
+
+        private IUnitTracker _unitTracker;
+        private AnimalFacade _owner;
+
+        [Inject]
+        private void Construct(IUnitTracker unitTracker)
+        {
+            _unitTracker = unitTracker;
+            _owner = GetComponentInParent<AnimalFacade>(true);
+
+            _unitTracker.EnemyUnitRegistered += OnEnemyUnitRegistered;
+
+            SetEnemyIconVisible(IsTrackedEnemy());
+        }
 
         private void Awake()
         {
@@ -33,6 +52,11 @@ namespace Code.Animals.Health
             rect.sizeDelta = new Vector2(
                 _widthPerGridCell * cells / ownerScale.x,
                 _barHeight / ownerScale.y);
+
+            if (_enemyIcon != null)
+                _enemyIcon.sizeDelta = new Vector2(
+                    _enemyIconSize / ownerScale.x,
+                    _enemyIconSize / ownerScale.y);
         }
 
         private void OnEnable()
@@ -50,6 +74,12 @@ namespace Code.Animals.Health
             _health.Died -= OnDied;
         }
 
+        private void OnDestroy()
+        {
+            if (_unitTracker == null) return;
+            _unitTracker.EnemyUnitRegistered -= OnEnemyUnitRegistered;
+        }
+
         private void Refresh()
         {
             if (_health.Max <= 0f) return;
@@ -57,6 +87,33 @@ namespace Code.Animals.Health
         }
 
         private void OnDied() => gameObject.SetActive(false);
+
+        private void OnEnemyUnitRegistered(AnimalFacade unit)
+        {
+            if (_owner == null || unit != _owner) return;
+            SetEnemyIconVisible(true);
+        }
+
+        private bool IsTrackedEnemy()
+        {
+            if (_owner == null) return false;
+
+            var enemies = _unitTracker.GetAliveEnemyUnits();
+
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (enemies[i] == _owner)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void SetEnemyIconVisible(bool isVisible)
+        {
+            if (_enemyIcon == null) return;
+            _enemyIcon.gameObject.SetActive(isVisible);
+        }
 
         private static void SetLayerRecursively(GameObject go, int layer)
         {

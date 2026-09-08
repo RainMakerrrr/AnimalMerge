@@ -2,6 +2,7 @@ using Code.Animals;
 using Code.Animals.Merge.Services;
 using Code.Animals.UI;
 using Code.Battle;
+using Code.Battle.CameraControl;
 using Code.Battle.Config;
 using Code.Battle.Input;
 using Code.Battle.PreBattle;
@@ -23,9 +24,11 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private TargetFinder _targetFinder;
         [SerializeField] private AnimalSpawner _animalSpawner;
         [SerializeField] private PreBattleConfig _preBattleConfig;
+        [SerializeField] private BattleCameraConfig _battleCameraConfig;
         [SerializeField] private AddAnimalButtonView _addAnimalButton;
         [SerializeField] private BattleButtonView _battleButton;
         [SerializeField] private AnimalStatsPanelView _statsPanelPrefab;
+        [SerializeField] private EnemyCardView _enemyCardPrefab;
         [SerializeField] private TurnOrderView _turnOrderPrefab;
 
         public override void InstallBindings()
@@ -35,7 +38,9 @@ namespace Code.Infrastructure.Installers
             DeclareSignals();
             BindServices();
             BindPreBattle();
+            BindBattleCamera();
             BindAnimalStatsPanel();
+            BindEnemyCard();
             BindTurnOrder();
             BindBattleStateMachine();
             BindBattleFlowController();
@@ -51,6 +56,8 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<TurnRoundStartedSignal>().OptionalSubscriber();
             Container.DeclareSignal<UnitTurnStartedSignal>().OptionalSubscriber();
             Container.DeclareSignal<UnitTurnCompletedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<BattleStartedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<BattleEndedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()
@@ -118,6 +125,13 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<PreBattleHudPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindBattleCamera()
+        {
+            Container.Bind<BattleCameraConfig>().FromInstance(_battleCameraConfig).AsSingle();
+            Container.BindInterfacesTo<BattleCameraService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<BattleCameraPresenter>().AsSingle().NonLazy();
+        }
+
         private void BindAnimalStatsPanel()
         {
             Container.Bind<IAnimalStatsPanelView>()
@@ -126,6 +140,19 @@ namespace Code.Infrastructure.Installers
                 .AsSingle();
 
             Container.BindInterfacesAndSelfTo<AnimalStatsPanelPresenter>().AsSingle().NonLazy();
+        }
+
+        private void BindEnemyCard()
+        {
+            if (_enemyCardPrefab == null)
+                return;
+
+            Container.Bind<IEnemyCardView>()
+                .To<EnemyCardView>()
+                .FromComponentInNewPrefab(_enemyCardPrefab)
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<EnemyCardPresenter>().AsSingle().NonLazy();
         }
 
         private void BindTurnOrder()
@@ -153,6 +180,9 @@ namespace Code.Infrastructure.Installers
         {
             if (_preBattleConfig == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_preBattleConfig)} is not assigned - assign Assets/Settings/BattleConfigs/PreBattleConfig.asset", this);
+
+            if (_battleCameraConfig == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_battleCameraConfig)} is not assigned - assign Assets/Settings/BattleConfigs/BattleCameraConfig.asset", this);
 
             if (_addAnimalButton == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_addAnimalButton)} is not assigned - assign the Add Animal button from the scene", this);

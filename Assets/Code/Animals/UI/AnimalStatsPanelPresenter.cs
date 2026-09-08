@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Code.Animals.Facades;
 using Code.Animals.Selection;
 using Code.Data.Animals;
@@ -9,6 +10,8 @@ namespace Code.Animals.UI
 {
     public class AnimalStatsPanelPresenter : IInitializable, IDisposable
     {
+        private const IReadOnlyList<string> KeepPrefabAbilityLines = null;
+
         private readonly IAnimalSelectionService _selectionService;
         private readonly IAnimalStatsPanelView _view;
         private readonly AnimalDatabase _database;
@@ -47,7 +50,13 @@ namespace Code.Animals.UI
             if (_tracked.Health != null)
                 _tracked.Health.HealthChanged += OnHealthChanged;
 
-            _view.Show(animal.transform, _database.GetIcon(animal.Type), ReadDamage(animal), ReadHealth(animal));
+            _view.Show(
+                animal.transform,
+                _database.GetIcon(animal.Type),
+                ReadDamage(animal),
+                ReadHealth(animal),
+                animal.Type.ToString(),
+                KeepPrefabAbilityLines);
         }
 
         private void OnHealthChanged()

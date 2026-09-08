@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Code.Animals.UI
+namespace Code.Battle.UI
 {
-    public interface IAnimalStatsPanelView
+    public interface IEnemyCardView
     {
         void Show(Transform anchor, Sprite icon, int attack, int health, string title,
             IReadOnlyList<string> abilityLines);

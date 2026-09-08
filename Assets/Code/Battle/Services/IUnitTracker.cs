@@ -7,6 +7,7 @@ namespace Code.Battle.Services
     public interface IUnitTracker
     {
         event Action PlayerUnitsChanged;
+        event Action<AnimalFacade> EnemyUnitRegistered;
 
         void RegisterPlayerUnit(AnimalFacade unit);
         void RegisterEnemyUnit(AnimalFacade unit);

@@ -12,6 +12,7 @@ namespace Code.Battle.Services
         private readonly List<AnimalFacade> _enemyUnits;
 
         public event Action PlayerUnitsChanged;
+        public event Action<AnimalFacade> EnemyUnitRegistered;
 
         public bool WasBossRegistered { get; private set; }
 
@@ -51,6 +52,8 @@ namespace Code.Battle.Services
                 {
                     WasBossRegistered = true;
                 }
+
+                EnemyUnitRegistered?.Invoke(unit);
             }
         }
 

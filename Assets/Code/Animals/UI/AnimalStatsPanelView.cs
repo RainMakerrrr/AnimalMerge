@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -11,8 +12,10 @@ namespace Code.Animals.UI
     public class AnimalStatsPanelView : MonoBehaviour, IAnimalStatsPanelView
     {
         [SerializeField] private Image _headIcon;
+        [SerializeField] private TextMeshProUGUI _titleLabel;
         [SerializeField] private TextMeshProUGUI _attackLabel;
         [SerializeField] private TextMeshProUGUI _healthLabel;
+        [SerializeField] private TextMeshProUGUI[] _abilityLabels;
         [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 0.6f, 0f);
         [SerializeField] private Vector2 _screenOffset = new Vector2(-220f, 60f);
@@ -64,7 +67,8 @@ namespace Code.Animals.UI
 
         private void OnDestroy() => KillSequence();
 
-        public void Show(Transform anchor, Sprite icon, int attack, int health)
+        public void Show(Transform anchor, Sprite icon, int attack, int health, string title,
+            IReadOnlyList<string> abilityLines)
         {
             if (anchor == null)
                 return;
@@ -72,6 +76,8 @@ namespace Code.Animals.UI
             _anchor = anchor;
 
             ApplyIcon(icon);
+            ApplyTitle(title);
+            ApplyAbilityLines(abilityLines);
             UpdateStats(attack, health);
             UpdatePosition();
 
@@ -115,6 +121,38 @@ namespace Code.Animals.UI
             _headIcon.gameObject.SetActive(icon != null);
         }
 
+        private void ApplyTitle(string title)
+        {
+            if (_titleLabel == null)
+                return;
+
+            bool hasTitle = string.IsNullOrEmpty(title) == false;
+
+            _titleLabel.text = hasTitle ? title : string.Empty;
+            _titleLabel.gameObject.SetActive(hasTitle);
+        }
+
+        private void ApplyAbilityLines(IReadOnlyList<string> abilityLines)
+        {
+            if (abilityLines == null || _abilityLabels == null)
+                return;
+
+            for (int i = 0; i < _abilityLabels.Length; i++)
+            {
+                var label = _abilityLabels[i];
+
+                if (label == null)
+                    continue;
+
+                bool hasLine = i < abilityLines.Count;
+
+                if (hasLine)
+                    label.text = abilityLines[i];
+
+                label.gameObject.SetActive(hasLine);
+            }
+        }
+
         private void UpdatePosition()
         {
             if (_camera == null || _canvasRectTransform == null)
@@ -132,9 +170,14 @@ namespace Code.Animals.UI
             _rectTransform.anchoredPosition = ResolvePanelPosition(localPoint);
         }
 
+        protected virtual bool ShouldAvoidCoveringAnchor => true;
+
         private Vector2 ResolvePanelPosition(Vector2 anchorPoint)
         {
             var preferred = ClampInsideCanvas(anchorPoint + _screenOffset);
+
+            if (ShouldAvoidCoveringAnchor == false)
+                return preferred;
 
             if (CoversAnchor(preferred, anchorPoint) == false)
                 return preferred;
