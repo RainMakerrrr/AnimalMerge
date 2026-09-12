@@ -44,6 +44,7 @@ namespace Code.Editor.BattleSceneBuilder
             {
                 EditorAllyPlacer.PlaceStartingPool(
                     request.PreBattleConfig,
+                    request.Level,
                     request.GameGrid,
                     BattleSceneRoot.CreateChild(root.transform, AlliesParentName),
                     report);

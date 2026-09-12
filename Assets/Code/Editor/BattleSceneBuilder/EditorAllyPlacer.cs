@@ -2,6 +2,7 @@
 using Code.Animals;
 using Code.Animals.Facades;
 using Code.Battle.Config;
+using Code.Battle.PreBattle;
 using Code.GridPathfinding;
 using Framework.Code;
 using UnityEditor;
@@ -13,6 +14,7 @@ namespace Code.Editor.BattleSceneBuilder
     {
         public static void PlaceStartingPool(
             PreBattleConfig config,
+            int level,
             GridManager grid,
             Transform parent,
             BattleSceneBuildReport report)
@@ -29,9 +31,11 @@ namespace Code.Editor.BattleSceneBuilder
                 return;
             }
 
-            if (config.StartingPool == null || config.StartingPool.Count == 0)
+            var roster = AnimalRosterResolver.Resolve(config, level);
+
+            if (roster.Count == 0)
             {
-                report.AddWarning("Starting pool is empty, no allies to place");
+                report.AddWarning("Animal roster is empty, no allies to place");
                 return;
             }
 
@@ -43,7 +47,7 @@ namespace Code.Editor.BattleSceneBuilder
                 return;
             }
 
-            foreach (var animalType in config.StartingPool)
+            foreach (var animalType in roster)
             {
                 if (!prefabsByType.TryGetValue(animalType, out var prefab))
                 {

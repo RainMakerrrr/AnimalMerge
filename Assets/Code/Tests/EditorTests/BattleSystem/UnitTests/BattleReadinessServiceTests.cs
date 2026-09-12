@@ -21,6 +21,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         private PreBattleConfig _config;
         private AllySpawnPool _pool;
         private IUnitTracker _unitTracker;
+        private IAllySpawnService _spawnService;
         private SignalBus _signalBus;
         private MinAllyCountRule _minAllyRule;
         private PoolExhaustedRule _poolRule;
@@ -35,7 +36,11 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
             _signalBus = BattleTestHelper.CreatePreBattleSignalBus();
             _minAllyRule = new MinAllyCountRule(_config, _unitTracker, _signalBus);
-            _poolRule = new PoolExhaustedRule(_pool, _signalBus);
+
+            _spawnService = Substitute.For<IAllySpawnService>();
+            _spawnService.CanSpawn.Returns(true);
+
+            _poolRule = new PoolExhaustedRule(_pool, _spawnService, _signalBus);
 
             var rules = new List<IBattleReadinessRule>
             {

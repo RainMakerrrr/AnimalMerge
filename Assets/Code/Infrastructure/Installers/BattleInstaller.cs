@@ -114,6 +114,8 @@ namespace Code.Infrastructure.Installers
         {
             Container.Bind<PreBattleConfig>().FromInstance(_preBattleConfig).AsSingle();
 
+            Container.Bind<IAnimalRosterService>().To<AnimalRosterService>().AsSingle();
+
             Container.Bind<IAllySpawnPool>().To<AllySpawnPool>().AsSingle();
             Container.Bind<IAllySpawnService>().To<AllySpawnService>().AsSingle();
 

@@ -727,19 +727,7 @@ namespace Code.GridPathfinding
                    && DeploymentZone.ContainsAll(footprintCells);
         }
 
-        private static UnitSize GetFootprint(AnimalType animalType)
-        {
-            return animalType switch
-            {
-                AnimalType.Elephant => new UnitSize(2, 2),
-                AnimalType.Chicken => ChickenFlock.Footprint,
-                AnimalType.Cheetah => new UnitSize(1, 2),
-                AnimalType.Deer => new UnitSize(1, 2),
-                AnimalType.Fox => new UnitSize(1, 2),
-                AnimalType.Hedgehog => new UnitSize(1, 2),
-                _ => new UnitSize(1, 1)
-            };
-        }
+        private static UnitSize GetFootprint(AnimalType animalType) => AnimalFootprints.For(animalType);
 
         /// <summary>
         /// Places an animal on the first available valid position in the grid

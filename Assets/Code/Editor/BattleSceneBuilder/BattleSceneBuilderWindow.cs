@@ -11,6 +11,7 @@ namespace Code.Editor.BattleSceneBuilder
     {
         [SerializeField] private LevelStageConfig _stageConfig;
         [SerializeField] private PreBattleConfig _preBattleConfig;
+        [SerializeField] private int _previewLevel = 1;
         [SerializeField] private GridManager _gameGrid;
         [SerializeField] private bool _buildEnemies = true;
         [SerializeField] private bool _buildAllies = true;
@@ -55,6 +56,8 @@ namespace Code.Editor.BattleSceneBuilder
 
             _preBattleConfig = (PreBattleConfig)EditorGUILayout.ObjectField(
                 "Pre Battle Config", _preBattleConfig, typeof(PreBattleConfig), false);
+
+            _previewLevel = Mathf.Max(1, EditorGUILayout.IntField("Preview Level", _previewLevel));
 
             DrawSceneReferences();
 
@@ -138,6 +141,7 @@ namespace Code.Editor.BattleSceneBuilder
             {
                 StageConfig = _stageConfig,
                 PreBattleConfig = _preBattleConfig,
+                Level = _previewLevel,
                 GameGrid = _gameGrid,
                 BuildAllies = _buildAllies,
                 BuildEnemies = _buildEnemies

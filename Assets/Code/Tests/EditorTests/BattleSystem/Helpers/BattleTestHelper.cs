@@ -71,19 +71,19 @@ namespace Code.Tests.EditorTests.BattleSystem.Helpers
         public static PreBattleConfig CreatePreBattleConfig(
             int minAlliesToStart,
             int reinforcementsPerLevel = 1,
-            AnimalType[] startingPool = null,
-            AnimalType[] randomPool = null)
+            AnimalType[] baseRoster = null,
+            AnimalUnlockEntry[] unlocks = null)
         {
             var config = ScriptableObject.CreateInstance<PreBattleConfig>();
             SetPrivateField(config, "_minAlliesToStart", minAlliesToStart);
             SetPrivateField(config, "_reinforcementsPerLevel", reinforcementsPerLevel);
-            SetPrivateField(config, "_startingPool", startingPool ?? new[]
+            SetPrivateField(config, "_baseRoster", baseRoster ?? new[]
             {
                 AnimalType.Cheetah,
                 AnimalType.Fox,
                 AnimalType.Elephant
             });
-            SetPrivateField(config, "_randomPool", randomPool ?? new[] { AnimalType.Hedgehog });
+            SetPrivateField(config, "_unlocks", unlocks ?? new AnimalUnlockEntry[0]);
             return config;
         }
 

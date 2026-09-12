@@ -21,6 +21,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
         private AllySpawnPool _pool;
         private IAnimalSpawner _animalSpawner;
         private IUnitTracker _unitTracker;
+        private IAnimalRosterService _roster;
         private SignalBus _signalBus;
         private AllySpawnService _service;
 
@@ -40,7 +41,12 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker = BattleTestHelper.CreateMockUnitTracker();
             _signalBus = BattleTestHelper.CreatePreBattleSignalBus();
 
-            _service = new AllySpawnService(_pool, _animalSpawner, _unitTracker, _config, _signalBus);
+            _roster = Substitute.For<IAnimalRosterService>();
+            _roster.CurrentLevel.Returns(1);
+            _roster.AvailableAnimals.Returns(new List<AnimalType> { AnimalType.Hedgehog });
+            _roster.NewlyUnlockedAnimals.Returns(new List<AnimalType>());
+
+            _service = new AllySpawnService(_pool, _animalSpawner, _unitTracker, _roster, _config, _signalBus);
         }
 
         [TearDown]
@@ -158,7 +164,7 @@ namespace Code.Tests.EditorTests.BattleSystem.UnitTests
             _unitTracker.DidNotReceiveWithAnyArgs().RegisterPlayerUnit(null);
 
             _pool.TryPeekNext(out var queuedType).Should().BeTrue();
-            queuedType.Should().Be(AnimalType.Hedgehog, "the random type is drawn from PreBattleConfig.RandomPool");
+            queuedType.Should().Be(AnimalType.Hedgehog, "the random type is drawn from the animals available at the current level");
         }
 
         private void StubSpawnResult(params AnimalFacade[] facades)

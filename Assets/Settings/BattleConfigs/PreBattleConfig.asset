@@ -12,7 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0765c43a9289c4cc29f098b4359bce17, type: 3}
   m_Name: PreBattleConfig
   m_EditorClassIdentifier: 
-  _startingPool: 010000000300000000000000
-  _randomPool: 000000000100000002000000030000000400000005000000
+  _baseRoster: 010000000300000000000000
+  _unlocks:
+  - _completedLevel: 1
+    _animal: 2
+  - _completedLevel: 2
+    _animal: 4
+  - _completedLevel: 3
+    _animal: 5
+  _guaranteeNewlyUnlockedReinforcement: 1
   _minAlliesToStart: 2
   _reinforcementsPerLevel: 1

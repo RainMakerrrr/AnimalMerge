@@ -9,6 +9,7 @@ namespace Code.Editor.BattleSceneBuilder
         public LevelStageConfig StageConfig { get; set; }
         public PreBattleConfig PreBattleConfig { get; set; }
         public GridManager GameGrid { get; set; }
+        public int Level { get; set; }
         public bool BuildAllies { get; set; }
         public bool BuildEnemies { get; set; }
     }
