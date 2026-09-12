@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Code.Animals.Facades;
+using Code.Animals.Merge.Services;
 using Code.Animals.Selection;
 using Code.Data.Animals;
 using UnityEngine;
@@ -10,27 +10,34 @@ namespace Code.Animals.UI
 {
     public class AnimalStatsPanelPresenter : IInitializable, IDisposable
     {
-        private const IReadOnlyList<string> KeepPrefabAbilityLines = null;
-
         private readonly IAnimalSelectionService _selectionService;
         private readonly IAnimalStatsPanelView _view;
         private readonly AnimalDatabase _database;
+        private readonly IAbilityLinesProvider _abilityLinesProvider;
+        private readonly IMergeUndoService _mergeUndoService;
 
         private AnimalFacade _tracked;
 
         public AnimalStatsPanelPresenter(IAnimalSelectionService selectionService, IAnimalStatsPanelView view,
-            AnimalDatabase database)
+            AnimalDatabase database, IAbilityLinesProvider abilityLinesProvider, IMergeUndoService mergeUndoService)
         {
             _selectionService = selectionService;
             _view = view;
             _database = database;
+            _abilityLinesProvider = abilityLinesProvider;
+            _mergeUndoService = mergeUndoService;
         }
 
-        public void Initialize() => _selectionService.SelectionChanged += OnSelectionChanged;
+        public void Initialize()
+        {
+            _selectionService.SelectionChanged += OnSelectionChanged;
+            _mergeUndoService.OnStackCountChanged += OnUndoStackCountChanged;
+        }
 
         public void Dispose()
         {
             _selectionService.SelectionChanged -= OnSelectionChanged;
+            _mergeUndoService.OnStackCountChanged -= OnUndoStackCountChanged;
 
             StopTracking();
         }
@@ -56,7 +63,16 @@ namespace Code.Animals.UI
                 ReadDamage(animal),
                 ReadHealth(animal),
                 animal.Type.ToString(),
-                KeepPrefabAbilityLines);
+                _abilityLinesProvider.Build(animal));
+        }
+
+        private void OnUndoStackCountChanged(int stackCount)
+        {
+            if (_tracked == null)
+                return;
+
+            _view.UpdateAbilityLines(_abilityLinesProvider.Build(_tracked));
+            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
         }
 
         private void OnHealthChanged()

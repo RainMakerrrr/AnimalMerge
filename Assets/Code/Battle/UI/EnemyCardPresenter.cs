@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Code.Animals.Facades;
+using Code.Animals.UI;
 using Code.Battle.Selection;
 using Code.Data.Animals;
 using UnityEngine;
@@ -10,20 +10,20 @@ namespace Code.Battle.UI
 {
     public class EnemyCardPresenter : IInitializable, IDisposable
     {
-        private const IReadOnlyList<string> KeepPrefabAbilityLines = null;
-
         private readonly IEnemyCardView _view;
         private readonly IEnemySelectionService _selectionService;
         private readonly AnimalDatabase _database;
+        private readonly IAbilityLinesProvider _abilityLinesProvider;
 
         private AnimalFacade _tracked;
 
         public EnemyCardPresenter(IEnemyCardView view, IEnemySelectionService selectionService,
-            AnimalDatabase database)
+            AnimalDatabase database, IAbilityLinesProvider abilityLinesProvider)
         {
             _view = view;
             _selectionService = selectionService;
             _database = database;
+            _abilityLinesProvider = abilityLinesProvider;
         }
 
         public void Initialize() => _selectionService.SelectionChanged += OnSelectionChanged;
@@ -56,7 +56,7 @@ namespace Code.Battle.UI
                 ReadDamage(enemy),
                 ReadHealth(enemy),
                 enemy.Type.ToString(),
-                KeepPrefabAbilityLines);
+                _abilityLinesProvider.Build(enemy));
         }
 
         private void OnHealthChanged()

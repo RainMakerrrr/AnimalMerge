@@ -9,9 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02a40683236b4589b4586295be012ec9, type: 3}
+  m_Script: {fileID: 11500000, guid: e1b7b645b303b43e69b72e4f77db14c8, type: 3}
   m_Name: VelociraptorStats
   m_EditorClassIdentifier: 
   _health: 150
   _damage: 250
   _tilesPerMove: 4
+  _ownerRetreatChance: 100
+  _inheritedRetreatChance: 50

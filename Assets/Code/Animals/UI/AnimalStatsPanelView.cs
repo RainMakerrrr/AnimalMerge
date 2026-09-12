@@ -22,6 +22,7 @@ namespace Code.Animals.UI
         [SerializeField] private float _edgePadding = 12f;
         [SerializeField] private float _fadeDuration = 0.15f;
         [SerializeField] private float _appearScale = 0.85f;
+        [SerializeField] private float _abilityLineHeight;
 
         private RectTransform _rectTransform;
         private RectTransform _canvasRectTransform;
@@ -29,6 +30,8 @@ namespace Code.Animals.UI
         private Camera _camera;
         private Transform _anchor;
         private Sequence _sequence;
+        private float _baseHeight;
+        private float _abilityLinesHeight;
 
         [Inject]
         private void Construct(Canvas canvas, Camera camera)
@@ -40,6 +43,7 @@ namespace Code.Animals.UI
         private void Awake()
         {
             _rectTransform = (RectTransform)transform;
+            _baseHeight = _rectTransform.sizeDelta.y;
 
             if (_canvasGroup == null)
                 _canvasGroup = GetComponent<CanvasGroup>();
@@ -90,6 +94,8 @@ namespace Code.Animals.UI
             _sequence.Join(_rectTransform.DOScale(1f, _fadeDuration).SetEase(Ease.OutBack));
         }
 
+        public void UpdateAbilityLines(IReadOnlyList<string> abilityLines) => ApplyAbilityLines(abilityLines);
+
         public void UpdateStats(int attack, int health)
         {
             if (_attackLabel != null)
@@ -134,8 +140,13 @@ namespace Code.Animals.UI
 
         private void ApplyAbilityLines(IReadOnlyList<string> abilityLines)
         {
-            if (abilityLines == null || _abilityLabels == null)
+            if (_abilityLabels == null)
                 return;
+
+            int lineCount = abilityLines?.Count ?? 0;
+
+            if (lineCount > _abilityLabels.Length)
+                Debug.LogWarning($"[{nameof(AnimalStatsPanelView)}] {lineCount} ability lines do not fit into {_abilityLabels.Length} labels - the rest is not shown.", this);
 
             for (int i = 0; i < _abilityLabels.Length; i++)
             {
@@ -144,13 +155,27 @@ namespace Code.Animals.UI
                 if (label == null)
                     continue;
 
-                bool hasLine = i < abilityLines.Count;
+                bool hasLine = i < lineCount;
 
                 if (hasLine)
                     label.text = abilityLines[i];
 
                 label.gameObject.SetActive(hasLine);
             }
+
+            ApplyHeight(Mathf.Min(lineCount, _abilityLabels.Length));
+        }
+
+        private void ApplyHeight(int visibleLineCount)
+        {
+            if (_abilityLineHeight <= 0f)
+                return;
+
+            _abilityLinesHeight = visibleLineCount * _abilityLineHeight;
+
+            _rectTransform.sizeDelta = new Vector2(
+                _rectTransform.sizeDelta.x,
+                _baseHeight + _abilityLinesHeight);
         }
 
         private void UpdatePosition()
@@ -172,9 +197,13 @@ namespace Code.Animals.UI
 
         protected virtual bool ShouldAvoidCoveringAnchor => true;
 
+        private Vector2 ScreenOffsetKeepingTopEdge =>
+            new Vector2(_screenOffset.x, _screenOffset.y - _abilityLinesHeight * 0.5f);
+
         private Vector2 ResolvePanelPosition(Vector2 anchorPoint)
         {
-            var preferred = ClampInsideCanvas(anchorPoint + _screenOffset);
+            var offset = ScreenOffsetKeepingTopEdge;
+            var preferred = ClampInsideCanvas(anchorPoint + offset);
 
             if (ShouldAvoidCoveringAnchor == false)
                 return preferred;
@@ -182,7 +211,7 @@ namespace Code.Animals.UI
             if (CoversAnchor(preferred, anchorPoint) == false)
                 return preferred;
 
-            var mirrored = ClampInsideCanvas(anchorPoint + new Vector2(-_screenOffset.x, _screenOffset.y));
+            var mirrored = ClampInsideCanvas(anchorPoint + new Vector2(-offset.x, offset.y));
 
             return CoversAnchor(mirrored, anchorPoint) ? preferred : mirrored;
         }

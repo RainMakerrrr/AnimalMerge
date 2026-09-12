@@ -8,6 +8,8 @@ namespace Code.Animals.UI
         void Show(Transform anchor, Sprite icon, int attack, int health, string title,
             IReadOnlyList<string> abilityLines);
 
+        void UpdateAbilityLines(IReadOnlyList<string> abilityLines);
+
         void UpdateStats(int attack, int health);
 
         void Hide();

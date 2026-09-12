@@ -40,6 +40,7 @@ namespace Code.Infrastructure.Installers
             BindServices();
             BindPreBattle();
             BindBattleCamera();
+            BindAbilityLines();
             BindAnimalStatsPanel();
             BindEnemySelection();
             BindEnemyCard();
@@ -134,6 +135,11 @@ namespace Code.Infrastructure.Installers
             Container.Bind<BattleCameraConfig>().FromInstance(_battleCameraConfig).AsSingle();
             Container.BindInterfacesTo<BattleCameraService>().AsSingle();
             Container.BindInterfacesAndSelfTo<BattleCameraPresenter>().AsSingle().NonLazy();
+        }
+
+        private void BindAbilityLines()
+        {
+            Container.Bind<IAbilityLinesProvider>().To<AbilityLinesProvider>().AsSingle();
         }
 
         private void BindAnimalStatsPanel()

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Code.Abilities
 {
-    public class CounterAttack : IAbility
+    public class CounterAttack : IAbility, IDescribableAbility
     {
         private readonly AnimalHealth _health;
         private readonly AnimalAnimator _animator;
@@ -43,6 +43,8 @@ namespace Code.Abilities
             _successChance = successChance;
             _randomProvider = randomProvider;
         }
+
+        public AbilityDescription Describe() => new AbilityDescription(AbilityKind.CounterAttack, _successChance);
 
         public async UniTask Apply()
         {

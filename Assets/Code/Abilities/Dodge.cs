@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Code.Abilities
 {
-    public class Dodge : IAbility
+    public class Dodge : IAbility, IDescribableAbility
     {
         private readonly ITransformable _transformable;
         private readonly Collider[] _colliders;
@@ -43,6 +43,8 @@ namespace Code.Abilities
             _successChance = successChance;
             _randomProvider = randomProvider;
         }
+
+        public AbilityDescription Describe() => new AbilityDescription(AbilityKind.Dodge, _successChance);
 
         public async UniTask Apply()
         {
