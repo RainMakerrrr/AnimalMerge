@@ -12,6 +12,7 @@ using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
 using Code.Battle.UI;
+using Code.Levels;
 using UnityEngine;
 using Zenject;
 
@@ -113,7 +114,7 @@ namespace Code.Infrastructure.Installers
 
         private void BindPreBattle()
         {
-            Container.Bind<PreBattleConfig>().FromInstance(_preBattleConfig).AsSingle();
+            Container.Bind<PreBattleConfig>().FromMethod(ResolvePreBattleConfig).AsSingle();
 
             Container.Bind<IAnimalRosterService>().To<AnimalRosterService>().AsSingle();
 
@@ -128,6 +129,14 @@ namespace Code.Infrastructure.Installers
             Container.Bind<AddAnimalButtonView>().FromInstance(_addAnimalButton).AsSingle();
             Container.Bind<BattleButtonView>().FromInstance(_battleButton).AsSingle();
             Container.BindInterfacesAndSelfTo<PreBattleHudPresenter>().AsSingle().NonLazy();
+        }
+
+        private PreBattleConfig ResolvePreBattleConfig(InjectContext context)
+        {
+            LevelSet activeSet = context.Container.Resolve<ILevelSetProvider>().ActiveSet;
+            PreBattleConfig perSetConfig = activeSet == null ? null : activeSet.PreBattleConfig;
+
+            return perSetConfig != null ? perSetConfig : _preBattleConfig;
         }
 
         private void BindBattleCamera()

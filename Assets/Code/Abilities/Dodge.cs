@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Code.Abilities
 {
-    public class Dodge : IAbility, IDescribableAbility
+    public class Dodge : IMutuallyExclusiveAbility, IDescribableAbility
     {
         private readonly ITransformable _transformable;
         private readonly Collider[] _colliders;

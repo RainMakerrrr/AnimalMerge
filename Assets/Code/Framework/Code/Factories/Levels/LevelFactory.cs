@@ -1,4 +1,4 @@
-using Framework.Code.Infrastructure.Services.Assets;
+using Code.Levels;
 using Framework.Code.Infrastructure.Services.PersistentProgress;
 using UnityEngine;
 using Zenject;
@@ -9,11 +9,9 @@ namespace Framework.Code.Factories.Levels
 	{
 		private readonly DiContainer _diContainer;
 		private readonly IPersistentProgressService _progressService;
-		private readonly IAssetProvider _assetProvider;
+		private readonly ILevelSetProvider _levelSetProvider;
 
-		private string[] _tutorialLevels;
-		private string[] _levels;
-		private LevelDataBase _levelDataBase;
+		private LevelSet _activeSet;
 
 		public Level CurrentLevel { get; private set; }
 
@@ -27,23 +25,26 @@ namespace Framework.Code.Factories.Levels
 			}
 		}
 
-		private int TutorialLevelsCount => _tutorialLevels?.Length ?? 0;
+		private int TutorialLevelsCount => _activeSet == null ? 0 : _activeSet.TutorialLevels.Count;
 
-		private int RegularLevelsCount => _levels?.Length ?? 0;
+		private int RegularLevelsCount => _activeSet == null ? 0 : _activeSet.Levels.Count;
 
 		public LevelFactory(DiContainer diContainer, IPersistentProgressService progressService,
-			IAssetProvider assetProvider)
+			ILevelSetProvider levelSetProvider)
 		{
 			_diContainer = diContainer;
 			_progressService = progressService;
-			_assetProvider = assetProvider;
+			_levelSetProvider = levelSetProvider;
 		}
 
 		public void Load()
 		{
-			_levelDataBase = _assetProvider.Load<LevelDataBase>(AssetPath.LEVELS_DATABASE);
-			_tutorialLevels = _levelDataBase.TutorialLevels;
-			_levels = _levelDataBase.Levels;
+			_activeSet = _levelSetProvider.ActiveSet;
+
+			if (_activeSet == null)
+				Debug.LogError(
+					$"No active level set. Create Assets/Resources/{AssetPath.LEVEL_SET_LIBRARY}.asset " +
+					"and pick a default set in Tools/AnimalMerge/Level Sets");
 		}
 
 		public Level Create()
@@ -84,7 +85,7 @@ namespace Framework.Code.Factories.Levels
 
 		private void EnsureLoaded()
 		{
-			if (_levelDataBase == null)
+			if (_activeSet != _levelSetProvider.ActiveSet)
 				Load();
 		}
 
@@ -99,12 +100,11 @@ namespace Framework.Code.Factories.Levels
 			}
 
 			if (requestedLevel <= TutorialLevelsCount)
-				return _assetProvider.Load<Level>(
-					$"{AssetPath.TUTORIAL_LEVELS}/{_tutorialLevels[requestedLevel - 1]}");
+				return _activeSet.TutorialLevels[requestedLevel - 1];
 
 			int levelIndex = requestedLevel - TutorialLevelsCount - 1;
 
-			return _assetProvider.Load<Level>($"{AssetPath.LEVELS}/{_levels[levelIndex]}");
+			return _activeSet.Levels[levelIndex];
 		}
 	}
 }

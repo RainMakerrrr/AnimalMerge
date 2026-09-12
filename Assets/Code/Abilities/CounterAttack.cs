@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Code.Abilities
 {
-    public class CounterAttack : IAbility, IDescribableAbility
+    public class CounterAttack : IMutuallyExclusiveAbility, IDescribableAbility
     {
         private readonly AnimalHealth _health;
         private readonly AnimalAnimator _animator;

@@ -8,7 +8,8 @@ namespace Code.Abilities
     /// <summary>
     /// Manages a collection of abilities and handles their execution.
     /// Abilities are executed in priority order (higher priority first).
-    /// If an ability blocks damage, subsequent abilities are not executed.
+    /// At most one <see cref="IMutuallyExclusiveAbility"/> is applied per execution:
+    /// once one of them is applied, the remaining ones are skipped.
     /// </summary>
     public class AbilityManager
     {
@@ -79,7 +80,8 @@ namespace Code.Abilities
         /// <summary>
         /// Executes all registered abilities in priority order.
         /// Higher priority abilities are executed first.
-        /// All abilities that can be used (CanUse returns true) will execute.
+        /// Every ability that can be used (CanUse returns true) will execute, except mutually
+        /// exclusive ones after the first of them has been applied.
         /// If any blocking ability is triggered, damage will be blocked (but other abilities still execute).
         /// </summary>
         /// <param name="context">The context containing information about the damage event.</param>
@@ -98,37 +100,11 @@ namespace Code.Abilities
                 return false;
             }
 
-            // Sort abilities by priority (descending) - cache the result
-            if (_sortedAbilities == null)
-            {
-                _sortedAbilities = _abilities.OrderByDescending(a => a.Priority).ToList();
-            }
+            var sortedAbilities = GetSortedAbilities();
 
-            Debug.Log($"[AbilityManager] Executing {_sortedAbilities.Count} abilities");
+            Debug.Log($"[AbilityManager] Executing {sortedAbilities.Count} abilities");
 
-            bool damageBlocked = false;
-
-            foreach (var ability in _sortedAbilities)
-            {
-                if (!ability.CanUse(context.Attacker))
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
-                    continue;
-                }
-
-                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
-                await ability.Apply();
-
-                if (ability.IsBlockingDamage)
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
-                    damageBlocked = true;
-                    // Continue execution - other abilities (like CounterAttack) should still run
-                }
-            }
-
-            context.IsBlocked = damageBlocked;
-            return damageBlocked;
+            return await ApplyAbilitiesAsync(sortedAbilities, context);
         }
 
         /// <summary>
@@ -149,6 +125,7 @@ namespace Code.Abilities
             var filteredAbilities = _abilities
                 .OfType<T>()
                 .OrderByDescending(a => a.Priority)
+                .Cast<IAbility>()
                 .ToList();
 
             if (filteredAbilities.Count == 0)
@@ -159,28 +136,7 @@ namespace Code.Abilities
 
             Debug.Log($"[AbilityManager] Executing {filteredAbilities.Count} abilities of type {typeof(T).Name}");
 
-            bool damageBlocked = false;
-
-            foreach (var ability in filteredAbilities)
-            {
-                if (!ability.CanUse(context.Attacker))
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
-                    continue;
-                }
-
-                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
-                await ability.Apply();
-
-                if (ability.IsBlockingDamage)
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
-                    damageBlocked = true;
-                }
-            }
-
-            context.IsBlocked = damageBlocked;
-            return damageBlocked;
+            return await ApplyAbilitiesAsync(filteredAbilities, context);
         }
 
         /// <summary>
@@ -211,29 +167,7 @@ namespace Code.Abilities
 
             Debug.Log($"[AbilityManager] Executing {filteredAbilities.Count} abilities (excluding {typeof(T).Name})");
 
-            bool damageBlocked = false;
-
-            foreach (var ability in filteredAbilities)
-            {
-                if (!ability.CanUse(context.Attacker))
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
-                    continue;
-                }
-
-                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
-                await ability.Apply();
-
-                if (ability.IsBlockingDamage)
-                {
-                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
-                    damageBlocked = true;
-                    // Continue execution - other abilities (like CounterAttack) should still run
-                }
-            }
-
-            context.IsBlocked = damageBlocked;
-            return damageBlocked;
+            return await ApplyAbilitiesAsync(filteredAbilities, context);
         }
 
         /// <summary>
@@ -249,13 +183,7 @@ namespace Code.Abilities
                 return false;
             }
 
-            // Sort abilities by priority (descending) - cache the result
-            if (_sortedAbilities == null)
-            {
-                _sortedAbilities = _abilities.OrderByDescending(a => a.Priority).ToList();
-            }
-
-            foreach (var ability in _sortedAbilities)
+            foreach (var ability in GetSortedAbilities())
             {
                 if (ability.CanUse(context.Attacker) && ability.IsBlockingDamage)
                 {
@@ -264,6 +192,49 @@ namespace Code.Abilities
             }
 
             return false;
+        }
+
+        private List<IAbility> GetSortedAbilities()
+        {
+            return _sortedAbilities ??= _abilities.OrderByDescending(a => a.Priority).ToList();
+        }
+
+        private static async UniTask<bool> ApplyAbilitiesAsync(IReadOnlyList<IAbility> abilities, AbilityContext context)
+        {
+            bool damageBlocked = false;
+            bool exclusiveApplied = false;
+
+            foreach (var ability in abilities)
+            {
+                if (exclusiveApplied && ability is IMutuallyExclusiveAbility)
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} skipped (another mutually exclusive ability already applied)");
+                    continue;
+                }
+
+                if (!ability.CanUse(context.Attacker))
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} cannot be used (CanUse returned false)");
+                    continue;
+                }
+
+                Debug.Log($"[AbilityManager] Applying {ability.GetType().Name}");
+                await ability.Apply();
+
+                if (ability is IMutuallyExclusiveAbility)
+                {
+                    exclusiveApplied = true;
+                }
+
+                if (ability.IsBlockingDamage)
+                {
+                    Debug.Log($"[AbilityManager] {ability.GetType().Name} blocked damage");
+                    damageBlocked = true;
+                }
+            }
+
+            context.IsBlocked = damageBlocked;
+            return damageBlocked;
         }
     }
 }

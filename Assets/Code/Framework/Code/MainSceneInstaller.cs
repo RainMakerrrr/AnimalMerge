@@ -1,3 +1,4 @@
+using Code.Levels;
 using Framework.Code.Data;
 using Framework.Code.Factories.Levels;
 using Framework.Code.Infrastructure.Services.Analytics;
@@ -34,6 +35,7 @@ namespace Framework.Code
 			BindSaveLoadService();
 			BindPersistentProgressService();
 			BindAnalyticsService();
+			BindLevelSets();
 			BindFactories();
 			BindProgression();
 			BindUI();
@@ -60,6 +62,12 @@ namespace Framework.Code
 			Container.Bind<IPersistentProgressService>().To<PersistentProgressService>().AsSingle();
 
 		private void BindAnalyticsService() => Container.Bind<IAnalyticsService>().To<AnalyticsService>().AsSingle();
+
+		private void BindLevelSets()
+		{
+			Container.Bind<ILevelSetProvider>().To<LevelSetProvider>().AsSingle();
+			Container.Bind<ILevelSetSwitchService>().To<LevelSetSwitchService>().AsSingle();
+		}
 
 		private void BindFactories() => Container.Bind<ILevelFactory>().To<LevelFactory>().AsSingle();
 

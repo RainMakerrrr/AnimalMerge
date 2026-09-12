@@ -212,6 +212,9 @@
   },
   "active": "f66210432b7861f6",
   "lastOpenFiles": [
+    "LevelSetsToolGuide.md",
+    "GameDesignerGuide.md.tmp.97726.9113920e1931",
+    "Decisions/2026-09-12-level-sets-editor-tool.md",
     "Sessions/2026-09-12.md",
     "Decisions/2026-09-12-animal-card-ability-lines.md",
     "Decisions/2026-08-01-tutorial-hand-merge-hint.md",
@@ -236,8 +239,6 @@
     "Decisions/2026-08-01-pteranodon-enemy-prefab.md",
     "Decisions/2026-08-01-chicken-flock-and-balance-sync.md",
     "Decisions/2026-08-01-animal-selection-and-stats-panel.md",
-    "Decisions/2026-08-01-animal-spawn-pools-and-prefab-parity.md",
-    "Decisions/2026-08-01-victory-defeat-flow.md",
     "Index.md.tmp.47673.b86679a3d40d",
     "Decisions/2026-07-31-chicken-death-spirit.md.tmp.47673.ed8ebf5bdf4f"
   ]

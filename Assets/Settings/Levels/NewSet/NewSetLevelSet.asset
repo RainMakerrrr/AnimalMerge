@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69c77945c1dcd4151ae7e4ead66b1839, type: 3}
+  m_Name: NewSetLevelSet
+  m_EditorClassIdentifier: 
+  _displayName: TestSet
+  _description: 
+  _tutorialLevels: []
+  _levels:
+  - {fileID: 4713621021854505807, guid: 1d72f8e0c315d461a987544c90554870, type: 3}
+  - {fileID: 4713621021854505807, guid: 905312eb41d7740f58a8b9e214cf8cbb, type: 3}
+  - {fileID: 4713621021854505807, guid: d0c6280cf66e54692b94019cc586e378, type: 3}
+  - {fileID: 4713621021854505807, guid: 4b126914827e349d1832676e019ea257, type: 3}
+  _preBattleConfig: {fileID: 11400000, guid: f3c8ce4c5279c49acba278594f4a6105, type: 2}
