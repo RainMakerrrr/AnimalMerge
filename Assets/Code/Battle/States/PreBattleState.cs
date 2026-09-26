@@ -127,6 +127,9 @@ namespace Code.Battle.States
                 _unitTracker.RegisterEnemyUnit(enemy);
             }
 
+            if (spawnedEnemies != null && spawnedEnemies.Count > 0)
+                _signalBus.Fire(new EnemiesSpawnedSignal { Units = spawnedEnemies });
+
             Debug.Log($"[PreBattleState] Setup complete - {spawnedEnemies.Count} enemies registered");
 
             // Subscribe to battle start event

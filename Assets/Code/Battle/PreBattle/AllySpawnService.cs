@@ -162,6 +162,7 @@ namespace Code.Battle.PreBattle
             _signalBus.Fire(new AllySpawnedSignal
             {
                 Unit = spawned[0],
+                Units = spawned,
                 PoolRemaining = _pool.Remaining
             });
 

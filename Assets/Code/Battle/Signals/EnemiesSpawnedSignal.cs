@@ -3,10 +3,8 @@ using Code.Animals.Facades;
 
 namespace Code.Battle.Signals
 {
-    public class AllySpawnedSignal
+    public class EnemiesSpawnedSignal
     {
-        public AnimalFacade Unit;
         public IReadOnlyList<AnimalFacade> Units;
-        public int PoolRemaining;
     }
 }
