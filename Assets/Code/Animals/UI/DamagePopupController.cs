@@ -10,8 +10,8 @@ namespace Code.Animals.UI
         [SerializeField] private float _spawnOffsetY = 1.5f;
         [SerializeField] private float _randomXRange = 0.3f;
 
-        private static readonly Color DamageColor = new Color(1f, 0.15f, 0.15f);
-        private static readonly Color MissColor = new Color(1f, 0.9f, 0.3f);
+        private static readonly Color DamageColor = new Color(0.804f, 0.035f, 0.039f);
+        private static readonly Color MissColor = new Color(0.431f, 0.961f, 0.071f);
 
         private Canvas _canvas;
         private Camera _camera;

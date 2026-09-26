@@ -51,7 +51,7 @@ namespace Code.Animals.UI
 
         private string BuildLine(AbilityKind kind, int chancePercent)
         {
-            var name = GetDisplayName(kind);
+            var name = $"<i>{GetDisplayName(kind)}</i>";
 
             return chancePercent <= 0 || chancePercent >= GuaranteedChancePercent
                 ? name

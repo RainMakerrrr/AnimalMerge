@@ -11,10 +11,16 @@ namespace Code.Animals.UI
     [RequireComponent(typeof(CanvasGroup))]
     public class AnimalStatsPanelView : MonoBehaviour, IAnimalStatsPanelView
     {
+        private const string MovesFormat = "x{0}";
+        private const string HealthBonusFormat = "+{0}% HP";
+
         [SerializeField] private Image _headIcon;
         [SerializeField] private TextMeshProUGUI _titleLabel;
         [SerializeField] private TextMeshProUGUI _attackLabel;
         [SerializeField] private TextMeshProUGUI _healthLabel;
+        [SerializeField] private TextMeshProUGUI _movesLabel;
+        [SerializeField] private TextMeshProUGUI _bonusLabel;
+        [SerializeField] private GameObject _abilitiesDivider;
         [SerializeField] private TextMeshProUGUI[] _abilityLabels;
         [SerializeField] private CanvasGroup _canvasGroup;
         [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 0.6f, 0f);
@@ -71,7 +77,7 @@ namespace Code.Animals.UI
 
         private void OnDestroy() => KillSequence();
 
-        public void Show(Transform anchor, Sprite icon, int attack, int health, string title,
+        public void Show(Transform anchor, Sprite icon, AnimalCardStats stats, string title,
             IReadOnlyList<string> abilityLines)
         {
             if (anchor == null)
@@ -82,7 +88,7 @@ namespace Code.Animals.UI
             ApplyIcon(icon);
             ApplyTitle(title);
             ApplyAbilityLines(abilityLines);
-            UpdateStats(attack, health);
+            UpdateStats(stats);
             UpdatePosition();
 
             KillSequence();
@@ -96,13 +102,18 @@ namespace Code.Animals.UI
 
         public void UpdateAbilityLines(IReadOnlyList<string> abilityLines) => ApplyAbilityLines(abilityLines);
 
-        public void UpdateStats(int attack, int health)
+        public void UpdateStats(AnimalCardStats stats)
         {
             if (_attackLabel != null)
-                _attackLabel.text = attack.ToString();
+                _attackLabel.text = stats.Attack.ToString();
 
             if (_healthLabel != null)
-                _healthLabel.text = health.ToString();
+                _healthLabel.text = stats.Health.ToString();
+
+            if (_movesLabel != null)
+                _movesLabel.text = string.Format(MovesFormat, stats.TilesPerMove);
+
+            ApplyHealthBonus(stats.HealthBonusPercent);
         }
 
         public void Hide()
@@ -125,6 +136,19 @@ namespace Code.Animals.UI
 
             _headIcon.sprite = icon;
             _headIcon.gameObject.SetActive(icon != null);
+        }
+
+        private void ApplyHealthBonus(int healthBonusPercent)
+        {
+            if (_bonusLabel == null)
+                return;
+
+            bool hasBonus = healthBonusPercent > 0;
+
+            if (hasBonus)
+                _bonusLabel.text = string.Format(HealthBonusFormat, healthBonusPercent);
+
+            _bonusLabel.gameObject.SetActive(hasBonus);
         }
 
         private void ApplyTitle(string title)
@@ -163,7 +187,12 @@ namespace Code.Animals.UI
                 label.gameObject.SetActive(hasLine);
             }
 
-            ApplyHeight(Mathf.Min(lineCount, _abilityLabels.Length));
+            int visibleLineCount = Mathf.Min(lineCount, _abilityLabels.Length);
+
+            if (_abilitiesDivider != null)
+                _abilitiesDivider.SetActive(visibleLineCount > 0);
+
+            ApplyHeight(visibleLineCount);
         }
 
         private void ApplyHeight(int visibleLineCount)

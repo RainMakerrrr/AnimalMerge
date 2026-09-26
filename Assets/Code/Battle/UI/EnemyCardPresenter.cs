@@ -10,6 +10,8 @@ namespace Code.Battle.UI
 {
     public class EnemyCardPresenter : IInitializable, IDisposable
     {
+        private const int NoHealthBonusPercent = 0;
+
         private readonly IEnemyCardView _view;
         private readonly IEnemySelectionService _selectionService;
         private readonly AnimalDatabase _database;
@@ -53,8 +55,7 @@ namespace Code.Battle.UI
             _view.Show(
                 enemy.transform,
                 _database.GetIcon(enemy.Type),
-                ReadDamage(enemy),
-                ReadHealth(enemy),
+                BuildStats(enemy),
                 enemy.Type.ToString(),
                 _abilityLinesProvider.Build(enemy));
         }
@@ -64,7 +65,7 @@ namespace Code.Battle.UI
             if (_tracked == null)
                 return;
 
-            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
+            _view.UpdateStats(BuildStats(_tracked));
         }
 
         private void StopTracking()
@@ -75,11 +76,17 @@ namespace Code.Battle.UI
             _tracked = null;
         }
 
+        private AnimalCardStats BuildStats(AnimalFacade enemy) =>
+            new AnimalCardStats(ReadDamage(enemy), ReadHealth(enemy), ReadTilesPerMove(enemy), NoHealthBonusPercent);
+
         private int ReadDamage(AnimalFacade enemy) =>
             enemy.AttackInstance != null ? ToStatValue(enemy.GetDamage()) : 0;
 
         private int ReadHealth(AnimalFacade enemy) =>
             enemy.Health != null ? ToStatValue(enemy.GetCurrentHealth()) : 0;
+
+        private int ReadTilesPerMove(AnimalFacade enemy) =>
+            enemy.Movement != null ? enemy.GetTilesPerMove() : 0;
 
         private int ToStatValue(float value) => Mathf.Max(0, Mathf.RoundToInt(value));
     }

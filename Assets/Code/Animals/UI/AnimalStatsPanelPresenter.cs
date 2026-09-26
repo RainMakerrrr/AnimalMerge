@@ -60,8 +60,7 @@ namespace Code.Animals.UI
             _view.Show(
                 animal.transform,
                 _database.GetIcon(animal.Type),
-                ReadDamage(animal),
-                ReadHealth(animal),
+                BuildStats(animal),
                 animal.Type.ToString(),
                 _abilityLinesProvider.Build(animal));
         }
@@ -72,7 +71,7 @@ namespace Code.Animals.UI
                 return;
 
             _view.UpdateAbilityLines(_abilityLinesProvider.Build(_tracked));
-            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
+            _view.UpdateStats(BuildStats(_tracked));
         }
 
         private void OnHealthChanged()
@@ -80,7 +79,7 @@ namespace Code.Animals.UI
             if (_tracked == null)
                 return;
 
-            _view.UpdateStats(ReadDamage(_tracked), ReadHealth(_tracked));
+            _view.UpdateStats(BuildStats(_tracked));
         }
 
         private void StopTracking()
@@ -91,11 +90,34 @@ namespace Code.Animals.UI
             _tracked = null;
         }
 
+        private AnimalCardStats BuildStats(AnimalFacade animal) =>
+            new AnimalCardStats(
+                ReadDamage(animal),
+                ReadHealth(animal),
+                ReadTilesPerMove(animal),
+                ReadHealthBonusPercent(animal));
+
         private int ReadDamage(AnimalFacade animal) =>
             animal.AttackInstance != null ? ToStatValue(animal.GetDamage()) : 0;
 
         private int ReadHealth(AnimalFacade animal) =>
             animal.Health != null ? ToStatValue(animal.GetCurrentHealth()) : 0;
+
+        private int ReadTilesPerMove(AnimalFacade animal) =>
+            animal.Movement != null ? animal.GetTilesPerMove() : 0;
+
+        private int ReadHealthBonusPercent(AnimalFacade animal)
+        {
+            if (animal.Health == null)
+                return 0;
+
+            AnimalStats stats = _database.GetStats(animal.Type);
+
+            if (stats == null || stats.Health <= 0)
+                return 0;
+
+            return Mathf.RoundToInt((animal.GetMaxHealth() / stats.Health - 1f) * 100f);
+        }
 
         private int ToStatValue(float value) => Mathf.Max(0, Mathf.RoundToInt(value));
     }

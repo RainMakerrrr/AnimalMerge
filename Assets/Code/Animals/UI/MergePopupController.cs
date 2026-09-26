@@ -13,7 +13,7 @@ namespace Code.Animals.UI
         [SerializeField] private float _spawnOffsetY = 1.5f;
         [SerializeField] private float _randomXRange = 0.3f;
 
-        private static readonly Color GainColor = new Color(0.3f, 1f, 0.4f);
+        private static readonly Color GainColor = new Color(0.431f, 0.949f, 0.078f);
 
         private AnimalDatabase _database;
         private Canvas _canvas;
