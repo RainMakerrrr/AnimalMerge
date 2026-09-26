@@ -10,8 +10,6 @@ namespace Code.Battle.UI
 {
     public class EnemyCardPresenter : IInitializable, IDisposable
     {
-        private const int NoHealthBonusPercent = 0;
-
         private readonly IEnemyCardView _view;
         private readonly IEnemySelectionService _selectionService;
         private readonly AnimalDatabase _database;
@@ -77,7 +75,7 @@ namespace Code.Battle.UI
         }
 
         private AnimalCardStats BuildStats(AnimalFacade enemy) =>
-            new AnimalCardStats(ReadDamage(enemy), ReadHealth(enemy), ReadTilesPerMove(enemy), NoHealthBonusPercent);
+            new AnimalCardStats(ReadDamage(enemy), ReadHealth(enemy), ReadTilesPerMove(enemy));
 
         private int ReadDamage(AnimalFacade enemy) =>
             enemy.AttackInstance != null ? ToStatValue(enemy.GetDamage()) : 0;

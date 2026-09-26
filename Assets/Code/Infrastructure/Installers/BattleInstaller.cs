@@ -67,6 +67,7 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<AllySpawnedSignal>().OptionalSubscriber();
             Container.DeclareSignal<BattleReadinessChangedSignal>().OptionalSubscriber();
             Container.DeclareSignal<AllyMergedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<AllyMergeUndoneSignal>().OptionalSubscriber();
             Container.DeclareSignal<TurnRoundStartedSignal>().OptionalSubscriber();
             Container.DeclareSignal<UnitTurnStartedSignal>().OptionalSubscriber();
             Container.DeclareSignal<UnitTurnCompletedSignal>().OptionalSubscriber();

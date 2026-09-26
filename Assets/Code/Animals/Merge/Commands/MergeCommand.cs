@@ -126,6 +126,8 @@ namespace Code.Animals.Merge.Commands
                     DeleteChickenClone();
                 }
 
+                _mergeTarget.NotifyMergeUndone();
+
                 Debug.Log($"[MergeCommand] Successfully undone merge");
 
                 return true;

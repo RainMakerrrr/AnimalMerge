@@ -15,7 +15,8 @@ namespace Code.Animals.Merge
     {
         [SerializeField] private PlayerAnimalFacade _facade;
         public event Action<List<VisualMergeAttribute>> Merge;
-        public event Action<PlayerAnimalFacade> Merged;
+        public event Action<MergeOutcome> Merged;
+        public event Action MergeUndone;
 
         private IMergeUndoService _mergeUndoService;
         private IUnitTracker _unitTracker;
@@ -90,6 +91,8 @@ namespace Code.Animals.Merge
                 animal.GetComponentsInChildren<VisualMergeAttribute>(true));
             visualAttributes.AddRange(animal.AccumulatedVisualAttributes);
 
+            var statsBefore = MergeStatValues.From(_facade);
+
             // Check: same type or different type?
             var grantedNewSkill = false;
             if (animal.Type == _facade.Type)
@@ -113,13 +116,12 @@ namespace Code.Animals.Merge
                 grantedNewSkill = true;
             }
 
+            var statsAfter = MergeStatValues.From(_facade);
+
             // Fire visual effects
             Merge?.Invoke(visualAttributes);
 
-            // Same-type merges only combine stats; the popup must report a real balance gain,
-            // so notify only when the source actually granted a new skill/upgrade.
-            if (grantedNewSkill)
-                Merged?.Invoke(animal);
+            Merged?.Invoke(new MergeOutcome(animal, _facade, grantedNewSkill, statsBefore, statsAfter));
 
             // Accumulate visual attributes on target for future merges
             _facade.AccumulatedVisualAttributes.AddRange(visualAttributes);
@@ -135,10 +137,19 @@ namespace Code.Animals.Merge
                 Source = animal,
                 Target = _facade,
                 SourceType = sourceType,
-                TargetType = targetType
+                TargetType = targetType,
+                StatsBefore = statsBefore,
+                StatsAfter = statsAfter
             });
 
             return true;
+        }
+
+        public void NotifyMergeUndone()
+        {
+            MergeUndone?.Invoke();
+
+            _signalBus?.Fire(new AllyMergeUndoneSignal { Target = _facade });
         }
     }
 }

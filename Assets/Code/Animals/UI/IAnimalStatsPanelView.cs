@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Threading;
+using Code.Animals.UI.MergeStats;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Code.Animals.UI
@@ -11,6 +14,10 @@ namespace Code.Animals.UI
         void UpdateAbilityLines(IReadOnlyList<string> abilityLines);
 
         void UpdateStats(AnimalCardStats stats);
+
+        UniTask PlayStatChangesAsync(IReadOnlyList<MergeStatChange> changes, CancellationToken cancellationToken);
+
+        void StopStatChanges();
 
         void Hide();
     }

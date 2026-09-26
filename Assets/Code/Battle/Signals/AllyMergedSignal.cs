@@ -1,5 +1,6 @@
 using Code.Animals;
 using Code.Animals.Facades;
+using Code.Animals.Merge;
 
 namespace Code.Battle.Signals
 {
@@ -9,5 +10,7 @@ namespace Code.Battle.Signals
         public PlayerAnimalFacade Target;
         public AnimalType SourceType;
         public AnimalType TargetType;
+        public MergeStatValues StatsBefore;
+        public MergeStatValues StatsAfter;
     }
 }

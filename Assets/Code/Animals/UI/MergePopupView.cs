@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -34,15 +36,11 @@ namespace Code.Animals.UI
             _rectTransform = GetComponent<RectTransform>();
         }
 
-        private void OnDestroy()
-        {
-            _sequence?.Kill();
-            _sequence = null;
-        }
+        private void OnDestroy() => KillSequence();
 
-        public void Play(string content, Color color)
+        public async UniTask PlayAsync(string content, Color color, CancellationToken cancellationToken)
         {
-            _sequence?.Kill();
+            KillSequence();
 
             _text.text = content;
             _text.color = color;
@@ -51,7 +49,7 @@ namespace Code.Animals.UI
 
             var fadeOutStart = Mathf.Max(0f, _duration - _fadeOutDuration);
 
-            _sequence = DOTween.Sequence()
+            var sequence = DOTween.Sequence()
                 .Insert(0f, _rectTransform
                     .DOAnchorPosY(_rectTransform.anchoredPosition.y + _floatHeight, _duration)
                     .SetEase(_floatEase))
@@ -65,11 +63,38 @@ namespace Code.Animals.UI
                     .DOFade(0f, _fadeOutDuration)
                     .SetEase(_fadeOutEase));
 
-            _sequence.OnComplete(() =>
+            var finished = new UniTaskCompletionSource();
+
+            sequence.OnKill(() =>
             {
-                _sequence = null;
-                Destroy(gameObject);
+                if (_sequence == sequence)
+                    _sequence = null;
+
+                finished.TrySetResult();
             });
+            sequence.OnComplete(() => Destroy(gameObject));
+
+            _sequence = sequence;
+
+            var canceled = await finished.Task
+                .AttachExternalCancellation(cancellationToken)
+                .SuppressCancellationThrow();
+
+            if (canceled && this != null)
+            {
+                KillSequence();
+                Destroy(gameObject);
+            }
+        }
+
+        private void KillSequence()
+        {
+            if (_sequence == null)
+                return;
+
+            var sequence = _sequence;
+            _sequence = null;
+            sequence.Kill();
         }
     }
 }
