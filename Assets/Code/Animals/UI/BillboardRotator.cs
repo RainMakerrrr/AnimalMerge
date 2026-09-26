@@ -5,6 +5,7 @@ namespace Code.Animals.UI
     public class BillboardRotator : MonoBehaviour
     {
         [SerializeField] private float _heightOffset = 2.0f;
+        [SerializeField] private float _lateralOffset;
 
         private Transform _cameraTransform;
         private Transform _parentTransform;
@@ -19,7 +20,9 @@ namespace Code.Animals.UI
         private void LateUpdate()
         {
             if (_cameraTransform == null || _parentTransform == null) return;
-            transform.position = _parentTransform.position + _cameraTransform.up * _heightOffset;
+            transform.position = _parentTransform.position
+                + _cameraTransform.up * _heightOffset
+                + _cameraTransform.right * _lateralOffset;
             transform.rotation = _cameraTransform.rotation;
         }
     }

@@ -1,4 +1,5 @@
 using Code.Animals;
+using Code.Animals.Health;
 using Code.Animals.Merge.Services;
 using Code.Animals.UI;
 using Code.Battle;
@@ -12,6 +13,7 @@ using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
 using Code.Battle.UI;
+using Code.Battle.Vfx;
 using Code.Levels;
 using UnityEngine;
 using Zenject;
@@ -27,6 +29,8 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private AnimalSpawner _animalSpawner;
         [SerializeField] private PreBattleConfig _preBattleConfig;
         [SerializeField] private BattleCameraConfig _battleCameraConfig;
+        [SerializeField] private HealthBarConfig _healthBarConfig;
+        [SerializeField] private BattleVfxConfig _battleVfxConfig;
         [SerializeField] private AddAnimalButtonView _addAnimalButton;
         [SerializeField] private BattleButtonView _battleButton;
         [SerializeField] private AnimalStatsPanelView _statsPanelPrefab;
@@ -41,6 +45,8 @@ namespace Code.Infrastructure.Installers
             BindServices();
             BindPreBattle();
             BindBattleCamera();
+            BindHealthBar();
+            BindBattleVfx();
             BindAbilityLines();
             BindAnimalStatsPanel();
             BindEnemySelection();
@@ -62,6 +68,8 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<UnitTurnCompletedSignal>().OptionalSubscriber();
             Container.DeclareSignal<BattleStartedSignal>().OptionalSubscriber();
             Container.DeclareSignal<BattleEndedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<EnemiesSpawnedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<AoeAttackLandedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()
@@ -146,6 +154,23 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<BattleCameraPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindHealthBar() =>
+            Container.Bind<HealthBarConfig>().FromInstance(_healthBarConfig).AsSingle();
+
+        private void BindBattleVfx()
+        {
+            if (_battleVfxConfig == null)
+            {
+                Debug.LogError($"[BattleInstaller] {nameof(_battleVfxConfig)} is not assigned - assign Assets/Settings/BattleConfigs/BattleVfxConfig.asset", this);
+                return;
+            }
+
+            Container.Bind<BattleVfxConfig>().FromInstance(_battleVfxConfig).AsSingle();
+            Container.Bind<IVfxSpawner>().To<VfxSpawner>().AsSingle();
+            Container.BindInterfacesAndSelfTo<UnitSpawnVfxPresenter>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<AoeAttackVfxPresenter>().AsSingle().NonLazy();
+        }
+
         private void BindAbilityLines()
         {
             Container.Bind<IAbilityLinesProvider>().To<AbilityLinesProvider>().AsSingle();
@@ -204,6 +229,9 @@ namespace Code.Infrastructure.Installers
 
             if (_battleCameraConfig == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_battleCameraConfig)} is not assigned - assign Assets/Settings/BattleConfigs/BattleCameraConfig.asset", this);
+
+            if (_healthBarConfig == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_healthBarConfig)} is not assigned - assign Assets/Settings/BattleConfigs/HealthBarConfig.asset", this);
 
             if (_addAnimalButton == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_addAnimalButton)} is not assigned - assign the Add Animal button from the scene", this);

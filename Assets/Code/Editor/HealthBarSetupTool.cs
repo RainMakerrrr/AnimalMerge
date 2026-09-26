@@ -1,8 +1,10 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
-using System.IO;
 using Code.Animals.Health;
+using Code.Animals.Movement;
 using Code.Animals.UI;
+using Code.Editor.AnimalPrefabBuilder;
+using Code.GridPathfinding;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,120 +12,101 @@ namespace Code.Editor
 {
     public static class HealthBarSetupTool
     {
-        private const string HealthBarPrefabPath = "Assets/Prefabs/HealthBar.prefab";
+        private const string AllyHealthBarPrefabPath = "Assets/Prefabs/AllyHealthBar.prefab";
+        private const string EnemyHealthBarPrefabPath = "Assets/Prefabs/EnemyHealthBar.prefab";
         private const string AnimalsFolder = "Assets/Resources/Prefabs/Animals";
         private const string EnemiesFolder = "Assets/Resources/Prefabs/Enemies";
-        private const string CheetahPrefabPath = "Assets/Resources/Prefabs/Animals/Cheetah.prefab";
+        private const string HealthBarChildName = "HealthBar";
+        private const string LegacyHealthBarChildName = "HealthBarRoot";
 
-        private static readonly Dictionary<string, float> HeightOffsets = new Dictionary<string, float>
+        private static readonly Dictionary<string, float> EnemyHeightOffsets = new Dictionary<string, float>
         {
-            { "Cheetah",            1.7f },
-            { "Chicken",            1.0f },
-            { "Hedgehog",           1.0f },
-            { "Fox",                1.3f },
-            { "Deer",               1.5f },
-            { "Elephant",           2.5f },
             { "EnemyChicken_Temp",  1.0f },
             { "T-Rex",              2.8f },
-            { "Velociraptor",       2.5f },
+            { "Velociraptor",       2.0f },
             { "Pteranodon",         1.3f },
         };
 
-        private const float DefaultHeightOffset = 1.5f;
+        private const float DefaultEnemyHeightOffset = 1.5f;
 
         [MenuItem("Tools/Animals/Setup HealthBar Prefabs")]
         public static void SetupHealthBars()
         {
-            bool prefabExists = AssetDatabase.LoadAssetAtPath<GameObject>(HealthBarPrefabPath) != null;
-            if (prefabExists)
-            {
-                bool proceed = EditorUtility.DisplayDialog(
-                    "HealthBar.prefab already exists",
-                    "Re-running will overwrite HealthBar.prefab and re-wire all animal/enemy prefabs. Continue?",
-                    "Continue", "Cancel");
-                if (!proceed) return;
-            }
+            var allyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AllyHealthBarPrefabPath);
+            var enemyPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(EnemyHealthBarPrefabPath);
 
-            var healthBarPrefab = ExtractHealthBarPrefab();
-            if (healthBarPrefab == null)
+            if (allyPrefab == null || enemyPrefab == null)
             {
-                Debug.LogError("[HealthBarSetupTool] Failed to create HealthBar.prefab — aborting.");
+                Debug.LogError(
+                    $"[HealthBarSetupTool] Missing health bar prefab: {AllyHealthBarPrefabPath} or {EnemyHealthBarPrefabPath}");
                 return;
             }
 
-            int count = 0;
-            string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { AnimalsFolder, EnemiesFolder });
-            foreach (string guid in guids)
+            var count = 0;
+            count += ApplyToFolder(AnimalsFolder, allyPrefab, ResolveAllyPlacement);
+            count += ApplyToFolder(EnemiesFolder, enemyPrefab, ResolveEnemyPlacement);
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[HealthBarSetupTool] Done. Applied health bar prefabs to {count} prefabs.");
+        }
+
+        private static int ApplyToFolder(
+            string folder,
+            GameObject healthBarPrefab,
+            System.Func<GameObject, BarPlacement> resolvePlacement)
+        {
+            var count = 0;
+            var guids = AssetDatabase.FindAssets("t:Prefab", new[] { folder });
+
+            foreach (var guid in guids)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (ApplyHealthBarToPrefab(path, healthBarPrefab))
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (ApplyHealthBarToPrefab(path, healthBarPrefab, resolvePlacement))
                     count++;
             }
 
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[HealthBarSetupTool] Done. Applied HealthBar prefab to {count} prefabs.");
+            return count;
         }
 
-        private static GameObject ExtractHealthBarPrefab()
+        private static BarPlacement ResolveAllyPlacement(GameObject prefabRoot)
         {
-            GameObject cheetahRoot = PrefabUtility.LoadPrefabContents(CheetahPrefabPath);
-            try
+            if (!ModelBoundsCalculator.TryCalculateRootLocalBounds(prefabRoot, out var bounds))
             {
-                Transform healthBarTransform = cheetahRoot.transform.Find("HealthBarRoot");
-                if (healthBarTransform == null)
-                {
-                    Debug.LogError("[HealthBarSetupTool] HealthBarRoot not found in Cheetah.prefab");
-                    return null;
-                }
-
-                // On rerun: HealthBarRoot is already a nested prefab instance — avoid saving an
-                // instance back over its own source asset (would produce circular / stripped data).
-                if (PrefabUtility.GetPrefabAssetType(healthBarTransform.gameObject) != PrefabAssetType.NotAPrefab)
-                {
-                    var existing = AssetDatabase.LoadAssetAtPath<GameObject>(HealthBarPrefabPath);
-                    if (existing != null) return existing;
-                    // Prefab asset missing despite instance existing — fall through to re-extract.
-                }
-
-                // First run: inline HealthBarRoot — extract it as a standalone prefab.
-                // Clear external _health ref so the standalone prefab has null as default.
-                var view = healthBarTransform.GetComponentInChildren<HealthBarView>();
-                if (view != null)
-                {
-                    var so = new SerializedObject(view);
-                    so.FindProperty("_health").objectReferenceValue = null;
-                    so.ApplyModifiedProperties();
-                }
-
-                if (!AssetDatabase.IsValidFolder("Assets/Prefabs"))
-                    AssetDatabase.CreateFolder("Assets", "Prefabs");
-
-                PrefabUtility.SaveAsPrefabAsset(healthBarTransform.gameObject, HealthBarPrefabPath);
-                AssetDatabase.ImportAsset(HealthBarPrefabPath);
-
-                return AssetDatabase.LoadAssetAtPath<GameObject>(HealthBarPrefabPath);
+                Debug.LogWarning($"[HealthBarSetupTool] No mesh bounds on '{prefabRoot.name}', lateral offset left at 0");
+                return new BarPlacement(AnimalPrefabConstants.AllyHealthBarBaseOffset, 0f);
             }
-            finally
-            {
-                // Discard — Cheetah is updated in the main loop like all other prefabs
-                PrefabUtility.UnloadPrefabContents(cheetahRoot);
-            }
+
+            var movement = prefabRoot.GetComponent<AnimalMovement>();
+            var footprint = movement != null ? movement.UnitSize : UnitSize.Small;
+            var geometry = DerivedGeometry.Calculate(bounds, footprint, prefabRoot.transform.localScale);
+
+            return new BarPlacement(AnimalPrefabConstants.AllyHealthBarBaseOffset, geometry.HealthBarLateralOffset);
         }
 
-        private static bool ApplyHealthBarToPrefab(string path, GameObject healthBarPrefab)
+        private static BarPlacement ResolveEnemyPlacement(GameObject prefabRoot) =>
+            new BarPlacement(
+                EnemyHeightOffsets.TryGetValue(prefabRoot.name, out var height) ? height : DefaultEnemyHeightOffset,
+                0f);
+
+        private static bool ApplyHealthBarToPrefab(
+            string path,
+            GameObject healthBarPrefab,
+            System.Func<GameObject, BarPlacement> resolvePlacement)
         {
-            string prefabName = Path.GetFileNameWithoutExtension(path);
-            GameObject root = PrefabUtility.LoadPrefabContents(path);
+            var root = PrefabUtility.LoadPrefabContents(path);
             try
             {
-                Transform existing = root.transform.Find("HealthBarRoot");
-                if (existing != null)
-                    Object.DestroyImmediate(existing.gameObject);
+                RemoveExistingHealthBar(root.transform, HealthBarChildName);
+                RemoveExistingHealthBar(root.transform, LegacyHealthBarChildName);
+
+                var placement = resolvePlacement(root);
 
                 var barInstance = (GameObject)PrefabUtility.InstantiatePrefab(healthBarPrefab, root.transform);
+                barInstance.name = HealthBarChildName;
 
                 WireHealth(barInstance, root);
-                SetHeightOffset(barInstance, prefabName);
+                SetPlacement(barInstance, placement);
 
                 PrefabUtility.SaveAsPrefabAsset(root, path);
                 return true;
@@ -137,6 +120,13 @@ namespace Code.Editor
             {
                 PrefabUtility.UnloadPrefabContents(root);
             }
+        }
+
+        private static void RemoveExistingHealthBar(Transform root, string childName)
+        {
+            var existing = root.Find(childName);
+            if (existing != null)
+                Object.DestroyImmediate(existing.gameObject);
         }
 
         private static void WireHealth(GameObject barInstance, GameObject prefabRoot)
@@ -154,15 +144,27 @@ namespace Code.Editor
             so.ApplyModifiedProperties();
         }
 
-        private static void SetHeightOffset(GameObject barInstance, string prefabName)
+        private static void SetPlacement(GameObject barInstance, BarPlacement placement)
         {
             var rotator = barInstance.GetComponent<BillboardRotator>();
             if (rotator == null) return;
 
-            float offset = HeightOffsets.TryGetValue(prefabName, out float h) ? h : DefaultHeightOffset;
             var so = new SerializedObject(rotator);
-            so.FindProperty("_heightOffset").floatValue = offset;
+            so.FindProperty("_heightOffset").floatValue = placement.HeightOffset;
+            so.FindProperty("_lateralOffset").floatValue = placement.LateralOffset;
             so.ApplyModifiedProperties();
+        }
+
+        private readonly struct BarPlacement
+        {
+            public BarPlacement(float heightOffset, float lateralOffset)
+            {
+                HeightOffset = heightOffset;
+                LateralOffset = lateralOffset;
+            }
+
+            public float HeightOffset { get; }
+            public float LateralOffset { get; }
         }
     }
 }

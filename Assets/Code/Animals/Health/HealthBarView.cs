@@ -1,124 +1,175 @@
-using Code.Animals.Facades;
 using Code.Animals.Movement;
-using Code.Battle.Services;
+using Code.GridPathfinding;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 
 namespace Code.Animals.Health
 {
     public class HealthBarView : MonoBehaviour
     {
-        [SerializeField] private AnimalHealth _health;
-        [SerializeField] private Image _fillImage;
-        [SerializeField] private RectTransform _enemyIcon;
-        [SerializeField] private float _widthPerGridCell = 100f;
-        [SerializeField] private float _barHeight = 20f;
-        [SerializeField] private float _enemyIconSize = 36f;
+        private const string HealthBarLayerName = "HealthBar";
 
-        private IUnitTracker _unitTracker;
-        private AnimalFacade _owner;
+        [SerializeField] private AnimalHealth _health;
+        [SerializeField] private HealthBarLayout _layout;
+        [SerializeField] private SegmentedHealthBar _segments;
+        [SerializeField] private HealthBarBlinker _blinker;
+
+        private HealthBarConfig _config;
+        private Tween _fillTween;
+        private float _displayed;
+        private bool _isLowHealth;
+        private bool _hasShownHealth;
 
         [Inject]
-        private void Construct(IUnitTracker unitTracker)
-        {
-            _unitTracker = unitTracker;
-            _owner = GetComponentInParent<AnimalFacade>(true);
-
-            _unitTracker.EnemyUnitRegistered += OnEnemyUnitRegistered;
-
-            SetEnemyIconVisible(IsTrackedEnemy());
-        }
+        private void Construct(HealthBarConfig config) => _config = config;
 
         private void Awake()
         {
-            var layer = LayerMask.NameToLayer("HealthBar");
-            SetLayerRecursively(gameObject, layer);
-            ApplyFootprintSize();
-        }
-
-        public void ApplyFootprintSize()
-        {
-            if (!(transform is RectTransform rect)) return;
-
-            var movement = GetComponentInParent<AnimalMovement>();
-            if (movement == null) return;
-
-            var ownerScale = movement.transform.localScale;
-            if (Mathf.Approximately(ownerScale.x, 0f) || Mathf.Approximately(ownerScale.y, 0f)) return;
-
-            var cells = Mathf.Max(1, movement.UnitSize.Width);
-
-            rect.sizeDelta = new Vector2(
-                _widthPerGridCell * cells / ownerScale.x,
-                _barHeight / ownerScale.y);
-
-            if (_enemyIcon != null)
-                _enemyIcon.sizeDelta = new Vector2(
-                    _enemyIconSize / ownerScale.x,
-                    _enemyIconSize / ownerScale.y);
+            SetLayerRecursively(gameObject, LayerMask.NameToLayer(HealthBarLayerName));
+            BuildBar();
         }
 
         private void OnEnable()
         {
             if (_health == null) return;
-            _health.HealthChanged += Refresh;
+
+            _health.HealthChanged += OnHealthChanged;
             _health.Died += OnDied;
-            Refresh();
+
+            KillFillTween();
+            _hasShownHealth = HasHealthData();
+            ShowImmediately(_hasShownHealth ? TargetFill() : 1f);
         }
 
         private void OnDisable()
         {
+            KillFillTween();
+            ResetLowHealth();
+
             if (_health == null) return;
-            _health.HealthChanged -= Refresh;
+
+            _health.HealthChanged -= OnHealthChanged;
             _health.Died -= OnDied;
         }
 
-        private void OnDestroy()
+        private void OnDestroy() => KillFillTween();
+
+        private void BuildBar()
         {
-            if (_unitTracker == null) return;
-            _unitTracker.EnemyUnitRegistered -= OnEnemyUnitRegistered;
+            if (_layout == null || _segments == null) return;
+
+            var movement = GetComponentInParent<AnimalMovement>();
+            var ownerScale = movement != null ? movement.transform.localScale : Vector3.one;
+            var footprint = movement != null ? movement.UnitSize : UnitSize.Small;
+
+            if (Mathf.Approximately(ownerScale.x, 0f) || Mathf.Approximately(ownerScale.y, 0f))
+                ownerScale = Vector3.one;
+
+            var segmentCount = _layout.Apply(ownerScale, footprint);
+            _segments.Build(segmentCount);
         }
 
-        private void Refresh()
+        private void OnHealthChanged()
         {
-            if (_health.Max <= 0f) return;
-            _fillImage.fillAmount = _health.Current / _health.Max;
-        }
+            if (!HasHealthData()) return;
 
-        private void OnDied() => gameObject.SetActive(false);
-
-        private void OnEnemyUnitRegistered(AnimalFacade unit)
-        {
-            if (_owner == null || unit != _owner) return;
-            SetEnemyIconVisible(true);
-        }
-
-        private bool IsTrackedEnemy()
-        {
-            if (_owner == null) return false;
-
-            var enemies = _unitTracker.GetAliveEnemyUnits();
-
-            for (int i = 0; i < enemies.Count; i++)
+            if (_hasShownHealth)
             {
-                if (enemies[i] == _owner)
-                    return true;
+                AnimateTo(TargetFill(), null);
+                return;
             }
 
-            return false;
+            _hasShownHealth = true;
+            KillFillTween();
+            ShowImmediately(TargetFill());
         }
 
-        private void SetEnemyIconVisible(bool isVisible)
+        private void OnDied() => AnimateTo(0f, Hide);
+
+        private void AnimateTo(float target, TweenCallback onComplete)
         {
-            if (_enemyIcon == null) return;
-            _enemyIcon.gameObject.SetActive(isVisible);
+            KillFillTween();
+
+            if (_config == null || _config.FillDuration <= 0f)
+            {
+                ShowImmediately(target);
+                onComplete?.Invoke();
+                return;
+            }
+
+            _fillTween = DOTween
+                .To(() => _displayed, ApplyDisplayed, target, _config.FillDuration)
+                .SetEase(_config.FillEase)
+                .SetLink(gameObject);
+
+            if (onComplete != null)
+                _fillTween.OnComplete(onComplete);
         }
 
-        private static void SetLayerRecursively(GameObject go, int layer)
+        private void ShowImmediately(float value) => ApplyDisplayed(value);
+
+        private void ApplyDisplayed(float value)
         {
-            go.layer = layer;
-            foreach (Transform child in go.transform)
+            _displayed = value;
+
+            if (_segments != null)
+                _segments.SetFill(value);
+
+            UpdateLowHealthState();
+        }
+
+        private void UpdateLowHealthState()
+        {
+            var isLowHealth = _config != null
+                && _displayed > 0f
+                && _displayed <= _config.LowHealthThreshold;
+
+            if (isLowHealth == _isLowHealth) return;
+
+            _isLowHealth = isLowHealth;
+
+            if (_segments != null)
+                _segments.SetLowHealth(isLowHealth);
+
+            if (_blinker == null) return;
+
+            if (isLowHealth)
+                _blinker.Play(_config.BlinkHalfPeriod, _config.BlinkMinAlpha);
+            else
+                _blinker.Stop();
+        }
+
+        private void ResetLowHealth()
+        {
+            _isLowHealth = false;
+
+            if (_segments != null)
+                _segments.SetLowHealth(false);
+
+            if (_blinker != null)
+                _blinker.Stop();
+        }
+
+        private bool HasHealthData() => _health.Max > 0f;
+
+        private float TargetFill() =>
+            HasHealthData() ? Mathf.Clamp01(_health.Current / _health.Max) : 0f;
+
+        private void Hide() => gameObject.SetActive(false);
+
+        private void KillFillTween()
+        {
+            if (_fillTween == null) return;
+
+            _fillTween.Kill();
+            _fillTween = null;
+        }
+
+        private static void SetLayerRecursively(GameObject target, int layer)
+        {
+            target.layer = layer;
+            foreach (Transform child in target.transform)
                 SetLayerRecursively(child.gameObject, layer);
         }
     }

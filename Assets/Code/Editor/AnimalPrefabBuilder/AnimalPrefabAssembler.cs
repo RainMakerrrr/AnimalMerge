@@ -231,12 +231,13 @@ namespace Code.Editor.AnimalPrefabBuilder
             var existing = root.transform.Find(AnimalPrefabConstants.HealthBarChildName);
             if (existing != null) Object.DestroyImmediate(existing.gameObject);
 
-            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(AnimalPrefabPaths.HealthBarPrefab);
+            var prefabPath = recipe.Side.HealthBarPrefabPath;
+            var asset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             if (asset == null)
             {
                 findings.Add(ValidationFinding.Error(
                     "BUILD",
-                    $"{recipe.name}: HealthBar prefab not found at {AnimalPrefabPaths.HealthBarPrefab}",
+                    $"{recipe.name}: HealthBar prefab not found at {prefabPath}",
                     recipe));
                 return null;
             }
@@ -250,12 +251,16 @@ namespace Code.Editor.AnimalPrefabBuilder
             var view = instance.GetComponentInChildren<HealthBarView>(true);
             if (view != null) SerializedFieldWriter.SetObject(view, "_health", health);
 
-            var offset = recipe.OverrideHealthBarHeight
-                ? recipe.HealthBarHeightOffset
-                : geometry.HealthBarHeightOffset;
+            var isAlly = recipe.Side == AnimalSideProfile.Ally;
+            var derivedHeight = isAlly ? AnimalPrefabConstants.AllyHealthBarBaseOffset : geometry.HealthBarHeightOffset;
+            var heightOffset = recipe.OverrideHealthBarHeight ? recipe.HealthBarHeightOffset : derivedHeight;
+            var lateralOffset = isAlly ? geometry.HealthBarLateralOffset : 0f;
 
             foreach (var rotator in instance.GetComponentsInChildren<BillboardRotator>(true))
-                SerializedFieldWriter.SetFloat(rotator, "_heightOffset", offset);
+            {
+                SerializedFieldWriter.SetFloat(rotator, "_heightOffset", heightOffset);
+                SerializedFieldWriter.SetFloat(rotator, "_lateralOffset", lateralOffset);
+            }
 
             return instance;
         }

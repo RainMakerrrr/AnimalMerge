@@ -9,7 +9,8 @@ namespace Code.Editor.AnimalPrefabBuilder
         public const string RecipesFolder = "Assets/Settings/Animals/Recipes";
         public const string FacadesFolder = "Assets/Code/Animals/Facades";
 
-        public const string HealthBarPrefab = "Assets/Prefabs/HealthBar.prefab";
+        public const string AllyHealthBarPrefab = "Assets/Prefabs/AllyHealthBar.prefab";
+        public const string EnemyHealthBarPrefab = "Assets/Prefabs/EnemyHealthBar.prefab";
         public const string DamagePopupPrefab = "Assets/Prefabs/DamagePopupView.prefab";
         public const string MergePopupPrefab = "Assets/Prefabs/MergePopupView.prefab";
         public const string AnimalDatabaseAsset = "Assets/Resources/AnimalDatabase.asset";

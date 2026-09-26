@@ -1683,7 +1683,7 @@ Transform:
   - {fileID: 2152538742105375863}
   - {fileID: 7248511673806076542}
   - {fileID: 714194683577214798}
-  - {fileID: 586116231381015410}
+  - {fileID: 315683471309859934}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &4889394934516533505
@@ -2675,7 +2675,7 @@ Transform:
   - {fileID: 8117041704942494677}
   m_Father: {fileID: 903439063220256073}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &4245195500626654574
+--- !u!1001 &3939017149910909506
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -2683,40 +2683,15 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1264362573372290551}
     m_Modifications:
-    - target: {fileID: 375268878995683635, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: _heightOffset
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 641831116942645408, guid: 7348f427308954bc0943d4362801a0e2,
         type: 3}
       propertyPath: _health
       value: 
       objectReference: {fileID: 1218897564777170343}
-    - target: {fileID: 641831116942645408, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: _target
-      value: 
-      objectReference: {fileID: 1264362573372290551}
-    - target: {fileID: 641831116942645408, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: _heightOffset
-      value: 2.5
-      objectReference: {fileID: 0}
     - target: {fileID: 866713279628349587, guid: 7348f427308954bc0943d4362801a0e2,
         type: 3}
       propertyPath: m_Name
       value: HealthBar
-      objectReference: {fileID: 0}
-    - target: {fileID: 2569623952772514937, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 125
-      objectReference: {fileID: 0}
-    - target: {fileID: 2569623952772514937, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 3660225055926677020, guid: 7348f427308954bc0943d4362801a0e2,
         type: 3}
@@ -2768,19 +2743,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4505364417675279404, guid: 7348f427308954bc0943d4362801a0e2,
-        type: 3}
-      propertyPath: _heightOffset
-      value: 2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7348f427308954bc0943d4362801a0e2, type: 3}
---- !u!4 &586116231381015410 stripped
+--- !u!4 &315683471309859934 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3660225055926677020, guid: 7348f427308954bc0943d4362801a0e2,
     type: 3}
-  m_PrefabInstance: {fileID: 4245195500626654574}
+  m_PrefabInstance: {fileID: 3939017149910909506}
   m_PrefabAsset: {fileID: 0}

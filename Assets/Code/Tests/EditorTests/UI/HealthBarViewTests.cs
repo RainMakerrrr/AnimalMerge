@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using Code.Animals.Health;
 using Code.Animals.Movement;
@@ -13,6 +14,8 @@ namespace Code.Tests.EditorTests.UI
     [TestFixture]
     public class HealthBarViewTests
     {
+        private const float DefaultWidthPerGridCell = 100f;
+
         [SetUp]
         public void SetUp()
         {
@@ -29,167 +32,167 @@ namespace Code.Tests.EditorTests.UI
             }
         }
 
-        // ─── Helpers ───────────────────────────────────────────────────────────
-
-        private (HealthBarView view, AnimalHealth health, Image fillImage) CreateHealthBarView(
-            float maxHealth = 100f)
+        private static HealthBarFixture CreateHealthBarView(float maxHealth = 100f, UnitSize? unitSize = null)
         {
-            // Animal root with AnimalMovement (UnitSize.Small by default)
             var animalGo = new GameObject("Animal");
-            animalGo.AddComponent<AnimalMovement>();
+            var movement = animalGo.AddComponent<AnimalMovement>();
+            if (unitSize.HasValue)
+                SetPrivateField(movement, "_unitSize", unitSize.Value);
 
-            // HealthBar root (BillboardRotator's parent — not touched)
             var healthBarRoot = new GameObject("HealthBar");
             healthBarRoot.transform.SetParent(animalGo.transform);
 
-            // HealthBarCanvas — HealthBarView.Awake fires when component is added
-            var canvasGo = new GameObject("HealthBarCanvas");
+            var canvasGo = new GameObject("HealthBarCanvas", typeof(RectTransform));
             canvasGo.transform.SetParent(healthBarRoot.transform);
-            canvasGo.AddComponent<RectTransform>();
 
-            // Fill image child
-            var fillGo = new GameObject("Fill");
-            fillGo.transform.SetParent(canvasGo.transform);
-            var fillImage = fillGo.AddComponent<Image>();
+            var barGo = new GameObject("Bar", typeof(RectTransform));
+            barGo.transform.SetParent(canvasGo.transform);
+            var bar = (RectTransform)barGo.transform;
 
-            // AnimalHealth (separate GO — as in production)
+            var templateGo = new GameObject("SegmentTemplate", typeof(RectTransform));
+            templateGo.transform.SetParent(bar);
+            var fillGo = new GameObject("Fill", typeof(RectTransform));
+            fillGo.transform.SetParent(templateGo.transform);
+            var templateFill = fillGo.AddComponent<Image>();
+            templateFill.type = Image.Type.Filled;
+            var template = templateGo.AddComponent<HealthBarSegment>();
+            SetPrivateField(template, "_fill", templateFill);
+
+            var segments = canvasGo.AddComponent<SegmentedHealthBar>();
+            SetPrivateField(segments, "_container", bar);
+            SetPrivateField(segments, "_segmentTemplate", template);
+
+            var layout = canvasGo.AddComponent<HorizontalHealthBarLayout>();
+            SetPrivateField(layout, "_bar", bar);
+
             var health = HealthTestHelper.CreateAnimalHealth(maxHealth);
 
-            // Add HealthBarView — Awake fires immediately, _health is still null so OnEnable returns early
             var view = canvasGo.AddComponent<HealthBarView>();
-
-            // Wire serialized fields
             SetPrivateField(view, "_health", health);
-            SetPrivateField(view, "_fillImage", fillImage);
+            SetPrivateField(view, "_layout", (HealthBarLayout)layout);
+            SetPrivateField(view, "_segments", segments);
 
-            // Re-trigger OnEnable so it subscribes with the now-set _health
-            view.gameObject.SetActive(false);
-            view.gameObject.SetActive(true);
+            InvokeLifecycle(view, "Awake");
+            InvokeLifecycle(view, "OnEnable");
 
-            return (view, health, fillImage);
+            return new HealthBarFixture(animalGo, view, health, bar);
+        }
+
+        private static void InvokeLifecycle(HealthBarView view, string methodName)
+        {
+            typeof(HealthBarView)
+                .GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Instance)
+                !.Invoke(view, null);
         }
 
         private static void SetPrivateField<T>(object target, string fieldName, T value)
         {
-            typeof(HealthBarView)
+            target.GetType()
                 .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
                 !.SetValue(target, value);
         }
 
-        // ─── Tests ─────────────────────────────────────────────────────────────
-
-        /// <summary>UT-HB-001: fillAmount is updated to current/max on HealthChanged event</summary>
         [Test]
         public void HealthChanged_UpdatesFillAmount_ToCurrentOverMax()
         {
-            // Arrange
-            var (view, health, fillImage) = CreateHealthBarView(maxHealth: 100f);
+            var fixture = CreateHealthBarView(maxHealth: 100f);
             var attacker = AttackTestHelper.CreateMockAttack(damage: 40f);
 
-            // Act
-            health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
+            fixture.Health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
 
-            // Assert — 60/100 = 0.6
-            fillImage.fillAmount.Should().BeApproximately(0.6f, 0.001f);
+            fixture.DisplayedFill().Should().BeApproximately(0.6f, 0.001f);
 
-            // Cleanup
-            Object.DestroyImmediate(view.transform.root.gameObject);
-            Object.DestroyImmediate(health.gameObject);
+            fixture.Destroy();
             Object.DestroyImmediate(attacker.gameObject);
         }
 
-        /// <summary>UT-HB-002: When Max drops to 0, Refresh guard prevents divide-by-zero and leaves fillAmount unchanged</summary>
         [Test]
         public void HealthChanged_MaxIsZero_DoesNotChangeFillAmount()
         {
-            // Arrange — start at 50 HP then reduce to half
-            var (view, health, fillImage) = CreateHealthBarView(maxHealth: 100f);
+            var fixture = CreateHealthBarView(maxHealth: 100f);
             var attacker = AttackTestHelper.CreateMockAttack(damage: 50f);
-            health.TakeDamageAsync(attacker).GetAwaiter().GetResult(); // fillAmount = 0.5f
+            fixture.Health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
 
-            // Act — SetMaxHealth(0) fires HealthChanged; Refresh guard (Max <= 0) should return early
-            health.SetMaxHealth(0f);
+            fixture.Health.SetMaxHealth(0f);
 
-            // Assert — fillAmount unchanged at 0.5f, no NaN or exception
-            fillImage.fillAmount.Should().BeApproximately(0.5f, 0.001f);
+            fixture.DisplayedFill().Should().BeApproximately(0.5f, 0.001f);
 
-            // Cleanup
-            Object.DestroyImmediate(view.transform.root.gameObject);
-            Object.DestroyImmediate(health.gameObject);
+            fixture.Destroy();
             Object.DestroyImmediate(attacker.gameObject);
         }
 
-        /// <summary>UT-HB-003: Died event disables the health bar GameObject</summary>
         [Test]
         public void Died_DisablesHealthBarGameObject()
         {
-            // Arrange
-            var (view, health, _) = CreateHealthBarView(maxHealth: 30f);
+            var fixture = CreateHealthBarView(maxHealth: 30f);
             var attacker = AttackTestHelper.CreateMockAttack(damage: 30f);
 
-            // Act
-            health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
+            fixture.Health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
 
-            // Assert
-            view.gameObject.activeSelf.Should().BeFalse("Died event should call SetActive(false)");
+            fixture.View.gameObject.activeSelf.Should().BeFalse("Died event should hide the bar");
 
-            // Cleanup
-            Object.DestroyImmediate(view.transform.root.gameObject);
-            Object.DestroyImmediate(health.gameObject);
+            fixture.Destroy();
             Object.DestroyImmediate(attacker.gameObject);
         }
 
-        /// <summary>UT-HB-004: OnDisable unsubscribes from events — damage taken after disable does not update fillAmount</summary>
         [Test]
         public void OnDisable_Unsubscribes_FillAmountDoesNotUpdate()
         {
-            // Arrange
-            var (view, health, fillImage) = CreateHealthBarView(maxHealth: 100f);
-            fillImage.fillAmount.Should().BeApproximately(1f, 0.001f, "initial state");
+            var fixture = CreateHealthBarView(maxHealth: 100f);
+            fixture.DisplayedFill().Should().BeApproximately(1f, 0.001f, "initial state");
             var attacker = AttackTestHelper.CreateMockAttack(damage: 50f);
 
-            // Act — disable first, then apply damage
-            view.gameObject.SetActive(false);
-            health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
+            fixture.View.gameObject.SetActive(false);
+            InvokeLifecycle(fixture.View, "OnDisable");
+            fixture.Health.TakeDamageAsync(attacker).GetAwaiter().GetResult();
 
-            // Assert — fillAmount unchanged (unsubscribed)
-            fillImage.fillAmount.Should().BeApproximately(1f, 0.001f, "unsubscribed: no update expected");
+            fixture.DisplayedFill().Should().BeApproximately(1f, 0.001f, "unsubscribed: no update expected");
 
-            // Cleanup
-            Object.DestroyImmediate(view.transform.root.gameObject);
-            Object.DestroyImmediate(health.gameObject);
+            fixture.Destroy();
             Object.DestroyImmediate(attacker.gameObject);
         }
 
-        /// <summary>UT-HB-005: Awake scales sizeDelta.x by UnitSize.Width — Large (2×2) gets twice the base width</summary>
         [Test]
         public void Awake_LargeUnit_SizesDeltaXByUnitWidth()
         {
-            // Arrange — animal with Large UnitSize (width = 2)
-            var animalGo = new GameObject("Animal");
-            var movement = animalGo.AddComponent<AnimalMovement>();
-            typeof(AnimalMovement)
-                .GetField("_unitSize", BindingFlags.NonPublic | BindingFlags.Instance)
-                !.SetValue(movement, UnitSize.Large);
+            var fixture = CreateHealthBarView(unitSize: UnitSize.Large);
 
-            var healthBarRoot = new GameObject("HealthBar");
-            healthBarRoot.transform.SetParent(animalGo.transform);
+            fixture.Bar.sizeDelta.x.Should().BeApproximately(DefaultWidthPerGridCell * UnitSize.Large.Width, 0.01f);
 
-            var canvasGo = new GameObject("HealthBarCanvas");
-            canvasGo.transform.SetParent(healthBarRoot.transform);
-            canvasGo.AddComponent<RectTransform>();
+            fixture.Destroy();
+        }
 
-            const float defaultWidthPerCell = 100f; // matches HealthBarView serialized default
+        private sealed class HealthBarFixture
+        {
+            private readonly GameObject _animal;
 
-            // Act — Awake fires on AddComponent, reads UnitSize.Width from parent
-            var view = canvasGo.AddComponent<HealthBarView>();
-            var rt = view.GetComponent<RectTransform>();
+            public HealthBarFixture(GameObject animal, HealthBarView view, AnimalHealth health, RectTransform bar)
+            {
+                _animal = animal;
+                View = view;
+                Health = health;
+                Bar = bar;
+            }
 
-            // Assert — Large.Width = 2, so sizeDelta.x = 100 × 2 = 200
-            rt.sizeDelta.x.Should().BeApproximately(defaultWidthPerCell * UnitSize.Large.Width, 0.01f);
+            public HealthBarView View { get; }
+            public AnimalHealth Health { get; }
+            public RectTransform Bar { get; }
 
-            // Cleanup
-            Object.DestroyImmediate(animalGo);
+            public float DisplayedFill()
+            {
+                var segments = Bar.GetComponentsInChildren<HealthBarSegment>(true)
+                    .Where(segment => segment.gameObject.activeSelf)
+                    .ToArray();
+
+                segments.Should().NotBeEmpty("the bar should be built from the segment template");
+                return segments.Sum(segment => segment.Fill.fillAmount) / segments.Length;
+            }
+
+            public void Destroy()
+            {
+                Object.DestroyImmediate(_animal);
+                Object.DestroyImmediate(Health.gameObject);
+            }
         }
     }
 }

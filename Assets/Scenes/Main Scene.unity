@@ -4855,6 +4855,8 @@ MonoBehaviour:
   _preBattleConfig: {fileID: 11400000, guid: f3c8ce4c5279c49acba278594f4a6105, type: 2}
   _battleCameraConfig: {fileID: 11400000, guid: 8c4b1e3a90f74d0e9a6f2c5d17b84e33,
     type: 2}
+  _healthBarConfig: {fileID: 11400000, guid: 339bd051d140a4fdfb7842be614e068e, type: 2}
+  _battleVfxConfig: {fileID: 11400000, guid: 10ec8d7d244bc4dea98c32b0c9350fec, type: 2}
   _addAnimalButton: {fileID: 1864989976}
   _battleButton: {fileID: 692326473}
   _statsPanelPrefab: {fileID: 2128353874416221182, guid: fc12e71cb15294d2ab0884a828dd8757,

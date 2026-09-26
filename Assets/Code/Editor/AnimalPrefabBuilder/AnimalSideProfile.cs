@@ -15,6 +15,7 @@ namespace Code.Editor.AnimalPrefabBuilder
             Direction.North,
             new Color(0.96f, 0.8f, 0.47f, 1f),
             AnimalPrefabPaths.AnimalsFolder,
+            AnimalPrefabPaths.AllyHealthBarPrefab,
             "Merge",
             true,
             typeof(PlayerAnimalFacade));
@@ -26,6 +27,7 @@ namespace Code.Editor.AnimalPrefabBuilder
             Direction.South,
             new Color(0.2f, 0.5f, 1f, 1f),
             AnimalPrefabPaths.EnemiesFolder,
+            AnimalPrefabPaths.EnemyHealthBarPrefab,
             "Collider",
             false,
             typeof(EnemyAnimalFacade));
@@ -37,6 +39,7 @@ namespace Code.Editor.AnimalPrefabBuilder
             Direction direction,
             Color moveRangeColor,
             string outputFolder,
+            string healthBarPrefabPath,
             string colliderChildName,
             bool colliderIsTrigger,
             Type facadeBaseType)
@@ -47,6 +50,7 @@ namespace Code.Editor.AnimalPrefabBuilder
             Direction = direction;
             MoveRangeColor = moveRangeColor;
             OutputFolder = outputFolder;
+            HealthBarPrefabPath = healthBarPrefabPath;
             ColliderChildName = colliderChildName;
             ColliderIsTrigger = colliderIsTrigger;
             FacadeBaseType = facadeBaseType;
@@ -58,6 +62,7 @@ namespace Code.Editor.AnimalPrefabBuilder
         public Direction Direction { get; }
         public Color MoveRangeColor { get; }
         public string OutputFolder { get; }
+        public string HealthBarPrefabPath { get; }
         public string ColliderChildName { get; }
         public bool ColliderIsTrigger { get; }
         public Type FacadeBaseType { get; }

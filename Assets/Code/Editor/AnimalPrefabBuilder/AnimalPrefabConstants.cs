@@ -35,6 +35,8 @@ namespace Code.Editor.AnimalPrefabBuilder
         public const float TurnAngleThreshold = 10f;
         public const int TilesPerMoveBaseline = 2;
         public const float BaseMoveSpeed = 3f;
+        public const float AllyHealthBarBaseOffset = 0.1f;
+        public const float AllyHealthBarLateralMargin = 0.15f;
 
         public static int AnimalLayer => LayerMask.NameToLayer(AnimalLayerName);
         public static int EnemyLayer => LayerMask.NameToLayer(EnemyLayerName);

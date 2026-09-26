@@ -5,6 +5,7 @@ using Code.Abilities;
 using Code.GridPathfinding;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Health;
+using Code.Battle.Signals;
 using Code.Services.Physics;
 using UnityEngine;
 using Zenject;
@@ -29,6 +30,7 @@ namespace Code.Animals
         protected IDamageable _damageable;
         protected ITarget _targetOverride; // Specific target set via Attack(ITarget)
         private AbilityManager _abilityManager;
+        private SignalBus _signalBus;
 
         private bool _isAttackDone;
         private readonly List<IGridCell> _highlightedCells = new List<IGridCell>();
@@ -85,6 +87,12 @@ namespace Code.Animals
         {
             _physicsService = physicsService;
             _gridManager = gridManager;
+        }
+
+        [Inject]
+        private void ConstructSignalBus([InjectOptional] SignalBus signalBus)
+        {
+            _signalBus = signalBus;
         }
 
         /// <summary>
@@ -232,6 +240,9 @@ namespace Code.Animals
             var a = _attackPoint.position;
             var b = _attackPoint.position + transform.forward * (_forwardReach + _radius);
 
+            if (_isAoE)
+                PublishAoeLanded(a, b);
+
             // Fallback to direct Physics if service not injected (backward compatibility for tests)
             var count = _physicsService != null
                 ? _physicsService.OverlapCapsuleNonAlloc(a, b, _radius, _colliders, _mask)
@@ -291,6 +302,25 @@ namespace Code.Animals
             }
 
             _isAttackDone = true;
+        }
+
+        private void PublishAoeLanded(Vector3 capsuleStart, Vector3 capsuleEnd)
+        {
+            if (_signalBus == null)
+                return;
+
+            var center = (capsuleStart + capsuleEnd) * 0.5f;
+            center.y = transform.position.y;
+
+            var forward = transform.forward;
+            forward.y = 0f;
+
+            _signalBus.TryFire(new AoeAttackLandedSignal
+            {
+                Center = center,
+                Radius = _radius + Vector3.Distance(capsuleStart, capsuleEnd) * 0.5f,
+                Forward = forward.normalized
+            });
         }
 
         private void LateUpdate()

@@ -11,12 +11,14 @@ namespace Code.Editor.AnimalPrefabBuilder
             float colliderRadius,
             Vector3 attackPointLocalPosition,
             float healthBarHeightOffset,
+            float healthBarLateralOffset,
             Bounds sourceBounds)
         {
             ColliderCenter = colliderCenter;
             ColliderRadius = colliderRadius;
             AttackPointLocalPosition = attackPointLocalPosition;
             HealthBarHeightOffset = healthBarHeightOffset;
+            HealthBarLateralOffset = healthBarLateralOffset;
             SourceBounds = sourceBounds;
         }
 
@@ -24,6 +26,7 @@ namespace Code.Editor.AnimalPrefabBuilder
         public float ColliderRadius { get; }
         public Vector3 AttackPointLocalPosition { get; }
         public float HealthBarHeightOffset { get; }
+        public float HealthBarLateralOffset { get; }
         public Bounds SourceBounds { get; }
 
         public static DerivedGeometry Calculate(Bounds rootLocalBounds, UnitSize footprint, Vector3 rootScale)
@@ -40,8 +43,11 @@ namespace Code.Editor.AnimalPrefabBuilder
             var center = new Vector3(0f, rootLocalBounds.center.y, 0f);
             var attackPoint = new Vector3(0f, rootLocalBounds.center.y, radius);
             var healthBarOffset = rootLocalBounds.max.y * Mathf.Abs(rootScale.y);
+            var healthBarLateralOffset =
+                -(rootLocalBounds.extents.x * Mathf.Abs(rootScale.x)) - AnimalPrefabConstants.AllyHealthBarLateralMargin;
 
-            return new DerivedGeometry(center, radius, attackPoint, healthBarOffset, rootLocalBounds);
+            return new DerivedGeometry(
+                center, radius, attackPoint, healthBarOffset, healthBarLateralOffset, rootLocalBounds);
         }
 
         public string Describe(string prefabName) =>
