@@ -1,6 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Code.Animals.Merge.Services;
+using Code.Battle.Config;
 using Code.Battle.Input;
 using Code.Battle.PreBattle;
 using Code.Battle.Selection;
@@ -28,6 +29,8 @@ namespace Code.Battle.States
         private readonly IBattleReadinessService _battleReadiness;
         private readonly IEnemySelectionService _enemySelection;
         private readonly SignalBus _signalBus;
+        private readonly IStageAnnouncer _stageAnnouncer;
+        private readonly IPlayerInputLock _inputLock;
 
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isStarting;
@@ -43,7 +46,9 @@ namespace Code.Battle.States
             IAllySpawnService allySpawnService,
             IBattleReadinessService battleReadiness,
             IEnemySelectionService enemySelection,
-            SignalBus signalBus)
+            SignalBus signalBus,
+            IStageAnnouncer stageAnnouncer,
+            IPlayerInputLock inputLock)
         {
             _stateMachine = stateMachine;
             _flowController = flowController;
@@ -56,6 +61,8 @@ namespace Code.Battle.States
             _battleReadiness = battleReadiness;
             _enemySelection = enemySelection;
             _signalBus = signalBus;
+            _stageAnnouncer = stageAnnouncer;
+            _inputLock = inputLock;
         }
 
         public async UniTask Enter()
@@ -63,6 +70,8 @@ namespace Code.Battle.States
             Debug.Log("[PreBattleState] Entering - preparing units and waiting for start confirmation");
 
             _cancellationTokenSource = new CancellationTokenSource();
+            var stateToken = _cancellationTokenSource.Token;
+            var battleToken = _flowController.BattleToken;
 
             // Enable merge undo tracking during pre-battle phase
             _mergeUndoService.Enable();
@@ -109,40 +118,52 @@ namespace Code.Battle.States
                 return;
             }
 
-            Debug.Log($"[PreBattleState] Spawning enemies for stage {stageConfig.StageNumber} (Boss Stage: {stageConfig.IsBossStage})");
-
-            // Spawn enemies for current stage
-            var spawnedEnemies = await _enemySpawnService.SpawnEnemiesForStageAsync(
-                stageConfig,
-                _cancellationTokenSource.Token);
-
-            if (spawnedEnemies == null || spawnedEnemies.Count == 0)
+            using (_inputLock.Acquire())
             {
-                Debug.LogWarning("[PreBattleState] No enemies spawned");
+                Debug.Log($"[PreBattleState] Spawning enemies for stage {stageConfig.StageNumber} (Boss Stage: {stageConfig.IsBossStage})");
+
+                var spawnedEnemies = await _enemySpawnService.SpawnEnemiesForStageAsync(stageConfig, stateToken);
+
+                if (stateToken.IsCancellationRequested)
+                    return;
+
+                if (spawnedEnemies == null || spawnedEnemies.Count == 0)
+                {
+                    Debug.LogWarning("[PreBattleState] No enemies spawned");
+                }
+
+                foreach (var enemy in spawnedEnemies)
+                {
+                    _unitTracker.RegisterEnemyUnit(enemy);
+                }
+
+                if (spawnedEnemies != null && spawnedEnemies.Count > 0)
+                    _signalBus.Fire(new EnemiesSpawnedSignal { Units = spawnedEnemies });
+
+                Debug.Log($"[PreBattleState] Setup complete - {spawnedEnemies.Count} enemies registered");
+
+                _startBattleService.StartBattleRequested += OnStartBattleRequested;
+
+                _signalBus.Fire(new PreBattlePhaseStartedSignal
+                {
+                    IsLevelStart = isLevelStart,
+                    IsStartingPool = isStartingPool,
+                    PoolRemaining = _allySpawnPool.Remaining
+                });
+
+                using (var announceCts = CancellationTokenSource.CreateLinkedTokenSource(stateToken, battleToken))
+                {
+                    var completed = await _stageAnnouncer.AnnounceAsync(StageBannerKind.Merge, announceCts.Token);
+
+                    if (!completed)
+                    {
+                        Debug.Log("[PreBattleState] MERGE announcement interrupted - readiness stays inactive");
+                        return;
+                    }
+                }
+
+                _battleReadiness.Activate();
             }
-
-            // Register spawned enemies with tracker
-            foreach (var enemy in spawnedEnemies)
-            {
-                _unitTracker.RegisterEnemyUnit(enemy);
-            }
-
-            if (spawnedEnemies != null && spawnedEnemies.Count > 0)
-                _signalBus.Fire(new EnemiesSpawnedSignal { Units = spawnedEnemies });
-
-            Debug.Log($"[PreBattleState] Setup complete - {spawnedEnemies.Count} enemies registered");
-
-            // Subscribe to battle start event
-            _startBattleService.StartBattleRequested += OnStartBattleRequested;
-
-            _signalBus.Fire(new PreBattlePhaseStartedSignal
-            {
-                IsLevelStart = isLevelStart,
-                IsStartingPool = isStartingPool,
-                PoolRemaining = _allySpawnPool.Remaining
-            });
-
-            _battleReadiness.Activate();
         }
 
         public UniTask Exit()
@@ -189,11 +210,11 @@ namespace Code.Battle.States
 
         private async UniTask StartBattleAsync()
         {
-            Debug.Log("[PreBattleState] Battle start confirmed - transitioning to PlayerTurnState");
+            Debug.Log("[PreBattleState] Battle start confirmed - transitioning to BattleStartState");
 
             _signalBus.Fire(new BattleStartedSignal());
 
-            await _stateMachine.ChangeStateAsync<PlayerTurnState>();
+            await _stateMachine.ChangeStateAsync<BattleStartState>();
         }
     }
 }

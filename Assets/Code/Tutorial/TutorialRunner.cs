@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Code.Battle.Input;
 using Code.Battle.Signals;
 using Code.Tutorial.Progress;
 using Code.Tutorial.Signals;
@@ -14,6 +15,7 @@ namespace Code.Tutorial
         private readonly List<ITutorialStep> _steps;
         private readonly ITutorialProgressService _tutorialProgress;
         private readonly SignalBus _signalBus;
+        private readonly IPlayerInputLock _inputLock;
 
         private CancellationTokenSource _sequenceCancellation;
         private bool _isRunning;
@@ -21,11 +23,13 @@ namespace Code.Tutorial
         public TutorialRunner(
             List<ITutorialStep> steps,
             ITutorialProgressService tutorialProgress,
-            SignalBus signalBus)
+            SignalBus signalBus,
+            IPlayerInputLock inputLock)
         {
             _steps = steps;
             _tutorialProgress = tutorialProgress;
             _signalBus = signalBus;
+            _inputLock = inputLock;
         }
 
         public void Initialize()
@@ -56,6 +60,9 @@ namespace Code.Tutorial
 
             try
             {
+                if (!await _inputLock.WaitUntilUnlockedAsync(cancellationToken))
+                    return;
+
                 foreach (var step in _steps)
                 {
                     if (cancellationToken.IsCancellationRequested)

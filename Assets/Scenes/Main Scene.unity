@@ -4865,6 +4865,9 @@ MonoBehaviour:
     type: 3}
   _turnOrderPrefab: {fileID: 1389347501294995425, guid: 54920d705f2a74654824a0f5123e8a2c,
     type: 3}
+  _stageBannerConfig: {fileID: 11400000, guid: 8a3da47c70db9412caeb3607837a684f, type: 2}
+  _stageBannerPrefab: {fileID: 1879141884660535372, guid: 72d2e14fb5fee452cbd8f4877d697d90,
+    type: 3}
 --- !u!114 &2088146940
 MonoBehaviour:
   m_ObjectHideFlags: 0

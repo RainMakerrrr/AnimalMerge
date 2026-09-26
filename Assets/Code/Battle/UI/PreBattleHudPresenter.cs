@@ -16,6 +16,7 @@ namespace Code.Battle.UI
         private readonly IBattleReadinessService _battleReadiness;
         private readonly IUnitTracker _unitTracker;
         private readonly SignalBus _signalBus;
+        private readonly IPlayerInputLock _inputLock;
 
         private bool _isPhaseActive;
 
@@ -26,7 +27,8 @@ namespace Code.Battle.UI
             StartBattleService startBattleService,
             IBattleReadinessService battleReadiness,
             IUnitTracker unitTracker,
-            SignalBus signalBus)
+            SignalBus signalBus,
+            IPlayerInputLock inputLock)
         {
             _addAnimalButton = addAnimalButton;
             _battleButton = battleButton;
@@ -35,6 +37,7 @@ namespace Code.Battle.UI
             _battleReadiness = battleReadiness;
             _unitTracker = unitTracker;
             _signalBus = signalBus;
+            _inputLock = inputLock;
         }
 
         public void Initialize()
@@ -43,6 +46,7 @@ namespace Code.Battle.UI
             _battleButton.Clicked += OnBattleClicked;
 
             _unitTracker.PlayerUnitsChanged += OnPlayerUnitsChanged;
+            _inputLock.LockChanged += OnInputLockChanged;
 
             _signalBus.Subscribe<PreBattlePhaseStartedSignal>(OnPhaseStarted);
             _signalBus.Subscribe<PreBattlePhaseEndedSignal>(OnPhaseEnded);
@@ -58,6 +62,7 @@ namespace Code.Battle.UI
             _battleButton.Clicked -= OnBattleClicked;
 
             _unitTracker.PlayerUnitsChanged -= OnPlayerUnitsChanged;
+            _inputLock.LockChanged -= OnInputLockChanged;
 
             _signalBus.Unsubscribe<PreBattlePhaseStartedSignal>(OnPhaseStarted);
             _signalBus.Unsubscribe<PreBattlePhaseEndedSignal>(OnPhaseEnded);
@@ -65,7 +70,13 @@ namespace Code.Battle.UI
             _signalBus.Unsubscribe<BattleReadinessChangedSignal>(OnReadinessChanged);
         }
 
-        private void OnAddAnimalClicked() => _allySpawnService.RequestSpawn();
+        private void OnAddAnimalClicked()
+        {
+            if (_inputLock.IsLocked)
+                return;
+
+            _allySpawnService.RequestSpawn();
+        }
 
         private void OnBattleClicked() => _startBattleService.RequestStart();
 
@@ -96,11 +107,21 @@ namespace Code.Battle.UI
             Refresh();
         }
 
+        private void OnInputLockChanged()
+        {
+            if (!_isPhaseActive)
+                return;
+
+            Refresh();
+        }
+
         private void Refresh()
         {
-            _addAnimalButton.SetInteractable(_allySpawnService.CanSpawn);
+            var isUnlocked = !_inputLock.IsLocked;
+
+            _addAnimalButton.SetInteractable(isUnlocked && _allySpawnService.CanSpawn);
             _addAnimalButton.SetRemaining(_allySpawnService.PoolRemaining, _allySpawnService.PoolTotal);
-            _battleButton.SetReady(_battleReadiness.CanStartBattle);
+            _battleButton.SetReady(isUnlocked && _battleReadiness.CanStartBattle);
         }
 
         private void HideButtons()

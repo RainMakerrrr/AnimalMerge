@@ -39,7 +39,9 @@ namespace Code.Battle.StateMachine
             IBattleReadinessService battleReadiness,
             IEnemySelectionService enemySelection,
             SignalBus signalBus,
-            Framework.Code.Data.GameData gameData)
+            Framework.Code.Data.GameData gameData,
+            IStageAnnouncer stageAnnouncer,
+            IPlayerInputLock inputLock)
         {
             // Resolve circular dependency: FlowController needs StateMachine, StateMachine needs FlowController
             flowController.SetStateMachine(this);
@@ -47,8 +49,8 @@ namespace Code.Battle.StateMachine
             // Create all battle states with their dependencies
             _states = new Dictionary<Type, IBattleState>
             {
-                { typeof(PreBattleState), new PreBattleState(this, flowController, enemySpawnService, unitTracker, startBattleService, mergeUndoService, allySpawnPool, allySpawnService, battleReadiness, enemySelection, signalBus) },
-                { typeof(BattleStartState), new BattleStartState(this) },
+                { typeof(PreBattleState), new PreBattleState(this, flowController, enemySpawnService, unitTracker, startBattleService, mergeUndoService, allySpawnPool, allySpawnService, battleReadiness, enemySelection, signalBus, stageAnnouncer, inputLock) },
+                { typeof(BattleStartState), new BattleStartState(this, flowController, stageAnnouncer, inputLock) },
                 { typeof(PlayerTurnState), new PlayerTurnState(this, turnExecutor) },
                 { typeof(EnemyTurnState), new EnemyTurnState(this, turnExecutor) },
                 { typeof(CheckVictoryState), new CheckVictoryState(this, victoryChecker, flowController) },

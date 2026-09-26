@@ -1,5 +1,6 @@
 using Code.Animals.Facades;
 using Code.Animals.Selection;
+using Code.Battle.Input;
 using Code.Battle.Selection;
 using Code.Infrastructure.Services.Input;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace Code.Animals
         private Camera _camera;
         private IAnimalSelectionService _selectionService;
         private IEnemySelectionService _enemySelection;
+        private IPlayerInputLock _inputLock;
 
         private int _enemyLayer;
         private int _pickMask;
@@ -38,12 +40,14 @@ namespace Code.Animals
 
         [Inject]
         private void Construct(IInputService inputService, Camera mainCamera,
-            IAnimalSelectionService selectionService, IEnemySelectionService enemySelection)
+            IAnimalSelectionService selectionService, IEnemySelectionService enemySelection,
+            IPlayerInputLock inputLock)
         {
             _inputService = inputService;
             _camera = mainCamera;
             _selectionService = selectionService;
             _enemySelection = enemySelection;
+            _inputLock = inputLock;
 
             _enemyLayer = LayerMask.NameToLayer(EnemyLayerName);
             _pickMask = LayerMask.GetMask(AnimalLayerName, EnemyLayerName);
@@ -51,6 +55,12 @@ namespace Code.Animals
 
         private void Update()
         {
+            if (_inputLock.IsLocked)
+            {
+                AbortGesture();
+                return;
+            }
+
             if (_inputService.IsMouseDown)
             {
                 OnPress();
@@ -164,16 +174,13 @@ namespace Code.Animals
 
             if (_isDragging)
             {
-                var unitOccupancy = _current.Occupancy;
-
                 if (_current.Movement.TryPlace() == false)
                 {
-                    _current.transform.position = _originalPosition;
-                    unitOccupancy?.RestoreState();
+                    ReturnToOriginalPosition();
                 }
                 else
                 {
-                    unitOccupancy?.ClearSavedState();
+                    _current.Occupancy?.ClearSavedState();
                 }
 
                 _selectionService.Clear();
@@ -188,6 +195,23 @@ namespace Code.Animals
             }
 
             ResetGesture();
+        }
+
+        private void AbortGesture()
+        {
+            if (_current != null && _isDragging)
+                ReturnToOriginalPosition();
+
+            if (_selectionShown)
+                _selectionService.Clear();
+
+            ResetGesture();
+        }
+
+        private void ReturnToOriginalPosition()
+        {
+            _current.transform.position = _originalPosition;
+            _current.Occupancy?.RestoreState();
         }
 
         private void ResetGesture()

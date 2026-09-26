@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e7f29422f06b427c9cc2695b056f38c, type: 3}
+  m_Name: StageBannerConfig
+  m_EditorClassIdentifier: 
+  _bandExpandDuration: 0.15
+  _bandExpandEase: 6
+  _titleDelay: 0.15
+  _titleStartScale: 2.5
+  _titleFadeInDuration: 0.08
+  _slamDuration: 0.2
+  _squashScale: {x: 1.1, y: 0.9}
+  _slamEase: 8
+  _reboundDuration: 0.1
+  _stretchScale: {x: 0.95, y: 1.08}
+  _reboundEase: 6
+  _settleDuration: 0.1
+  _settleEase: 6
+  _subtitleDelay: 0.6
+  _subtitlePopDuration: 0.25
+  _subtitlePopEase: 27
+  _subtitleWobbleAngle: 12
+  _subtitleWobbleDuration: 0.4
+  _subtitleWobbleVibrato: 6
+  _subtitleWobbleElasticity: 0.6
+  _holdDuration: 0.8
+  _exitDuration: 0.3
+  _exitSlideDistance: 1300
+  _exitSide: 0
+  _exitEase: 26
+  _bandFadeOutDuration: 0.3
+  _styles:
+  - _kind: 0
+    _title: MERGE
+    _titleMaterial: {fileID: 2100000, guid: 60a37df464a5a4316a64a00010328a89, type: 2}
+    _titleGradient: {fileID: 11400000, guid: dda36b6e5fde24260a2db308d3ce5da0, type: 2}
+    _contentOffset: {x: -60, y: 20}
+    _subtitle: stage
+    _subtitleMaterial: {fileID: 2100000, guid: 2230e4073490e483db964d1ede71d9fd, type: 2}
+    _subtitleGradient: {fileID: 11400000, guid: 5b9d1501ab91b4153aee3462b19bdaab,
+      type: 2}
+    _subtitleOffset: {x: 230, y: -105}
+    _subtitleTiltZ: -8
+  - _kind: 1
+    _title: FIGHT!
+    _titleMaterial: {fileID: 2100000, guid: cf90c7f31eec34b11837ae034cceeee0, type: 2}
+    _titleGradient: {fileID: 11400000, guid: acb8972b5f047406e9a675432cb1fc5f, type: 2}
+    _contentOffset: {x: 0, y: 0}
+    _subtitle: 
+    _subtitleMaterial: {fileID: 0}
+    _subtitleGradient: {fileID: 0}
+    _subtitleOffset: {x: 0, y: 0}
+    _subtitleTiltZ: 0

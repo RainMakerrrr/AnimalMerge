@@ -13,6 +13,7 @@ using Code.Battle.Services;
 using Code.Battle.Signals;
 using Code.Battle.StateMachine;
 using Code.Battle.UI;
+using Code.Battle.UI.StageBanner;
 using Code.Battle.Vfx;
 using Code.Levels;
 using UnityEngine;
@@ -36,6 +37,8 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private AnimalStatsPanelView _statsPanelPrefab;
         [SerializeField] private EnemyCardView _enemyCardPrefab;
         [SerializeField] private TurnOrderView _turnOrderPrefab;
+        [SerializeField] private StageBannerConfig _stageBannerConfig;
+        [SerializeField] private StageBannerView _stageBannerPrefab;
 
         public override void InstallBindings()
         {
@@ -52,6 +55,7 @@ namespace Code.Infrastructure.Installers
             BindEnemySelection();
             BindEnemyCard();
             BindTurnOrder();
+            BindStageBanner();
             BindBattleStateMachine();
             BindBattleFlowController();
         }
@@ -89,6 +93,7 @@ namespace Code.Infrastructure.Installers
 
             // Battle start input system
             Container.Bind<StartBattleService>().AsSingle();
+            Container.Bind<IPlayerInputLock>().To<PlayerInputLock>().AsSingle();
 
             // Debug helpers - only in Unity Editor
 #if UNITY_EDITOR
@@ -211,6 +216,24 @@ namespace Code.Infrastructure.Installers
             Container.BindInterfacesAndSelfTo<TurnOrderPresenter>().AsSingle().NonLazy();
         }
 
+        private void BindStageBanner()
+        {
+            if (_stageBannerConfig == null || _stageBannerPrefab == null)
+            {
+                Container.Bind<IStageAnnouncer>().To<SilentStageAnnouncer>().AsSingle();
+                return;
+            }
+
+            Container.Bind<StageBannerConfig>().FromInstance(_stageBannerConfig).AsSingle();
+
+            Container.Bind<IStageBannerView>()
+                .To<StageBannerView>()
+                .FromComponentInNewPrefab(_stageBannerPrefab)
+                .AsSingle();
+
+            Container.BindInterfacesTo<StageBannerAnnouncer>().AsSingle();
+        }
+
         private void BindBattleStateMachine()
         {
             // BattleStateMachine will initialize itself via [Inject] method
@@ -247,6 +270,12 @@ namespace Code.Infrastructure.Installers
 
             if (_turnOrderPrefab == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_turnOrderPrefab)} is not assigned - assign Assets/Prefabs/TurnOrderView.prefab", this);
+
+            if (_stageBannerConfig == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_stageBannerConfig)} is not assigned - assign Assets/Settings/BattleConfigs/StageBannerConfig.asset", this);
+
+            if (_stageBannerPrefab == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_stageBannerPrefab)} is not assigned - assign Assets/Prefabs/StageBannerView.prefab", this);
         }
     }
 }
