@@ -68,6 +68,9 @@ namespace Code.Abilities
                 return;
             }
 
+            if (_attack != null)
+                _attack.PublishAttackLanded();
+
             await attackerHealth.TakeDamageAsync(_attack);
         }
     }

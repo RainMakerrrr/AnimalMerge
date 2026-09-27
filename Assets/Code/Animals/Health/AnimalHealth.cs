@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Code.Abilities;
+using Code.Animals.Facades;
+using Code.Battle.Signals;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -36,6 +38,8 @@ namespace Code.Animals.Health
         public bool IsDead => Current <= 0;
 
         private Collider[] _colliders;
+        private SignalBus _signalBus;
+        private AnimalFacade _owner;
 
         /// <summary>
         /// Constructs AnimalHealth with required dependencies.
@@ -45,6 +49,17 @@ namespace Code.Animals.Health
         {
             _colliders = colliders;
             _abilityManager = abilityManager;
+        }
+
+        public void BindOwner(AnimalFacade owner)
+        {
+            _owner = owner;
+        }
+
+        [Inject]
+        private void ConstructSignalBus([InjectOptional] SignalBus signalBus)
+        {
+            _signalBus = signalBus;
         }
 
         public void Upgrade(float multiplier)
@@ -137,6 +152,7 @@ namespace Code.Animals.Health
 
             // Fire event when damage is actually applied
             TakenDamage?.Invoke(attacker.Damage);
+            PublishDamaged(attacker);
             HealthChanged?.Invoke();
 
             _animator.TakeDamageAnimation();
@@ -145,6 +161,17 @@ namespace Code.Animals.Health
             {
                 Die();
             }
+        }
+
+        private void PublishDamaged(AnimalAttack attacker)
+        {
+            _signalBus?.TryFire(new UnitDamagedSignal
+            {
+                Attacker = attacker,
+                Target = this,
+                TargetUnit = _owner,
+                Damage = attacker.Damage
+            });
         }
 
         protected virtual async UniTask<bool> ApplyAbilities(AnimalAttack attacker)

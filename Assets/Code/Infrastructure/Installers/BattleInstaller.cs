@@ -14,6 +14,7 @@ using Code.Battle.Signals;
 using Code.Battle.StateMachine;
 using Code.Battle.UI;
 using Code.Battle.UI.StageBanner;
+using Code.Battle.UI.Vignette;
 using Code.Battle.Vfx;
 using Code.Levels;
 using UnityEngine;
@@ -39,6 +40,8 @@ namespace Code.Infrastructure.Installers
         [SerializeField] private TurnOrderView _turnOrderPrefab;
         [SerializeField] private StageBannerConfig _stageBannerConfig;
         [SerializeField] private StageBannerView _stageBannerPrefab;
+        [SerializeField] private UnitBattleFeedbackConfig _unitBattleFeedbackConfig;
+        [SerializeField] private BattleVignetteView _battleVignettePrefab;
 
         public override void InstallBindings()
         {
@@ -50,6 +53,7 @@ namespace Code.Infrastructure.Installers
             BindBattleCamera();
             BindHealthBar();
             BindBattleVfx();
+            BindUnitBattleFeedback();
             BindAbilityLines();
             BindAnimalStatsPanel();
             BindEnemySelection();
@@ -75,6 +79,8 @@ namespace Code.Infrastructure.Installers
             Container.DeclareSignal<BattleEndedSignal>().OptionalSubscriber();
             Container.DeclareSignal<EnemiesSpawnedSignal>().OptionalSubscriber();
             Container.DeclareSignal<AoeAttackLandedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<UnitDamagedSignal>().OptionalSubscriber();
+            Container.DeclareSignal<UnitAttackLandedSignal>().OptionalSubscriber();
         }
 
         private void BindServices()
@@ -157,6 +163,7 @@ namespace Code.Infrastructure.Installers
         {
             Container.Bind<BattleCameraConfig>().FromInstance(_battleCameraConfig).AsSingle();
             Container.BindInterfacesTo<BattleCameraService>().AsSingle();
+            Container.BindInterfacesTo<CameraShakeService>().AsSingle();
             Container.BindInterfacesAndSelfTo<BattleCameraPresenter>().AsSingle().NonLazy();
         }
 
@@ -175,6 +182,32 @@ namespace Code.Infrastructure.Installers
             Container.Bind<IVfxSpawner>().To<VfxSpawner>().AsSingle();
             Container.BindInterfacesAndSelfTo<UnitSpawnVfxPresenter>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<AoeAttackVfxPresenter>().AsSingle().NonLazy();
+        }
+
+        private void BindUnitBattleFeedback()
+        {
+            if (_unitBattleFeedbackConfig == null)
+            {
+                Debug.LogError($"[BattleInstaller] {nameof(_unitBattleFeedbackConfig)} is not assigned - assign Assets/Settings/BattleConfigs/UnitBattleFeedbackConfig.asset", this);
+                return;
+            }
+
+            Container.Bind<UnitBattleFeedbackConfig>().FromInstance(_unitBattleFeedbackConfig).AsSingle();
+            Container.BindInterfacesAndSelfTo<UnitStepShakePresenter>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<UnitAttackShakePresenter>().AsSingle().NonLazy();
+
+            if (_battleVfxConfig != null)
+                Container.BindInterfacesAndSelfTo<UnitHitMarkVfxPresenter>().AsSingle().NonLazy();
+
+            if (_battleVignettePrefab == null)
+                return;
+
+            Container.Bind<IBattleVignetteView>()
+                .To<BattleVignetteView>()
+                .FromComponentInNewPrefab(_battleVignettePrefab)
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<BattleVignettePresenter>().AsSingle().NonLazy();
         }
 
         private void BindAbilityLines()
@@ -277,6 +310,12 @@ namespace Code.Infrastructure.Installers
 
             if (_stageBannerPrefab == null)
                 Debug.LogError($"[BattleInstaller] {nameof(_stageBannerPrefab)} is not assigned - assign Assets/Prefabs/StageBannerView.prefab", this);
+
+            if (_unitBattleFeedbackConfig == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_unitBattleFeedbackConfig)} is not assigned - assign Assets/Settings/BattleConfigs/UnitBattleFeedbackConfig.asset", this);
+
+            if (_battleVignettePrefab == null)
+                Debug.LogError($"[BattleInstaller] {nameof(_battleVignettePrefab)} is not assigned - assign Assets/Prefabs/BattleVignetteView.prefab", this);
         }
     }
 }

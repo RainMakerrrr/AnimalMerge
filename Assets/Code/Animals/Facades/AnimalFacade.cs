@@ -129,6 +129,7 @@ namespace Code.Animals.Facades
 
             InitBehaviours();
             _health.Construct(_colliders, _abilityManager);
+            _health.BindOwner(this);
 
             // Inject AbilityManager into AnimalAttack for post-attack abilities
             if (_attack != null)

@@ -51,6 +51,8 @@ namespace Code.Animals.Movement
         private float _currentTurnDirection;
         private float _targetTurnDirection;
 
+        public event Action StepTaken;
+
         public Vector3 Offset => new Vector3(0f, 0f, _zOffset);
 
         private IPathfindingService _pathfinder;
@@ -541,6 +543,9 @@ namespace Code.Animals.Movement
             var tween = transform.DOPath(pathPositions, duration)
                 .OnWaypointChange(i =>
                 {
+                    if (i > 0)
+                        StepTaken?.Invoke();
+
                     var nextIndex = i + 1;
                     if (nextIndex >= pathPositions.Length) return;
 

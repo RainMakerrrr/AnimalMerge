@@ -39,6 +39,7 @@ namespace Code.Animals
         protected AnimalType _animalType;
 
         public float Damage => _damage;
+        public AnimalType AnimalType => _animalType;
         public bool IsAoE => _isAoE;
 
         // Protected properties for derived classes
@@ -224,6 +225,7 @@ namespace Code.Animals
             if (targetSnapshot != null && !_isAoE)
             {
                 Debug.Log($"[Attack] Using target override: {targetSnapshot.Damageable}");
+                PublishAttackLanded();
                 await targetSnapshot.Damageable.TakeDamageAsync(this);
 
                 // Execute post-attack abilities if AbilityManager exists
@@ -288,6 +290,7 @@ namespace Code.Animals
                     .First();
 
                 Debug.Log($"[Attack] Single-target: Attacking closest target {closestTarget}");
+                PublishAttackLanded();
                 await closestTarget.TakeDamageAsync(this);
                 _isAttackDone = true;
                 return;
@@ -295,6 +298,9 @@ namespace Code.Animals
 
             // Если AoE - атакуем всех найденных целей
             Debug.Log($"[Attack] AoE: Attacking {damagedTargets.Count} targets");
+            if (damagedTargets.Count > 0)
+                PublishAttackLanded();
+
             foreach (var health in damagedTargets)
             {
                 Debug.Log($"[Attack] Applying damage to: {health}");
@@ -303,6 +309,9 @@ namespace Code.Animals
 
             _isAttackDone = true;
         }
+
+        public void PublishAttackLanded() =>
+            _signalBus?.TryFire(new UnitAttackLandedSignal { Attacker = this });
 
         private void PublishAoeLanded(Vector3 capsuleStart, Vector3 capsuleEnd)
         {

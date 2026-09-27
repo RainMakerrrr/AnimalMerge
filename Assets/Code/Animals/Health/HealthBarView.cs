@@ -16,6 +16,9 @@ namespace Code.Animals.Health
         [SerializeField] private HealthBarBlinker _blinker;
 
         private HealthBarConfig _config;
+        private Transform _owner;
+        private UnitSize _footprint = UnitSize.Small;
+        private Vector3 _appliedOwnerScale = Vector3.one;
         private Tween _fillTween;
         private float _displayed;
         private bool _isLowHealth;
@@ -27,6 +30,7 @@ namespace Code.Animals.Health
         private void Awake()
         {
             SetLayerRecursively(gameObject, LayerMask.NameToLayer(HealthBarLayerName));
+            ResolveOwner();
             BuildBar();
         }
 
@@ -53,21 +57,46 @@ namespace Code.Animals.Health
             _health.Died -= OnDied;
         }
 
+        private void LateUpdate()
+        {
+            if (_owner == null || _layout == null) return;
+
+            var ownerScale = _owner.localScale;
+
+            if (ownerScale == _appliedOwnerScale || IsDegenerate(ownerScale)) return;
+
+            ApplyLayout(ownerScale);
+        }
+
         private void OnDestroy() => KillFillTween();
+
+        private void ResolveOwner()
+        {
+            var movement = GetComponentInParent<AnimalMovement>();
+
+            if (movement == null) return;
+
+            _owner = movement.transform;
+            _footprint = movement.UnitSize;
+        }
 
         private void BuildBar()
         {
             if (_layout == null || _segments == null) return;
 
-            var movement = GetComponentInParent<AnimalMovement>();
-            var ownerScale = movement != null ? movement.transform.localScale : Vector3.one;
-            var footprint = movement != null ? movement.UnitSize : UnitSize.Small;
+            var ownerScale = _owner != null ? _owner.localScale : Vector3.one;
 
-            if (Mathf.Approximately(ownerScale.x, 0f) || Mathf.Approximately(ownerScale.y, 0f))
+            if (IsDegenerate(ownerScale))
                 ownerScale = Vector3.one;
 
-            var segmentCount = _layout.Apply(ownerScale, footprint);
+            var segmentCount = ApplyLayout(ownerScale);
             _segments.Build(segmentCount);
+        }
+
+        private int ApplyLayout(Vector3 ownerScale)
+        {
+            _appliedOwnerScale = ownerScale;
+            return _layout.Apply(ownerScale, _footprint);
         }
 
         private void OnHealthChanged()
@@ -152,6 +181,9 @@ namespace Code.Animals.Health
         }
 
         private bool HasHealthData() => _health.Max > 0f;
+
+        private static bool IsDegenerate(Vector3 scale) =>
+            Mathf.Approximately(scale.x, 0f) || Mathf.Approximately(scale.y, 0f);
 
         private float TargetFill() =>
             HasHealthData() ? Mathf.Clamp01(_health.Current / _health.Max) : 0f;

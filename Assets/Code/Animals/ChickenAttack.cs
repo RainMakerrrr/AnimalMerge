@@ -147,6 +147,7 @@ namespace Code.Animals
             Debug.Log($"[ChickenAttack] Dealing damage to {target}");
 
             // Deal damage
+            PublishAttackLanded();
             await target.Damageable.TakeDamageAsync(this);
         }
 
