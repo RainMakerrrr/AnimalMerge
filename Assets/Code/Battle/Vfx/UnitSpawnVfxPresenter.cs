@@ -66,16 +66,8 @@ namespace Code.Battle.Vfx
                 return;
 
             var position = unit.transform.position + Vector3.up * _config.SpawnPuffHeightOffset;
-            _vfxSpawner.Spawn(_config.SpawnPuffPrefab, position, Quaternion.identity, CalculateScale(unit));
-        }
-
-        private float CalculateScale(AnimalFacade unit)
-        {
-            if (unit.Movement == null)
-                return _config.SpawnPuffScalePerCell;
-
-            var unitSize = unit.Movement.UnitSize;
-            return Mathf.Max(unitSize.Width, unitSize.Height) * _config.SpawnPuffScalePerCell;
+            var scale = UnitVfxScale.Calculate(unit, _config.SpawnPuffScalePerCell);
+            _vfxSpawner.Spawn(_config.SpawnPuffPrefab, position, Quaternion.identity, scale);
         }
     }
 }

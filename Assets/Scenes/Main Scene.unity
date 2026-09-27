@@ -4868,6 +4868,10 @@ MonoBehaviour:
   _stageBannerConfig: {fileID: 11400000, guid: 8a3da47c70db9412caeb3607837a684f, type: 2}
   _stageBannerPrefab: {fileID: 1879141884660535372, guid: 72d2e14fb5fee452cbd8f4877d697d90,
     type: 3}
+  _unitBattleFeedbackConfig: {fileID: 11400000, guid: 767d9781d438f435783c15f9c6e9b218,
+    type: 2}
+  _battleVignettePrefab: {fileID: 152303743588881606, guid: bf878c046b698478fa36248e0bfae11d,
+    type: 3}
 --- !u!114 &2088146940
 MonoBehaviour:
   m_ObjectHideFlags: 0

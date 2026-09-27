@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfcb944b8262c491c9fe7e278a925fcc, type: 3}
+  m_Name: UnitBattleFeedbackConfig
+  m_EditorClassIdentifier: 
+  _vignetteDelay: 0
+  _vignetteFadeInDuration: 0.6
+  _vignetteFadeInEase: 6
+  _vignetteFadeOutDuration: 0.4
+  _vignetteFadeOutEase: 5
+  _vignetteMaxAlpha: 1
+  _entries:
+  - _type: 6
+    _showBattleVignette: 1
+    _hitMark:
+      _prefab: {fileID: 1237125882845751524, guid: e4516147c293940e6a6bb4a1bfaf4b79,
+        type: 3}
+      _scalePerCell: 1
+      _heightOffset: 1
+      _towardCameraOffset: 0.5
+    _shakeCameraOnStep: 1
+    _stepShake:
+      _duration: 0.25
+      _strength: {x: 0.6, y: 0.3, z: 0.4}
+      _vibrato: 12
+      _randomness: 90
+      _fadeOut: 1
+    _shakeCameraOnAttack: 1
+    _attackShake:
+      _duration: 0.3
+      _strength: {x: 1.2, y: 0.6, z: 0.8}
+      _vibrato: 14
+      _randomness: 90
+      _fadeOut: 1
